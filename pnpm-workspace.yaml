@@ -1,0 +1,5 @@
+# Packages that may run a build script when they install. pnpm blocks all
+# others, and fails the install when a blocked one has a script.
+allowBuilds:
+  # Checks that its platform binary is in place.
+  esbuild: true
