@@ -24,6 +24,12 @@
       "groupName": "Astro"
     },
     {
+      "description": "astro check (pnpm check) does not support TypeScript 7 yet. Remove this rule once it does",
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["typescript"],
+      "allowedVersions": "<7"
+    },
+    {
       "description": "Leave runner labels and action version inputs alone",
       "matchManagers": ["github-actions"],
       "matchDepTypes": ["github-runner", "uses-with"],
