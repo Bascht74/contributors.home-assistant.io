@@ -1,0 +1,29 @@
+---
+title: Input text
+description: The more-info view of a text helper, a text field in the state row.
+sidebarGroup: Helpers
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+<Demo hass>
+  <ha-demo-more-info entity="input_text.welcome_message"></ha-demo-more-info>
+</Demo>
+
+## What it shows
+
+A text helper (`input_text`) holds a short piece of text, like the welcome message above. It doesn't have the newer more-info design. Its control lives in the state row at the top of the dialog: the icon and name on the left, and a [text input](/design/components/input/) with the current text on the right.
+
+Below the state row, the dialog shows the history of the helper and its activity. The demo shows only the state row.
+
+## Design notes
+
+- The field follows the settings of the helper: the minimum and maximum length, the pattern the text must match, and the mode. In password mode, the text is hidden.
+- When the text is empty, the field shows a placeholder, so it doesn't look broken.
+- The new text is saved when you confirm the field, and only when it changed. Typing alone sends nothing.
+
+## In code
+
+The state row is `state-card-input_text` in `src/state-summary/state-card-input_text.ts`. There is no `more-info-input_text`: the domain is in `DOMAINS_HIDE_DEFAULT_MORE_INFO` in `src/dialogs/more-info/const.ts`, so the dialog shows only the row and the history.
+
+Source: [`state-card-input_text.ts`](https://github.com/home-assistant/frontend/blob/dev/src/state-summary/state-card-input_text.ts)

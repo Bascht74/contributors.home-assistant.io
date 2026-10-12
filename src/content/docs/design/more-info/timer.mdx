@@ -1,0 +1,39 @@
+---
+title: Timer
+description: The more-info view of a timer helper, with a live countdown, a duration field, and buttons to start, pause, and cancel.
+sidebarGroup: Helpers
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+<Demo hass>
+  <ha-demo-more-info entity="timer.laundry"></ha-demo-more-info>
+  <ha-demo-more-info entity="timer.tea"></ha-demo-more-info>
+</Demo>
+
+## What it shows
+
+The state at the top of a timer is the countdown. While the timer runs, it ticks down live, like **22:52**. When it is paused, the state is added, like **22:52 (Paused)**. When it is idle, it shows **Idle**.
+
+Below it is a duration field, with hours, minutes, and seconds. It starts at the duration the timer is set up with, and stays there while the timer runs, so it doesn't jump around with the countdown. Change it to start the timer for a different time.
+
+Below the field, a row of text [buttons](/design/components/button/) holds the actions. Which ones show depends on the state:
+
+- **Idle**: **Start**, to start the timer with the duration in the field.
+- **Active**: **Set**, to restart with the duration in the field, **Pause**, **Cancel**, and **Finish**.
+- **Paused**: **Set**, **Start** to continue, **Cancel**, and **Finish**.
+
+The laundry timer is running, so it gets **Set**, **Pause**, **Cancel**, and **Finish**. The tea timer is idle, so it only gets **Start**.
+
+## Design notes
+
+- The actions are plain text buttons, not big controls. A timer is about the time, so the countdown and the field get the attention.
+- When the timer finishes while the dialog is open, the countdown pulses twice, so you notice even when you are not looking at the numbers.
+- Timers can have presets, a row of fixed durations below the actions to start the timer with one tap. Those come from the entity settings, and are not part of these demos.
+- The duration you enter can be longer than the duration the timer is set up with.
+
+## In code
+
+The view is `more-info-timer` in `src/dialogs/more-info/controls/more-info-timer.ts`. The presets are `ha-more-info-timer-presets` in `src/dialogs/more-info/components/timers/`. The countdown text comes from `computeDisplayTimer` in `src/data/timer.ts`.
+
+Source: [`more-info-timer.ts`](https://github.com/home-assistant/frontend/blob/dev/src/dialogs/more-info/controls/more-info-timer.ts)

@@ -1,0 +1,1203 @@
+---
+// Site search with Pagefind. The index is built after `astro build`, runs
+// fully in the browser, and talks to no outside service.
+//
+// Inside an area, results start out limited to that area. Chips at the top
+// widen the search to all areas, or move it to another one.
+import { AREAS, type Area } from "../data/areas";
+import { entriesByPath, pathOf } from "../lib/docs";
+import Icon from "./Icon.astro";
+
+interface Props {
+  area?: Area;
+}
+
+const { area } = Astro.props;
+
+// On small screens the button shows only the icon, so the label is also
+// its accessible name.
+const triggerLabel = area ? `Search ${area.title}` : "Search";
+
+// Area titles for the chips and the results. The blog is not an area, but
+// it is a filter value of its own.
+const areaTitles = Object.fromEntries([
+  ...AREAS.map((item) => [item.id, item.title]),
+  ["blog", "Blog"],
+]);
+
+// A few places to start from, shown before you type anything.
+const firstContribution = area && (await entriesByPath()).get(`${area.id}/first-contribution`);
+const startingPoints = [
+  firstContribution && {
+    label: area.id === "start" ? "Your first contribution" : `Your first contribution to ${area.title}`,
+    description: firstContribution.data.description,
+    href: `/${pathOf(firstContribution)}/`,
+  },
+  area &&
+    area.id !== "start" && {
+      label: `${area.title} overview`,
+      description: area.description,
+      href: `/${area.id}/`,
+    },
+  !area && {
+    label: "Your first contribution",
+    description: "Pick the path that fits your skills, and take one small first step.",
+    href: "/start/first-contribution/",
+  },
+  area?.id !== "start" && {
+    label: "Get started",
+    description: "How the project works, and how to make your first contribution.",
+    href: "/start/",
+  },
+  area?.id !== "glossary" && {
+    label: "Glossary",
+    description: "One term, one meaning. Look up what a word means here.",
+    href: "/glossary/",
+  },
+  !area && {
+    label: "Blog",
+    description: "News and changes for everyone who contributes.",
+    href: "/blog/",
+  },
+].filter(Boolean);
+---
+
+<site-search
+  data-area={area?.id}
+  data-areas={JSON.stringify(areaTitles)}
+  data-start={JSON.stringify(startingPoints)}
+>
+  <button class="trigger" type="button" data-open aria-haspopup="dialog" aria-label={triggerLabel}>
+    <Icon name="search" size={18} />
+    <span class="trigger-label">{triggerLabel}</span>
+    <kbd aria-hidden="true">/</kbd>
+  </button>
+
+  <dialog aria-label="Search">
+    <form class="search-form" role="search">
+      <Icon name="search" size={20} />
+      <label for="search-input" class="sr-only">Search</label>
+      <input
+        id="search-input"
+        type="search"
+        role="combobox"
+        aria-autocomplete="list"
+        aria-controls="search-results"
+        aria-expanded="false"
+        autocomplete="off"
+        autocapitalize="off"
+        spellcheck="false"
+        enterkeyhint="go"
+        placeholder={area ? `Search ${area.title}` : "Search all areas"}
+      />
+      <button type="button" class="close" data-close aria-label="Close search">
+        <Icon name="x" size={20} />
+      </button>
+    </form>
+
+    <div class="filters" role="group" aria-label="Search in" data-filters></div>
+
+    <div class="body" data-body>
+      <div class="status" data-status></div>
+      <ul id="search-results" class="results" role="listbox" aria-label="Search results" data-results>
+      </ul>
+      <button type="button" class="more" data-more hidden>Show more results</button>
+    </div>
+
+    <p class="sr-only" role="status" data-announce></p>
+
+    <footer class="hints" aria-hidden="true">
+      <span><kbd>↑</kbd><kbd>↓</kbd> to move</span>
+      <span><kbd>Enter</kbd> to open</span>
+      <span><kbd>Esc</kbd> to close</span>
+    </footer>
+  </dialog>
+</site-search>
+
+<script>
+  interface WeightedLocation {
+    weight: number;
+    balanced_score: number;
+    location: number;
+  }
+
+  interface SubResult {
+    title: string;
+    url: string;
+    anchor?: { element: string; id: string };
+    excerpt: string;
+    weighted_locations: WeightedLocation[];
+  }
+
+  interface ResultData {
+    url: string;
+    excerpt: string;
+    meta: { title?: string; trail?: string; aliases?: string; definition?: string };
+    filters: { area?: string[] };
+    sub_results: SubResult[];
+  }
+
+  interface ResultHandle {
+    id: string;
+    score: number;
+    data(): Promise<ResultData>;
+  }
+
+  interface SearchResponse {
+    results: ResultHandle[];
+    unfilteredResultCount: number;
+    totalFilters: { area?: Record<string, number> };
+  }
+
+  interface Pagefind {
+    options(options: object): Promise<void>;
+    init(): Promise<void>;
+    filters(): Promise<Record<string, Record<string, number>>>;
+    preload(query: string, options?: object): Promise<void>;
+    search(query: string, options?: { filters?: Record<string, string> }): Promise<SearchResponse>;
+  }
+
+  // The results in the order to show them, and the glossary term to show
+  // as a definition above them, if you searched for one by its name.
+  interface Ranking {
+    ranked: ResultHandle[];
+    definition?: ResultHandle;
+  }
+
+  interface StartingPoint {
+    label: string;
+    description: string;
+    href: string;
+  }
+
+  // Render this many results at first, and this many more per "Show more".
+  const PAGE_SIZE = 10;
+
+  // Matching sections shown under a page.
+  const MAX_SECTIONS = 3;
+
+  // Wait for a pause in typing before searching.
+  const DEBOUNCE_MS = 150;
+
+  // A blog post scores this much of a docs page with the same match. Posts
+  // describe a change at one moment in time; the docs are kept current.
+  const BLOG_FACTOR = 0.3;
+
+  // Glossary pages are short, which Pagefind rewards. Unless you searched
+  // for the term itself, the page that explains the topic is more useful.
+  const GLOSSARY_FACTOR = 0.45;
+
+  // A variable, so neither the bundler nor TypeScript tries to resolve it:
+  // the file only exists after the Pagefind step of the build.
+  const PAGEFIND_URL = "/pagefind/pagefind.js";
+
+  // "Actions " and "actions" are the same query.
+  function normalize(text: string): string {
+    return text.toLowerCase().replace(/\s+/g, " ").trim();
+  }
+
+  class SiteSearch extends HTMLElement {
+    private pagefind?: Promise<Pagefind | undefined>;
+    private dialog!: HTMLDialogElement;
+    private input!: HTMLInputElement;
+    private list!: HTMLUListElement;
+    private filtersBar!: HTMLElement;
+    private status!: HTMLElement;
+    private announcer!: HTMLElement;
+    private moreButton!: HTMLButtonElement;
+
+    private areaTitles: Record<string, string> = {};
+    private filter = "";
+    private timer?: number;
+    // Every search gets a number. Results of an older one are dropped.
+    private generation = 0;
+    private ranked: ResultHandle[] = [];
+    private rendered = 0;
+    // The search generation that has a "Show more" in flight, so a double
+    // press does not append the same batch twice.
+    private loadingMore?: number;
+    private optionCount = 0;
+    private activeOption?: HTMLElement;
+
+    connectedCallback() {
+      this.dialog = this.querySelector("dialog")!;
+      this.input = this.querySelector<HTMLInputElement>("#search-input")!;
+      this.list = this.querySelector<HTMLUListElement>("[data-results]")!;
+      this.filtersBar = this.querySelector<HTMLElement>("[data-filters]")!;
+      this.status = this.querySelector<HTMLElement>("[data-status]")!;
+      this.announcer = this.querySelector<HTMLElement>("[data-announce]")!;
+      this.moreButton = this.querySelector<HTMLButtonElement>("[data-more]")!;
+
+      this.areaTitles = JSON.parse(this.dataset.areas ?? "{}");
+      this.filter = this.dataset.area ?? "";
+
+      const trigger = this.querySelector<HTMLButtonElement>("[data-open]")!;
+      trigger.addEventListener("click", () => this.open());
+
+      // Start fetching Pagefind when the visitor is about to search.
+      trigger.addEventListener("pointerenter", () => this.loadPagefind(), { once: true });
+      trigger.addEventListener("focus", () => this.loadPagefind(), { once: true });
+
+      this.input.addEventListener("input", () => this.scheduleSearch());
+      this.input.addEventListener("keydown", (event) => this.onKeydown(event));
+
+      this.querySelector("form")!.addEventListener("submit", (event) => {
+        event.preventDefault();
+        this.openOption(this.activeOption ?? this.options()[0]);
+      });
+
+      this.querySelector("[data-close]")!.addEventListener("click", () => this.close());
+
+      this.moreButton.addEventListener("click", () => this.renderMore(this.generation, true));
+
+      // The pointer moves the highlight too, so the keyboard picks up where
+      // the mouse left off.
+      this.list.addEventListener("pointermove", (event) => {
+        const option = (event.target as HTMLElement).closest<HTMLElement>("[role=option]");
+        if (option && option !== this.activeOption) {
+          this.setActive(option, false);
+        }
+      });
+
+      // A link to a section of the page you are on does not load a new page,
+      // so the dialog has to get out of the way by itself.
+      this.list.addEventListener("click", (event) => {
+        const link = (event.target as HTMLElement).closest("a");
+        if (link && link.pathname === location.pathname) {
+          this.close();
+        }
+      });
+
+      // Close when clicking the backdrop, like most search dialogs do.
+      this.dialog.addEventListener("click", (event) => {
+        if (event.target === this.dialog) {
+          this.close();
+        }
+      });
+
+      // "/" opens search, unless you are typing somewhere. Ctrl+K and Cmd+K
+      // open it from anywhere.
+      document.addEventListener("keydown", (event) => {
+        const target = event.target as HTMLElement;
+        const typing =
+          target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName);
+        const slash = event.key === "/" && !typing && !this.dialog.open;
+        const shortcut = event.key.toLowerCase() === "k" && (event.ctrlKey || event.metaKey);
+
+        if (slash || shortcut) {
+          event.preventDefault();
+          this.open();
+        }
+      });
+
+      this.renderFilters();
+      this.renderStart();
+    }
+
+    open() {
+      if (!this.dialog.open) {
+        this.dialog.showModal();
+      }
+
+      this.input.focus();
+      this.input.select();
+      this.loadPagefind();
+    }
+
+    close() {
+      this.dialog.close();
+    }
+
+    // Loaded on first use only, with the ranking tuned for this site.
+    loadPagefind(): Promise<Pagefind | undefined> {
+      this.pagefind ??= import(/* @vite-ignore */ PAGEFIND_URL)
+        .then(async (module: Pagefind) => {
+          await module.options({
+            excerptLength: 22,
+            ranking: {
+              // The title and every name of a glossary term count most. The
+              // trail is only there to show where a page lives.
+              metaWeights: { title: 6, aliases: 8, trail: 0 },
+            },
+          });
+          await module.init();
+
+          // Load the filter index up front: without it, the counts on the
+          // area chips stay empty until the first filtered search.
+          await module.filters();
+          return module;
+        })
+        .catch(() => {
+          this.showMessage(
+            "Search is not available in development. Run a build and preview it to try search.",
+          );
+          return undefined;
+        });
+
+      return this.pagefind;
+    }
+
+    scheduleSearch() {
+      window.clearTimeout(this.timer);
+      const query = this.input.value.trim();
+
+      if (!query) {
+        this.generation++;
+        this.renderFilters();
+        this.renderStart();
+        return;
+      }
+
+      // Fetch the index chunks for the words right away, search after the
+      // pause in typing.
+      this.pagefind?.then((pagefind) => pagefind?.preload(query));
+      this.timer = window.setTimeout(() => this.search(), DEBOUNCE_MS);
+    }
+
+    async search() {
+      const query = this.input.value.trim();
+      const generation = ++this.generation;
+
+      if (!query) {
+        return;
+      }
+
+      const pagefind = await this.loadPagefind();
+      if (!pagefind) {
+        return;
+      }
+
+      const filters = this.filter ? { area: this.filter } : undefined;
+      const response = await pagefind.search(query, { filters });
+      const { ranked, definition } = await this.rank(pagefind, query, response);
+
+      if (generation !== this.generation) {
+        return;
+      }
+
+      this.ranked = ranked;
+      this.rendered = 0;
+      this.renderFilters(response);
+      this.list.replaceChildren();
+      this.optionCount = 0;
+      this.setActive(undefined);
+
+      if (ranked.length === 0) {
+        this.renderNoResults(query, response.unfilteredResultCount);
+        return;
+      }
+
+      this.status.replaceChildren();
+      await this.renderDefinition(generation, definition);
+      await this.renderMore(generation, false);
+
+      if (generation !== this.generation) {
+        return;
+      }
+
+      const where = this.filter ? ` in ${this.areaTitles[this.filter]}` : "";
+      this.announce(`${ranked.length} result${ranked.length === 1 ? "" : "s"}${where}.`);
+      this.setActive(this.options()[0]);
+    }
+
+    // Pagefind's order, with a few changes for this site, when searching
+    // all areas: blog posts and glossary terms rank below docs with the same
+    // match. The term you searched for by one of its names does not take the
+    // first result: people searching "manifest" want the manifest page. It
+    // shows as a short definition above the results instead (see
+    // renderDefinition). Searching the glossary itself, it does come first.
+    async rank(pagefind: Pagefind, query: string, response: SearchResponse): Promise<Ranking> {
+      if (this.filter && this.filter !== "glossary") {
+        return { ranked: response.results };
+      }
+
+      const [blog, terms] = await Promise.all([
+        this.filter ? undefined : pagefind.search(query, { filters: { area: "blog" } }),
+        this.filter ? response : pagefind.search(query, { filters: { area: "glossary" } }),
+      ]);
+      const exact = await this.exactTerm(query, terms.results);
+
+      if (this.filter) {
+        const ranked = exact
+          ? [exact, ...response.results.filter((result) => result.id !== exact.id)]
+          : response.results;
+        return { ranked };
+      }
+
+      const blogIds = new Set(blog!.results.map((result) => result.id));
+      const termIds = new Set(terms.results.map((result) => result.id));
+
+      // Docs pages first, in Pagefind's order. Glossary terms and blog posts
+      // follow: glossary pages are short, which Pagefind rewards, and would
+      // otherwise push the page people look for down. The term already shown
+      // as the definition is left out of the list.
+      const isDocs = (result: ResultHandle) => !blogIds.has(result.id) && !termIds.has(result.id);
+      const score = (result: ResultHandle) => {
+        if (blogIds.has(result.id)) {
+          return result.score * BLOG_FACTOR;
+        }
+        if (termIds.has(result.id)) {
+          return result.score * GLOSSARY_FACTOR;
+        }
+        return result.score;
+      };
+
+      const rest = response.results.filter((result) => !isDocs(result) && result.id !== exact?.id);
+      return {
+        ranked: [...response.results.filter(isDocs), ...rest.sort((a, b) => score(b) - score(a))],
+        definition: exact,
+      };
+    }
+
+    // A one-line definition above the results, for the glossary term you
+    // searched for by one of its names, with a link to the term. Loading
+    // it takes a moment, so a newer search may have started meanwhile: then
+    // this one is stale and draws nothing.
+    async renderDefinition(generation: number, term?: ResultHandle) {
+      if (!term) {
+        return;
+      }
+
+      const data = await term.data();
+      if (generation !== this.generation) {
+        return;
+      }
+
+      // A small card of its own, with the book icon of the glossary, so it
+      // doesn't read as the first search result.
+      const definition = document.createElement("div");
+      definition.className = "definition";
+      definition.innerHTML = `<svg class="definition-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`;
+
+      const body = document.createElement("p");
+      body.className = "definition-body";
+
+      const label = document.createElement("span");
+      label.className = "definition-label";
+      label.textContent = "Glossary";
+
+      const link = document.createElement("a");
+      link.href = data.url;
+      link.textContent = data.meta.title ?? "";
+
+      const text = data.meta.definition ? `: ${data.meta.definition.replaceAll("`", "")}` : "";
+      body.append(label, link, text);
+      definition.append(body);
+      this.status.replaceChildren(definition);
+    }
+
+    // The glossary term whose name, or one of the other names it goes by,
+    // is exactly what you typed. "Actions" finds "Action" too.
+    async exactTerm(query: string, terms: ResultHandle[]): Promise<ResultHandle | undefined> {
+      const wanted = normalize(query);
+      const candidates = await Promise.all(
+        terms.slice(0, 5).map(async (result) => ({ result, data: await result.data() })),
+      );
+
+      const match = candidates.find(({ data }) => {
+        const names = [data.meta.title ?? "", ...(data.meta.aliases ?? "").split(",")].map(normalize);
+        return names.includes(wanted) || names.includes(wanted.replace(/s$/, ""));
+      });
+
+      return match?.result;
+    }
+
+    // Appends the next batch of results of the search with this generation.
+    // Nothing happens when a newer search started while the batch loaded.
+    async renderMore(generation: number, focusFirstNew: boolean) {
+      if (generation !== this.generation || this.loadingMore === generation) {
+        return;
+      }
+
+      this.loadingMore = generation;
+      this.moreButton.disabled = true;
+
+      try {
+        const batch = this.ranked.slice(this.rendered, this.rendered + PAGE_SIZE);
+        const data = await Promise.all(batch.map((result) => result.data()));
+
+        if (generation !== this.generation) {
+          return;
+        }
+
+        const firstNew = this.optionCount;
+        this.list.append(...data.map((result) => this.renderResult(result)));
+        this.rendered += batch.length;
+
+        const remaining = this.ranked.length - this.rendered;
+        this.moreButton.hidden = remaining <= 0;
+        this.moreButton.textContent = `Show ${Math.min(remaining, PAGE_SIZE)} more of ${remaining}`;
+        this.input.setAttribute("aria-expanded", "true");
+
+        // After "Show more", continue at the first new result.
+        if (focusFirstNew) {
+          this.setActive(this.options()[firstNew]);
+          this.input.focus();
+        }
+      } finally {
+        // A newer search may have started meanwhile. It owns the button now.
+        if (this.loadingMore === generation) {
+          this.loadingMore = undefined;
+          this.moreButton.disabled = false;
+        }
+      }
+    }
+
+    renderResult(result: ResultData): HTMLLIElement {
+      const item = document.createElement("li");
+      item.className = "result";
+      item.setAttribute("role", "presentation");
+
+      const area = result.filters.area?.[0];
+      const trail = result.meta.trail || (area ? this.areaTitles[area] : "");
+
+      const page = this.option(result.url, "page");
+      page.append(
+        this.span("trail", trail),
+        this.span("title", result.meta.title ?? result.url),
+        this.excerpt(result.excerpt),
+      );
+      item.append(page);
+
+      const sections = this.bestSections(result);
+      if (sections.length > 0) {
+        const list = document.createElement("ul");
+        list.className = "sections";
+        list.setAttribute("role", "presentation");
+
+        for (const section of sections) {
+          const entry = document.createElement("li");
+          entry.setAttribute("role", "presentation");
+
+          const link = this.option(section.url, "section");
+          link.append(this.span("title", section.title), this.excerpt(section.excerpt));
+          entry.append(link);
+          list.append(entry);
+        }
+
+        item.append(list);
+      }
+
+      return item;
+    }
+
+    // The sections of a page with the strongest matches, best first. The
+    // first "section" Pagefind gives is the top of the page itself, which
+    // the page result already covers.
+    bestSections(result: ResultData): SubResult[] {
+      const score = (section: SubResult) =>
+        section.weighted_locations.reduce((sum, location) => sum + location.balanced_score, 0);
+
+      return result.sub_results
+        .filter((section) => section.anchor && section.url !== result.url)
+        .sort((a, b) => score(b) - score(a))
+        .slice(0, MAX_SECTIONS);
+    }
+
+    option(href: string, kind: string): HTMLAnchorElement {
+      const link = document.createElement("a");
+      link.href = href;
+      link.className = kind;
+      link.id = `search-option-${this.optionCount++}`;
+      link.tabIndex = -1;
+      link.setAttribute("role", "option");
+      link.setAttribute("aria-selected", "false");
+      return link;
+    }
+
+    span(className: string, text: string): HTMLSpanElement {
+      const span = document.createElement("span");
+      span.className = className;
+      span.textContent = text;
+      return span;
+    }
+
+    // Pagefind escapes the page text and only adds <mark> around matches,
+    // so the excerpt is safe to use as HTML.
+    excerpt(html: string): HTMLSpanElement {
+      const span = document.createElement("span");
+      span.className = "excerpt";
+      span.innerHTML = html;
+      return span;
+    }
+
+    // Before you type: a few useful places to start, in the same list, so
+    // the arrow keys work here too.
+    renderStart() {
+      const points: StartingPoint[] = JSON.parse(this.dataset.start ?? "[]");
+
+      this.ranked = [];
+      this.optionCount = 0;
+      this.moreButton.hidden = true;
+      this.showMessage("");
+
+      const heading = document.createElement("li");
+      heading.className = "heading";
+      heading.setAttribute("role", "presentation");
+      heading.textContent = "Start here";
+
+      const items = points.map((point) => {
+        const item = document.createElement("li");
+        item.className = "result";
+        item.setAttribute("role", "presentation");
+
+        const link = this.option(point.href, "page");
+        link.append(this.span("title", point.label), this.span("excerpt", point.description));
+        item.append(link);
+        return item;
+      });
+
+      this.list.replaceChildren(heading, ...items);
+      this.input.setAttribute("aria-expanded", "true");
+      this.setActive(undefined);
+    }
+
+    renderNoResults(query: string, elsewhere: number) {
+      this.moreButton.hidden = true;
+      this.input.setAttribute("aria-expanded", "false");
+
+      const message = document.createElement("p");
+      const where = this.filter ? ` in ${this.areaTitles[this.filter]}` : "";
+      message.textContent = `No results for "${query}"${where}.`;
+
+      const hint = document.createElement("p");
+      hint.className = "hint";
+
+      if (this.filter && elsewhere > 0) {
+        const widen = document.createElement("button");
+        widen.type = "button";
+        widen.className = "widen";
+        widen.textContent = `Show ${elsewhere} result${elsewhere === 1 ? "" : "s"} in all areas`;
+        widen.addEventListener("click", () => this.setFilter(""));
+        hint.append(widen);
+      } else {
+        hint.textContent = "Try fewer words, or a different word for the same thing.";
+      }
+
+      this.status.replaceChildren(message, hint);
+      this.announce(message.textContent);
+    }
+
+    showMessage(text: string) {
+      const message = document.createElement("p");
+      message.textContent = text;
+      this.status.replaceChildren(...(text ? [message] : []));
+    }
+
+    announce(text: string) {
+      this.announcer.textContent = text;
+    }
+
+    // "All areas" first, then the area you are in, then the others that
+    // have results, most results first. Without a query, the chips only
+    // offer the choice between this area and all of them.
+    renderFilters(response?: SearchResponse) {
+      const counts = response?.totalFilters.area ?? {};
+      const home = this.dataset.area;
+
+      const ids = Object.keys(counts)
+        .filter((id) => counts[id] > 0 && id !== home && this.areaTitles[id])
+        .sort((a, b) => counts[b] - counts[a]);
+
+      if (home) {
+        ids.unshift(home);
+      }
+
+      // Keep a chosen area visible, also when it has nothing for this query.
+      if (this.filter && !ids.includes(this.filter)) {
+        ids.push(this.filter);
+      }
+
+      const chips = [
+        this.chip("", "All areas", response ? response.unfilteredResultCount : undefined),
+        ...ids.map((id) => this.chip(id, this.areaTitles[id], response ? (counts[id] ?? 0) : undefined)),
+      ];
+
+      this.filtersBar.replaceChildren(...chips);
+      this.filtersBar.hidden = chips.length < 2 && !response;
+    }
+
+    chip(id: string, label: string, count?: number): HTMLButtonElement {
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "chip";
+      chip.setAttribute("aria-pressed", String(this.filter === id));
+      chip.append(this.span("chip-label", label));
+
+      if (count !== undefined) {
+        const number = this.span("count", String(count));
+        number.setAttribute("aria-label", `${count} result${count === 1 ? "" : "s"}`);
+        chip.append(" ", number);
+      }
+
+      chip.addEventListener("click", () => this.setFilter(id));
+      return chip;
+    }
+
+    setFilter(id: string) {
+      this.filter = id;
+      this.input.focus();
+
+      if (this.input.value.trim()) {
+        this.search();
+      } else {
+        this.renderFilters();
+      }
+    }
+
+    options(): HTMLElement[] {
+      return [...this.list.querySelectorAll<HTMLElement>("[role=option]")];
+    }
+
+    setActive(option: HTMLElement | undefined, scroll = true) {
+      this.activeOption?.setAttribute("aria-selected", "false");
+      this.activeOption = option;
+
+      if (!option) {
+        this.input.removeAttribute("aria-activedescendant");
+        return;
+      }
+
+      option.setAttribute("aria-selected", "true");
+      this.input.setAttribute("aria-activedescendant", option.id);
+
+      if (scroll) {
+        option.scrollIntoView({ block: "nearest" });
+      }
+    }
+
+    openOption(option?: HTMLElement) {
+      if (option instanceof HTMLAnchorElement) {
+        option.click();
+      }
+    }
+
+    onKeydown(event: KeyboardEvent) {
+      const options = this.options();
+      const index = this.activeOption ? options.indexOf(this.activeOption) : -1;
+
+      switch (event.key) {
+        case "ArrowDown":
+          event.preventDefault();
+          this.setActive(options[Math.min(index + 1, options.length - 1)]);
+          break;
+
+        case "ArrowUp":
+          event.preventDefault();
+          this.setActive(index > 0 ? options[index - 1] : undefined);
+          break;
+
+        // Escape in a search field would clear it first. Here it closes.
+        case "Escape":
+          event.preventDefault();
+          this.close();
+          break;
+      }
+    }
+  }
+
+  customElements.define("site-search", SiteSearch);
+</script>
+
+<style>
+  .trigger {
+    display: flex;
+    align-items: center;
+    gap: var(--ha-space-2);
+    width: 100%;
+    height: 44px;
+    padding: 0 var(--ha-space-2) 0 var(--ha-space-4);
+    border: 1px solid var(--site-border);
+    border-radius: var(--ha-border-radius-pill);
+    background: var(--site-surface);
+    color: var(--site-text-muted);
+    font: inherit;
+    cursor: pointer;
+  }
+
+  .trigger-label {
+    flex: 1 1 auto;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .trigger kbd {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--site-bg);
+    font-size: 13px;
+  }
+
+  /* On small screens the trigger is a round icon button. This comes after
+     the rules above, so it wins over them. */
+  @media (max-width: 720px) {
+    .trigger {
+      justify-content: center;
+      width: 44px;
+      padding: 0;
+    }
+
+    .trigger-label,
+    .trigger kbd {
+      display: none;
+    }
+  }
+
+  dialog {
+    width: min(720px, calc(100vw - 2 * var(--ha-space-4)));
+    max-height: min(720px, calc(100dvh - 2 * var(--ha-space-16)));
+    margin: var(--ha-space-16) auto auto;
+    padding: 0;
+    border: 1px solid var(--site-border);
+    border-radius: var(--site-radius-card);
+    background: var(--site-surface);
+    color: var(--site-text);
+    box-shadow: var(--ha-box-shadow-l);
+    overflow: hidden;
+  }
+
+  dialog[open] {
+    display: flex;
+    flex-direction: column;
+  }
+
+  dialog::backdrop {
+    background: rgb(0 35 50 / 0.55);
+    backdrop-filter: blur(4px);
+  }
+
+  /* On a phone the dialog takes the whole screen. */
+  @media (max-width: 600px) {
+    dialog {
+      width: 100%;
+      max-width: 100%;
+      height: 100dvh;
+      max-height: 100dvh;
+      margin: 0;
+      border: 0;
+      border-radius: 0;
+    }
+  }
+
+  .search-form {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: var(--ha-space-3);
+    padding: var(--ha-space-2) var(--ha-space-2) var(--ha-space-2) var(--ha-space-4);
+    border-bottom: 1px solid var(--site-border);
+    color: var(--site-text-muted);
+  }
+
+  .search-form input {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 44px;
+    border: 0;
+    background: transparent;
+    color: var(--site-text);
+    font: inherit;
+    font-size: 18px;
+  }
+
+  .search-form input:focus {
+    outline: none;
+  }
+
+  /* The dialog has its own close button and Escape, no need for a second "x". */
+  .search-form input::-webkit-search-cancel-button {
+    display: none;
+  }
+
+  .close {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: var(--ha-border-radius-md);
+    background: transparent;
+    color: var(--site-text-muted);
+    cursor: pointer;
+  }
+
+  .close:hover {
+    background: var(--site-surface-hover);
+  }
+
+  /* Area chips. One row that scrolls sideways, so it never pushes the results down. */
+  .filters {
+    display: flex;
+    flex: 0 0 auto;
+    gap: var(--ha-space-2);
+    padding: var(--ha-space-3) var(--ha-space-4);
+    border-bottom: 1px solid var(--site-border);
+    overflow-x: auto;
+    scrollbar-width: none;
+    /* Fade out the last chip, so it is clear the row scrolls. */
+    mask-image: linear-gradient(to left, transparent, #000 var(--ha-space-8));
+  }
+
+  .filters[hidden] {
+    display: none;
+  }
+
+  .filters :global(.chip) {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--ha-space-1);
+    flex: 0 0 auto;
+    min-height: 32px;
+    padding: 0 var(--ha-space-3);
+    border: 1px solid var(--site-border);
+    border-radius: var(--ha-border-radius-pill);
+    background: transparent;
+    color: var(--site-text);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 550;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  .filters :global(.chip:hover) {
+    background: var(--site-surface-hover);
+  }
+
+  .filters :global(.chip[aria-pressed="true"]) {
+    border-color: transparent;
+    background: var(--site-accent-quiet);
+    color: var(--site-on-accent-quiet);
+  }
+
+  .filters :global(.count) {
+    color: var(--site-text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .filters :global(.chip[aria-pressed="true"] .count) {
+    color: inherit;
+  }
+
+  .body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .status :global(p) {
+    margin: 0;
+    padding: var(--ha-space-4) var(--ha-space-4) 0;
+    color: var(--site-text-muted);
+  }
+
+  .status :global(p:first-child) {
+    color: var(--site-text);
+    font-weight: 600;
+  }
+
+  .status :global(.definition) {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--ha-space-3);
+    /* Inset like the results below it. */
+    margin: var(--ha-space-3) var(--ha-space-2) var(--ha-space-1);
+    padding: var(--ha-space-3) var(--ha-space-4);
+    border-radius: var(--site-radius-tile);
+    background: var(--site-tile-everyone-bg);
+    color: var(--site-text);
+  }
+
+  .status :global(.definition-icon) {
+    flex: none;
+    margin-top: 2px;
+    color: var(--site-tile-everyone);
+  }
+
+  .status :global(p.definition-body) {
+    margin: 0;
+    padding: 0;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.5;
+  }
+
+  .status :global(.definition-label) {
+    display: block;
+    color: var(--site-tile-everyone);
+    font-size: 12px;
+    font-weight: 650;
+  }
+
+  .status :global(.definition a) {
+    font-weight: 650;
+  }
+
+  .status :global(.hint) {
+    padding-top: var(--ha-space-2);
+    font-weight: 400;
+    font-size: 15px;
+  }
+
+  .status :global(.widen) {
+    padding: var(--ha-space-2) var(--ha-space-4);
+    border: 1px solid var(--site-border);
+    border-radius: var(--ha-border-radius-pill);
+    background: transparent;
+    color: var(--site-link);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .status :global(.widen:hover) {
+    background: var(--site-surface-hover);
+  }
+
+  .results {
+    margin: 0;
+    padding: var(--ha-space-2);
+    list-style: none;
+  }
+
+  .results :global(.heading) {
+    padding: var(--ha-space-2) var(--ha-space-3) var(--ha-space-1);
+    color: var(--site-text-muted);
+    font-size: 14px;
+    font-weight: 650;
+  }
+
+  .results :global(.result + .result) {
+    margin-top: var(--ha-space-1);
+  }
+
+  .results :global([role="option"]) {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: var(--ha-space-3);
+    border-radius: var(--site-radius-tile);
+    color: var(--site-text);
+    text-decoration: none;
+  }
+
+  .results :global([role="option"][aria-selected="true"]) {
+    background: var(--site-surface-hover);
+    box-shadow: inset 3px 0 0 var(--site-link);
+  }
+
+  .results :global(.trail) {
+    overflow: hidden;
+    color: var(--site-text-muted);
+    font-size: 13px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .results :global(.title) {
+    font-weight: 650;
+    color: var(--site-link);
+  }
+
+  /* Two lines of context is enough to recognize a match. */
+  .results :global(.excerpt) {
+    display: -webkit-box;
+    overflow: hidden;
+    font-size: 15px;
+    line-height: 1.45;
+    color: var(--site-text-muted);
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+
+  /* Matching sections sit under their page, on a thin line. */
+  .results :global(.sections) {
+    margin: 0 0 var(--ha-space-2) var(--ha-space-5);
+    padding: 0 0 0 var(--ha-space-2);
+    border-left: 1px solid var(--site-border);
+    list-style: none;
+  }
+
+  .results :global(.section) {
+    padding-block: var(--ha-space-2);
+  }
+
+  .results :global(.section .title) {
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .results :global(.section .excerpt) {
+    font-size: 14px;
+  }
+
+  .results :global(mark) {
+    background: var(--site-accent-quiet);
+    color: var(--site-on-accent-quiet);
+    border-radius: 2px;
+  }
+
+  .more {
+    display: block;
+    margin: 0 auto var(--ha-space-4);
+    padding: var(--ha-space-2) var(--ha-space-4);
+    border: 1px solid var(--site-border);
+    border-radius: var(--ha-border-radius-pill);
+    background: transparent;
+    color: var(--site-link);
+    font: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .more:hover {
+    background: var(--site-surface-hover);
+  }
+
+  .more:disabled {
+    cursor: progress;
+  }
+
+  .more[hidden] {
+    display: none;
+  }
+
+  .hints {
+    display: flex;
+    flex: 0 0 auto;
+    gap: var(--ha-space-5);
+    padding: var(--ha-space-2) var(--ha-space-4);
+    border-top: 1px solid var(--site-border);
+    color: var(--site-text-muted);
+    font-size: 13px;
+  }
+
+  .hints kbd {
+    display: inline-grid;
+    place-items: center;
+    min-width: 22px;
+    height: 22px;
+    margin-right: var(--ha-space-1);
+    padding: 0 var(--ha-space-1);
+    border: 1px solid var(--site-border);
+    border-radius: var(--ha-border-radius-sm);
+    background: var(--site-bg);
+    font-size: 12px;
+  }
+
+  /* Touch screens have no arrow keys to hint at. */
+  @media (max-width: 600px), (hover: none) {
+    .hints {
+      display: none;
+    }
+  }
+</style>

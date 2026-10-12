@@ -1,0 +1,17 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a bug in Home Assistant
+    url: https://contributors.home-assistant.io/start/report-a-bug/
+    about: This tracker is for the contributor site only. This page tells you which repository to report a bug in Home Assistant in.
+  - name: Request a feature
+    url: https://github.com/home-assistant/feature-requests/discussions
+    about: Ideas for new features or improvements to Home Assistant go here.
+  - name: Report a security vulnerability
+    url: https://www.home-assistant.io/security/
+    about: Please do not report security issues in public. This page explains how to report them responsibly.
+  - name: Ask the community forum
+    url: https://community.home-assistant.io/
+    about: Questions about your own setup, and help from other users.
+  - name: Chat on Discord
+    url: https://www.home-assistant.io/join-chat/
+    about: Not sure where to go? Ask on Discord, where contributors chat in real time.

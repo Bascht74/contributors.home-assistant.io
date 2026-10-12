@@ -1,0 +1,71 @@
+---
+title: Picture glance card
+description: The picture glance card shows an image with a row of entity icons at the bottom, to see and control a room or a camera view at a glance.
+sidebarGroup: Media and pictures
+---
+
+## Usage
+
+The picture glance card puts a picture, often a room or a camera, behind a bar of entity icons. The bar sits at the bottom of the image, with the title on the left, if you set one. An icon is gray when its entity is inactive, and turns white when it is active, so you see which lamps are on without reading anything.
+
+This page has no live example. The demo home on this site has no pictures or cameras to show.
+
+Use it when a picture is the best way to recognize a place, and people want a few quick controls for that place: the lights of the living room on top of a photo of the living room, or the front door lock on top of the doorbell camera.
+
+When the picture is about one entity, use the [picture entity card](/design/dashboards/picture-entity-card/). When the icons belong in a specific spot on the image, like on a floor plan, use the [picture elements card](/design/dashboards/picture-elements-card/). Without a picture, the [glance card](/design/dashboards/glance-card/) shows a row of entities, and the [area card](/design/dashboards/area-card/) gives a room an overview.
+
+### Toggle and dialog icons
+
+The card splits the entities in two groups. Entities that can be toggled, like lights, switches, and fans, go in one group: selecting their icon toggles them. All other entities, like sensors and locks, go in the other group: selecting their icon opens the more-info dialog. Each group has its own row in the bar, spread out with space between them, so the toggles always sit together at the end of the bar. Holding an icon opens the more-info dialog for both.
+
+With `force_dialog: true`, every icon opens the more-info dialog. Use it when toggling by accident is a problem, like for a heater.
+
+### State
+
+The icons show no text by default. With `show_state`, on the card or per entity, the state shows below the icon. A per-entity `attribute` shows an attribute instead, with an optional `prefix` and `suffix`. Use it sparingly: the bar is small, and a few icons with text fill it quickly.
+
+### The picture
+
+The picture works the same as in the picture entity card. It can be a fixed `image`, an `image_entity`, a `camera_image` with a snapshot or a `live` stream, or an image per state of `entity` with `state_image`. When `entity` is off, and there is no image for that state, the picture turns gray. Selecting the picture opens the more-info dialog of `entity`, `image_entity`, or the camera, unless you set another `tap_action`.
+
+### Content
+
+- Keep it to five entities or less. The bar is one line on a narrow card.
+- Use a title only when the picture does not speak for itself.
+- Pick a picture with a calm area at the bottom. The bar is see-through.
+
+## Configuration
+
+- `entities` (list, required): the entities to show as icons. Each item can be an entity ID, or a mapping with `entity`, `name`, `icon`, `show_state`, `attribute`, `prefix`, `suffix`, and actions.
+- `title` (string): the title in the bar.
+- `image` (string or media): the image to show. One of `image`, `image_entity`, `camera_image`, or `state_image` is required.
+- `image_entity` (string): an image or person entity to take the picture from.
+- `camera_image` (string): a camera entity to show as the picture.
+- `camera_view` (string): `auto` for snapshots, or `live` for the live stream. Defaults to `auto`.
+- `entity` (string): the entity the picture follows, for `state_image`, `state_filter`, and the gray filter.
+- `state_image` (map): an image for each state of `entity`. Requires `entity`.
+- `state_filter` (map): a CSS filter for each state of `entity`.
+- `aspect_ratio` (string): the shape of the image, like `16x9` or `50%`.
+- `fit_mode` (string): `cover`, `contain`, or `fill`. Defaults to `cover`.
+- `show_state` (boolean): shows the state below every icon. Defaults to `false`.
+- `force_dialog` (boolean): makes every icon open the more-info dialog. Defaults to `false`.
+- `theme` (string): a theme to apply to the card.
+- `tap_action`, `hold_action`, `double_tap_action` (action): what happens when you select the picture, hold it, or double tap it.
+
+```yaml
+type: picture-glance
+title: "Living room"
+image: "/local/living_room.jpg"
+entities:
+  - light.living_room_lamp
+  - media_player.living_room_speaker
+  - sensor.living_room_temperature
+```
+
+## In code
+
+The card lives in `src/panels/lovelace/cards/hui-picture-glance-card.ts`, and the element is `<hui-picture-glance-card>`. The picture is a `<hui-image>`, and each icon is an `<ha-icon-button>` with an `<ha-state-icon>` inside. Whether an entity toggles comes from `DOMAINS_TOGGLE` in `src/common/const.ts`. An icon gets the `state-on` class when the entity is active. The colors come from `--ha-picture-icon-button-color` and `--ha-picture-icon-button-on-color`, and the bar from `--ha-picture-card-background-color` and `--ha-picture-card-text-color`.
+
+The card throws `Invalid configuration` without `entities`, without any image source, or with `state_image` but no `entity`. It has no grid options of its own: in the sections view, it takes all 12 columns, and its height follows the image.
+
+[Source](https://github.com/home-assistant/frontend/blob/dev/src/panels/lovelace/cards/hui-picture-glance-card.ts)

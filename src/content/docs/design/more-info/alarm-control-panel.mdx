@@ -1,0 +1,37 @@
+---
+title: Alarm control panel
+description: The more-info view of an alarm system, with a vertical selector for its arming modes.
+sidebarGroup: Openings and security
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+<Demo hass>
+  <ha-demo-more-info entity="alarm_control_panel.home_alarm"></ha-demo-more-info>
+</Demo>
+
+## What it shows
+
+An alarm is always in exactly one mode, so the main control is a tall vertical [control select](/design/components/controls/): one button per mode, stacked, with the current one highlighted. Each mode has an icon and a short label, like **Home**, **Away**, **Night**, and **Disarmed**.
+
+**Disarmed** is always there. The other modes only show when the alarm supports them:
+
+- **Home**, **Away**, and **Night**.
+- **Vacation**.
+- **Custom**, for a custom bypass.
+
+The alarm above supports home, away, and night, so it gets four buttons. The selector grows with the number of modes.
+
+When the alarm is arming, pending, or triggered, there is no mode to pick. The selector makes room for a large icon of the state, with a **Disarm** button below it.
+
+## Design notes
+
+- The selected mode takes the color of the state, so a disarmed alarm looks calm and an armed one stands out.
+- When the alarm needs a code, Home Assistant asks for it in a separate dialog before it changes mode. For arming, it only asks when the alarm says a code is needed to arm. For disarming, it always asks when the alarm has a code. A code stored in the entity settings skips that question.
+- The selection moves to the new mode right away. When the change fails, for example because the code was wrong, it moves back.
+
+## In code
+
+The view is `more-info-alarm_control_panel` in `src/dialogs/more-info/controls/more-info-alarm_control_panel.ts`. The mode selector is `ha-state-control-alarm_control_panel-modes` in `src/state-control/alarm_control_panel/`. The modes, their icons, and the `AlarmControlPanelEntityFeature` enum are in `src/data/alarm_control_panel.ts`.
+
+Source: [`more-info-alarm_control_panel.ts`](https://github.com/home-assistant/frontend/blob/dev/src/dialogs/more-info/controls/more-info-alarm_control_panel.ts)

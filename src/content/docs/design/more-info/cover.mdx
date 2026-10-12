@@ -1,0 +1,39 @@
+---
+title: Cover
+description: The more-info view of blinds, shutters, garage doors, and other covers, with a position slider or open and close buttons.
+sidebarGroup: Openings and security
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+<Demo hass>
+  <ha-demo-more-info entity="cover.bedroom_blinds"></ha-demo-more-info>
+  <ha-demo-more-info entity="cover.garage_door"></ha-demo-more-info>
+</Demo>
+
+## What it shows
+
+Covers come in many kinds, from blinds that stop anywhere to a garage door that only goes up and down. The view picks its main control from what the cover can do.
+
+- **Position**: a cover that can be set to a position gets a tall vertical [control slider](/design/components/controls/). The slider fills from the top down, like the cover itself: a fully closed blind is a full bar. The bedroom blinds in the first demo work like that.
+- **Tilt position**: a cover with slats that can be tilted to a position gets a second slider next to it. It shows a marker, not a fill, over a striped background that looks like slats.
+- **Buttons**: a cover without a position gets a column of [control buttons](/design/components/controls/) for **Open**, **Stop**, and **Close**. The garage door in the second demo works like that. A cover that also tilts gets the buttons in a cross, with the tilt buttons on the sides and **Stop** in the middle.
+- **Open and close only**: a cover that can open and close, but not stop or tilt, gets a big switch, with the icon of an open and a closed cover.
+
+A cover that supports a position and buttons gets both. Two round buttons below the main control switch between the position mode and the button mode. The view starts in position mode.
+
+The state at the top combines the state and the position, like **Open · 70%**. It leaves the position out when the cover is fully open or closed, so you read **Closed**, not **Closed · 0%**.
+
+## Design notes
+
+- The icons follow the device class of the cover, so a garage door shows a garage, and blinds show blinds.
+- Buttons that make no sense right now are disabled. The garage door above is closed, so **Close** is grayed out.
+- When the integration can't know the real state of a cover (an assumed state), the open and close switch becomes two separate buttons, so you can always send both commands.
+- Covers that support a position can show favorite positions below the controls, one tap away. Those come from the entity settings, and are not part of these demos.
+- In a cover group, the member covers show up below the controls as tile cards, each with its own position slider.
+
+## In code
+
+The view is `more-info-cover` in `src/dialogs/more-info/controls/more-info-cover.ts`. The main controls are in `src/state-control/cover/`: `ha-state-control-cover-position`, `ha-state-control-cover-tilt-position`, `ha-state-control-cover-buttons`, and `ha-state-control-cover-toggle`. The favorite positions are in `src/dialogs/more-info/components/covers/`. The features are in `src/data/feature/cover_entity_feature.ts`, and the position helpers in `src/data/cover.ts`.
+
+Source: [`more-info-cover.ts`](https://github.com/home-assistant/frontend/blob/dev/src/dialogs/more-info/controls/more-info-cover.ts)

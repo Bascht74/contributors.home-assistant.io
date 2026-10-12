@@ -1,0 +1,31 @@
+---
+title: New HVACAction DEFROSTING
+description: The ClimateEntity has an hvac_action property, which describes what the climate entity is currently doing (which is not the same as its mode).
+date: 2024-07-07
+authors:
+  - G Johansson
+areas:
+  - core
+---
+
+The `ClimateEntity` has an `hvac_action` property, which describes what the climate entity is currently doing (which is not the same as its mode).
+
+We have added `DEFROSTING` as a possible `HVACAction` to represent when an entity is currently defrosting.
+
+Defrosting is when the system runs in reverse for some time to melt down accumulated ice. It occurs typically in colder environments and should not be mixed with, for example, cars that are defrosting by heating their windows.
+
+```python
+from homeassistant.components.climate.const import HVACAction
+
+class MyClimateEntity(ClimateEntity):
+    """Implementation of my climate entity."""
+
+    def hvac_action(self) -> HVACAction | None:
+        """Return the current running hvac operation if supported."""
+        return HVACAction.DEFROSTING
+
+```
+
+More details can be found in the [climate entity documentation](/core/entities/climate/#hvac-actions)
+
+Background for the original change is in [architecture discussion #1090](https://github.com/home-assistant/architecture/discussions/1090).

@@ -1,0 +1,33 @@
+---
+title: Person
+description: The more-info view of a person, with where they are on a map.
+sidebarGroup: Information
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+<Demo hass>
+  <ha-demo-more-info entity="person.alex"></ha-demo-more-info>
+  <ha-demo-more-info entity="person.sam"></ha-demo-more-info>
+</Demo>
+
+## What it shows
+
+The question you have about a person is "where are they?". The view answers it with a map. At the top is the state row, with the zone the person is in, like **Home** or **Work**. Below it, a map zooms in on where the person is, with a marker showing their initial or picture.
+
+Alex is at home, tracked by a phone. Sam is at work.
+
+For administrators, a **Create zone from current location** button below the map turns the spot where the person is into a new zone. It is not part of these demos.
+
+## Design notes
+
+- The map only shows when the location of the person is known: from their own coordinates, or else from the zone they are in. A person without either gets just the state row.
+- **Create zone from current location** only shows when the person has coordinates of their own, since a zone needs a spot to start from.
+- The map fits itself around the person, so you don't need to zoom or pan to find them.
+- The state is the name of the zone, not the coordinates. People think in places, like **Home** or **Work**.
+
+## In code
+
+The view is `more-info-person` in `src/dialogs/more-info/controls/more-info-person.ts`. The map is `ha-map` from `src/components/map/`. The person domain has no newer more-info design, so the dialog also shows the state row at the top.
+
+Source: [`more-info-person.ts`](https://github.com/home-assistant/frontend/blob/dev/src/dialogs/more-info/controls/more-info-person.ts)

@@ -1,0 +1,26 @@
+---
+import Base from "../layouts/Base.astro";
+---
+
+<Base title="Page not found" description="This page does not exist.">
+  <main class="page" id="main-content" tabindex="-1">
+    <h1>Page not found</h1>
+    <p>
+      This page does not exist, or it moved. Try the search at the top, or
+      start from the <a href="/">homepage</a>.
+    </p>
+  </main>
+</Base>
+
+<script is:inline>
+  // Lets us find broken links in the analytics.
+  if (typeof window.plausible === "function") window.plausible("404");
+</script>
+
+<style>
+  .page {
+    max-width: var(--site-content-width);
+    margin: 0 auto;
+    padding: var(--ha-space-16) var(--ha-space-6);
+  }
+</style>

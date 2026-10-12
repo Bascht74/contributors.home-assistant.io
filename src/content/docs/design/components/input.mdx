@@ -1,0 +1,298 @@
+---
+title: Text input
+description: Text inputs let people enter a single line of text, like a name, a number, or a password.
+sidebarGroup: Input
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+import DoDont from "../../../../components/docs/DoDont.astro";
+
+<Demo layout="stack">
+  <ha-input label="Name" value="Living room"></ha-input>
+  <ha-input label="Email" type="email" placeholder="you@example.com"></ha-input>
+</Demo>
+
+## Overview
+
+A text input lets people type a short value on a single line: a name, an address, a number, or a password. Its type tells the browser what kind of value to expect, which gives people the right keyboard on their phone, the right picker for a date or time, and basic validation for free.
+
+## When to use
+
+Use a text input for:
+
+- A short value that people type, like a name, an email address, or a port
+- A number, a date, a time, a web address, or a password
+
+Don't use a text input for:
+
+- Text that can run over several lines, like a description. Use a [textarea](/design/components/textarea/).
+- A value from a known set. Let people pick it, with a [select box](/design/components/select-box/) or a [picker](/design/components/entity-picker/).
+- A value in a range, where the exact number matters less than the position. Use a [slider](/design/components/slider/).
+
+## Anatomy
+
+1. **Container**: the field, filled with a line at the bottom, or outlined
+2. **Label**: names the value. It sits inside the field, and moves up when the field has focus or a value.
+3. **Start**: optional content before the value, like an icon or a prefix
+4. **Value**: the native input where people type
+5. **Clear button**: optional, shows when the field has a value
+6. **Password toggle**: optional, reveals or hides a password
+7. **End**: optional content after the value, like a unit
+8. **Hint**: optional help text below the field, replaced by the validation message when the value is invalid
+
+## Variants
+
+### Appearance
+
+There are two appearances:
+
+- **Material** is the default: a filled field with a line at the bottom. Use it in forms, dialogs, and settings.
+- **Outlined** has a border all around, and becomes compact when it has no label. The frontend uses it mostly for search and filter fields in toolbars, lists, and tables, where a filled field would be too heavy.
+
+<Demo layout="stack">
+  <ha-input label="Material" value="Living room"></ha-input>
+  <ha-input appearance="outlined" label="Outlined" value="Living room"></ha-input>
+  <ha-input appearance="outlined" placeholder="Search devices"></ha-input>
+</Demo>
+
+### Type
+
+Pick the type that matches the value: a number field for numbers, an email field for email addresses, a URL field for web addresses, and a password field for anything secret. Give a password field the button that shows the password, so people can check what they typed.
+
+<Demo layout="stack">
+  <ha-input label="Volume" type="number" value="42"></ha-input>
+  <ha-input label="Website" type="url" placeholder="https://example.com"></ha-input>
+  <ha-input label="Password" type="password" value="correct horse" password-toggle></ha-input>
+  <ha-input label="Date" type="date"></ha-input>
+</Demo>
+
+### Hint
+
+Use the hint for extra context that helps people fill in the field, like the expected format or where to find the value. Keep it to a single sentence.
+
+<Demo layout="stack">
+  <ha-input label="Port" type="number" value="8123" hint="The port Home Assistant listens on."></ha-input>
+</Demo>
+
+### Prefix and suffix
+
+Put short text or an icon before or after the value. A unit after the value is the most common use: seconds, percent, or kilograms. It saves people from guessing what the number means, and keeps the unit out of the value itself.
+
+<Demo layout="stack">
+  <ha-input label="Delay" type="number" value="30">
+    <span slot="end">s</span>
+  </ha-input>
+  <ha-input label="Brightness" type="number" value="80">
+    <span slot="end">%</span>
+  </ha-input>
+</Demo>
+
+### Clear button
+
+Add a clear button when people often want to start over, like in a search field. It shows as soon as there is a value.
+
+<Demo layout="stack">
+  <ha-input label="Filter" value="kitchen" with-clear></ha-input>
+</Demo>
+
+## Behavior
+
+- **Empty**: the label sits inside the field, at the size of the text.
+- **Hover**: the material field changes to the hover background. The outlined field changes its border color.
+- **Focus**: the material field gets a thicker line at the bottom in the primary color, and the label turns the primary color. The outlined field gets a border in the primary color.
+- **Filled**: once the field has a value or focus, the label moves up and gets smaller. With a placeholder, a date, or a color type, the label is always up.
+- **Required**: the label gets a `*` marker. The field must have a value for the form to be valid.
+- **Disabled**: the material field gets the disabled background, the field and the label are dimmed to half their opacity, and the value can't be changed or focused.
+- **Read-only**: shows a value that people can read and copy, but not change.
+- **Invalid**: the label and the line at the bottom turn to the danger color, and the validation message takes the place of the hint. A field becomes invalid when the code marks it invalid, when a form check finds the value invalid, or, for a field that checks itself, when it loses focus. It turns valid again as soon as people type a valid value.
+
+<Demo layout="stack">
+  <ha-input label="Name" required></ha-input>
+  <ha-input label="Disabled" value="Can't change this" disabled></ha-input>
+  <ha-input label="Read-only" value="Can't change this either" readonly></ha-input>
+  <ha-input label="Port" value="99999" invalid validation-message="Enter a port between 1 and 65535."></ha-input>
+</Demo>
+
+Pressing <kbd>Enter</kbd> in the field submits the form it is in.
+
+## Specs
+
+### Size
+
+| Property | Material | Outlined with label | Outlined without label |
+| --- | --- | --- | --- |
+| Field height | 56px | 56px | 32px |
+| Padding left and right | 16px (`--ha-space-4`) | 16px (`--ha-space-4`) | 8px (`--ha-space-2`) |
+| Corner radius | 4px at the top (`--ha-border-radius-sm`), 0 at the bottom (`--ha-border-radius-square`) | 8px (`--ha-border-radius-md`) | 8px (`--ha-border-radius-md`) |
+| Border | 1px line at the bottom, 2px with focus | 1px all around | 1px all around |
+| Space below the component | 8px (`--ha-space-2`), through `--ha-input-padding-bottom` | None | None |
+| Clear and password buttons | 48px | 48px | 24px, with an 18px icon |
+
+### Type
+
+| Part | Size | Token |
+| --- | --- | --- |
+| Label, inside the field | 14px | `--ha-font-size-m` |
+| Label, moved up | 10px | `--ha-font-size-xs` |
+| Space above the label | 20px, 12px when moved up | `--ha-space-5`, `--ha-space-3` |
+| Space above the value | 12px, none without a label | `--ha-space-3` |
+| Hint and validation message | 12px | `--ha-font-size-s` |
+| Hint minimum height | 20px | `--ha-space-5` |
+| Hint indent | 12px | `--ha-space-3` |
+
+The label has a weight of 400 (`--ha-font-weight-normal`) and a line height of 1.2 (`--ha-line-height-condensed`). Changes in color, border, and label position take 150ms.
+
+### Color
+
+| Part | State | Token |
+| --- | --- | --- |
+| Material background | Resting | `--ha-color-form-background` |
+| Material background | Hover | `--ha-color-form-background-hover` |
+| Material background | Disabled | `--ha-color-form-background-disabled` |
+| Outlined background | All | `--card-background-color` |
+| Material line at the bottom | Resting | `--ha-color-border-neutral-loud` |
+| Material line at the bottom | Focus | `--primary-color` |
+| Material line at the bottom | Invalid | `--ha-color-border-danger-normal` |
+| Outlined border | Resting | `--ha-color-border-neutral-quiet` |
+| Outlined border | Hover | `--ha-color-border-neutral-normal` |
+| Outlined border | Focus | `--primary-color` |
+| Label | Resting | `--secondary-text-color` |
+| Label | Focus, material | `--primary-color` |
+| Label | Invalid | `--ha-color-fill-danger-loud-resting` |
+| Placeholder | All | `--ha-color-neutral-60` |
+| Hint | All | `--ha-color-text-secondary` |
+| Validation message | Invalid | `--ha-color-on-danger-quiet` |
+| End slot | All | `--ha-color-text-secondary` |
+
+## Guidelines
+
+<DoDont doText="Always give an input a short label." dontText="Use a placeholder as the label. It disappears as soon as someone types.">
+  <ha-input slot="do" label="Email" type="email" placeholder="you@example.com"></ha-input>
+  <ha-input slot="dont" type="email" placeholder="Email"></ha-input>
+</DoDont>
+
+<DoDont doText="Say what is wrong, and how to fix it." dontText="Only say that the value is wrong.">
+  <ha-input slot="do" label="Port" value="99999" invalid validation-message="Enter a port between 1 and 65535."></ha-input>
+  <ha-input slot="dont" label="Port" value="99999" invalid validation-message="Invalid value."></ha-input>
+</DoDont>
+
+<DoDont doText="Put the unit after the value." dontText="Make people type the unit in the value.">
+  <ha-input slot="do" label="Delay" type="number" value="30"><span slot="end">s</span></ha-input>
+  <ha-input slot="dont" label="Delay" value="30 seconds"></ha-input>
+</DoDont>
+
+<DoDont doText="Mark the fields that are required." dontText="Mark the fields that are optional.">
+  <ha-input slot="do" label="Name" required></ha-input>
+  <ha-input slot="dont" label="Name (optional)"></ha-input>
+</DoDont>
+
+
+## Accessibility
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves focus to the field, then to the clear button and the password toggle when they are there. A disabled field is skipped. |
+| <kbd>Enter</kbd> | Submits the form the field is in. On the clear button or the password toggle, selects that button. |
+| <kbd>Space</kbd> | On the clear button or the password toggle, selects that button. |
+
+Number, date, and time fields keep the keyboard behavior of the browser for those types.
+
+### Focus
+
+Focus shows as the primary color on the line at the bottom (material) or on the border (outlined), instead of a separate focus ring.
+
+### Target size
+
+The material field, and an outlined field with a label, are 56px high. An outlined field without a label is 32px high, and its buttons are 24px.
+
+### Screen readers
+
+A screen reader announces the field with its label, and reads the hint as its description. When the field turns invalid, the validation message is announced. Required, disabled, and read only are announced as well. The clear button is announced as "Clear", and the password button as "Show password" or "Hide password", in the language of the user. A field without a label has only its placeholder to describe it, so always give it a label.
+
+### In the code
+
+- Focus is delegated to the native input inside the component.
+- The label is a native `<label>` connected to the input, so it is the accessible name.
+- Without a label, the `<label>` is empty and hidden from assistive technology. The placeholder is then the only text that describes the input.
+- The hint and the validation message are connected to the input with `aria-describedby`, so screen readers read them as the description.
+- The validation message is in a live region, and gets the role `alert` while the field is invalid, so screen readers announce it when it appears.
+- Required, disabled, and read-only are set on the native input, so assistive technology gets them as is.
+- The clear button and the password toggle get translated labels as their accessible names.
+
+## Related
+
+- [Textarea](/design/components/textarea/): text over several lines
+- [Form](/design/components/form/): builds inputs from a schema
+- [Selector](/design/components/selector/): the text and number selectors show this input
+- [UI text](/design/ui-text/): how to write labels, hints, and errors
+
+The frontend has a few inputs built on top of this one, for specific jobs. Use them instead of rebuilding the same thing:
+
+- `<ha-input-search>`: a search field with a magnifying glass icon, a clear button, and a localized placeholder.
+- `<ha-input-copy>`: a read-only value with a copy button, and optional masking for secrets, like a token.
+- `<ha-input-multi>`: a list of text inputs, for entering several values, like a list of URLs.
+
+## In code
+
+The element is `<ha-input>`. It is based on the [Web Awesome input](https://webawesome.com/docs/components/input/).
+
+```html
+<ha-input label="Name" value="Living room"></ha-input>
+<ha-input label="Email" type="email" placeholder="you@example.com"></ha-input>
+<ha-input label="Password" type="password" password-toggle></ha-input>
+<ha-input label="Delay" type="number" min="0" step="1">
+  <span slot="end">s</span>
+</ha-input>
+```
+
+### Attributes
+
+- `label`: the label.
+- `value`: the current value, as a string.
+- `type`: `text` (default), `number`, `password`, `email`, `url`, `tel`, `search`, `date`, `datetime-local`, `time`, or `color`.
+- `appearance`: `material` (default) or `outlined`.
+- `hint`: help text below the input.
+- `placeholder`: text shown while the input is empty.
+- `required`: makes the field required, and adds a marker after the label.
+- `disabled`: disables the input.
+- `readonly`: makes the input read-only.
+- `invalid`: marks the input as invalid.
+- `validation-message`: the message shown when the input is invalid. Without it, the browser's own message is shown.
+- `auto-validate`: validates the input when it loses focus, instead of waiting for the form to be submitted.
+- `pattern`: a regular expression the value must match.
+- `minlength` and `maxlength`: the minimum and maximum length of the value.
+- `min`, `max`, and `step`: limits and granularity for number, date, and time inputs.
+- `with-clear`: shows a clear button when the input has a value.
+- `password-toggle`: shows a button to reveal or hide a password.
+- `password-visible`: shows the password as plain text.
+- `without-spin-buttons`: hides the browser's up and down buttons on number inputs.
+- `inset-label`: keeps the label inside the field, even with content in the `start` slot.
+- `input-id`: the `id` of the native input inside the component, for linking it to something outside.
+- `name`, `autocomplete`, `autocapitalize`, `autocorrect`, `autofocus`, `spellcheck`, `inputmode`, and `enterkeyhint`: passed to the native input, and work the same as on a regular `<input>`.
+
+### Slots
+
+- `start`: content before the value, like an icon or a prefix.
+- `end`: content after the value, like a unit.
+- `label`: a label with markup. Content in this slot replaces the text of the `label` attribute, including the required marker.
+- `hint`: a hint with markup, like a link. Only used when the `hint` attribute is not set.
+- `clear-button`: replaces the clear button.
+- `password-toggle-button`: replaces the button that reveals the password.
+
+### Events
+
+- `input`: fires on every change to the value, while people type.
+- `change`: fires when the value is committed, like when the input loses focus.
+
+Read the new value from `value` on the element.
+
+### Styling
+
+- `--ha-input-padding-top`: the space above the input.
+- `--ha-input-padding-bottom`: the space below the input. Defaults to `var(--ha-space-2)` for the material appearance.
+- `--ha-input-text-align`: the alignment of the value. Defaults to `start`.
+- `--ha-input-required-marker`: the marker after the label of a required field. Defaults to `"*"`.
+
+Source: [`src/components/input/ha-input.ts`](https://github.com/home-assistant/frontend/blob/dev/src/components/input/ha-input.ts)

@@ -1,0 +1,222 @@
+---
+title: Select menu
+description: A compact dropdown for picking one option, like the preset of a fan or the mode of a thermostat.
+sidebarGroup: Showing values
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+import DoDont from "../../../../components/docs/DoDont.astro";
+
+<Demo>
+  <ha-control-select-menu label="Preset" value="eco" data-props='{"options": [{"value": "auto", "label": "Auto"}, {"value": "eco", "label": "Eco"}, {"value": "sleep", "label": "Sleep"}]}' style="width: 160px">
+    <ha-svg-icon slot="icon" path="M8 13C6.14 13 4.59 14.28 4.14 16H2V18H4.14C4.59 19.72 6.14 21 8 21S11.41 19.72 11.86 18H22V16H11.86C11.41 14.28 9.86 13 8 13M8 19C6.9 19 6 18.1 6 17C6 15.9 6.9 15 8 15S10 15.9 10 17C10 18.1 9.1 19 8 19M19.86 6C19.41 4.28 17.86 3 16 3S12.59 4.28 12.14 6H2V8H12.14C12.59 9.72 14.14 11 16 11S19.41 9.72 19.86 8H22V6H19.86M16 9C14.9 9 14 8.1 14 7C14 5.9 14.9 5 16 5S18 5.9 18 7C18 8.1 17.1 9 16 9Z"></ha-svg-icon>
+  </ha-control-select-menu>
+  <ha-control-select-menu label="Oscillate" value="false" data-props='{"options": [{"value": "true", "label": "On", "iconPath": "M6 14H9L5 18L1 14H4C4 11.3 5.7 6.6 11 6.1V8.1C7.6 8.6 6 11.9 6 14M20 14C20 11.3 18.3 6.6 13 6.1V8.1C16.4 8.7 18 11.9 18 14H15L19 18L23 14H20Z"}, {"value": "false", "label": "Off", "iconPath": "M13 8.1V6.1C18.3 6.6 20 11.4 20 14H23L20.1 16.9L17.2 14H18C18 11.9 16.4 8.6 13 8.1M7.8 7.1L2.4 1.7L1.1 3L6.3 8.2C4.7 10 4 12.4 4 14H1L5 18L9 14H6C6 12.7 6.6 11 7.9 9.7L20.9 22.7L22.2 21.4L9.3 8.7L7.8 7.1M11 6.1L9.5 6.4L11 7.8V6.1Z"}]}' style="width: 160px"></ha-control-select-menu>
+</Demo>
+
+## Overview
+
+The select menu is a button that shows a setting and its current value. Selecting it opens a menu with the options. It belongs to the [controls](/design/components/controls/) family: the same rounded, tinted look, made for operating a device rather than filling in a form.
+
+You find it in two places:
+
+- In the **more-info dialogs**, below the main control, for the secondary settings of a device. Like the preset, direction, and oscillation of a fan, or the fan and swing mode of a thermostat. Several of them sit next to each other in a row, each 120 to 160 pixels wide.
+- In the **features of the tile card**, as the dropdown style of a mode feature. There it spans the full width of the card.
+
+## When to use
+
+Use a select menu for:
+
+- A setting of a device with more options than fit in a row
+- A setting people change less often
+
+Don't use a select menu for:
+
+- A handful of options that people switch between all the time. Use a control select, which shows all options at once, see [controls](/design/components/controls/).
+- Forms and settings. Use a regular select instead.
+- A list of actions. Use a [dropdown](/design/components/dropdown/).
+
+## Anatomy
+
+1. **Container**: the rounded button with a tinted background
+2. **Icon**: the icon of the selected option, or a default icon for the setting
+3. **Label**: the name of the setting, in small text
+4. **Value**: the label of the selected option, below the label
+5. **Arrow**: optional, a dropdown arrow at the end
+6. **Menu**: the list of options that opens below the button, each with its own icon. The selected option is highlighted.
+
+## Variants
+
+### Label and value
+
+The default. The label names the setting, the value below it shows the current choice.
+
+When there is no value, the label is shown on its own, at the size of the value.
+
+<Demo>
+  <ha-control-select-menu label="Swing mode" data-props='{"options": [{"value": "off", "label": "Off"}, {"value": "vertical", "label": "Vertical"}, {"value": "horizontal", "label": "Horizontal"}]}' style="width: 160px">
+    <ha-svg-icon slot="icon" path="M6 14H9L5 18L1 14H4C4 11.3 5.7 6.6 11 6.1V8.1C7.6 8.6 6 11.9 6 14M20 14C20 11.3 18.3 6.6 13 6.1V8.1C16.4 8.7 18 11.9 18 14H15L19 18L23 14H20Z"></ha-svg-icon>
+  </ha-control-select-menu>
+</Demo>
+
+### In a tile card feature
+
+In a tile card, the select menu hides its label and shows an arrow. The card already says what the feature is about, so only the value is shown, with an arrow at the end that says it opens a menu. The height follows the feature, 42 pixels.
+
+<Demo layout="stack">
+  <ha-control-select-menu label="Fan mode" value="medium" hide-label show-arrow data-props='{"options": [{"value": "low", "label": "Low"}, {"value": "medium", "label": "Medium"}, {"value": "high", "label": "High"}]}' style="display: block; width: 320px; --control-select-menu-height: 42px">
+    <ha-svg-icon slot="icon" path="M12,11A1,1 0 0,0 11,12A1,1 0 0,0 12,13A1,1 0 0,0 13,12A1,1 0 0,0 12,11M12.5,2C17,2 17.11,5.57 14.75,6.75C13.76,7.24 13.32,8.29 13.13,9.22C13.61,9.42 14.03,9.73 14.35,10.13C18.05,8.13 22.03,8.92 22.03,12.5C22.03,17 18.46,17.1 17.28,14.73C16.78,13.74 15.72,13.3 14.79,13.11C14.59,13.59 14.28,14 13.88,14.34C15.87,18.03 15.08,22 11.5,22C7,22 6.91,18.42 9.27,17.24C10.25,16.75 10.69,15.71 10.89,14.79C10.4,14.59 9.97,14.27 9.65,13.87C5.96,15.85 2,15.07 2,11.5C2,7 5.56,6.89 6.74,9.26C7.24,10.25 8.29,10.68 9.22,10.87C9.41,10.39 9.73,9.97 10.14,9.65C8.15,5.96 8.94,2 12.5,2Z"></ha-svg-icon>
+  </ha-control-select-menu>
+</Demo>
+
+## Behavior
+
+- **Hover**: the tint of the background changes to a darker neutral color.
+- **Focus**: keyboard focus shows a 2px ring around the button, in the secondary text color.
+- **Open**: selecting the button opens the menu below it. The menu is at least as wide as the button.
+- **Selected**: in the menu, the selected option is shown in medium weight and the primary color, on a light primary background.
+- **Disabled**: the button shows its text in the disabled color, and does not open. The more-info dialogs disable it while the entity is unavailable.
+
+<Demo>
+  <ha-control-select-menu label="Preset" value="eco" disabled data-props='{"options": [{"value": "eco", "label": "Eco"}]}' style="width: 160px">
+    <ha-svg-icon slot="icon" path="M8 13C6.14 13 4.59 14.28 4.14 16H2V18H4.14C4.59 19.72 6.14 21 8 21S11.41 19.72 11.86 18H22V16H11.86C11.41 14.28 9.86 13 8 13M8 19C6.9 19 6 18.1 6 17C6 15.9 6.9 15 8 15S10 15.9 10 17C10 18.1 9.1 19 8 19M19.86 6C19.41 4.28 17.86 3 16 3S12.59 4.28 12.14 6H2V8H12.14C12.59 9.72 14.14 11 16 11S19.41 9.72 19.86 8H22V6H19.86M16 9C14.9 9 14 8.1 14 7C14 5.9 14.9 5 16 5S18 5.9 18 7C18 8.1 17.1 9 16 9Z"></ha-svg-icon>
+  </ha-control-select-menu>
+</Demo>
+
+Selecting an option does not change the value on its own. The page sets the new value, usually after the entity has changed.
+
+Long labels and values are cut off with an ellipsis. The icon at the start shows the icon of the selected option when it has one. Otherwise it shows a default icon for the setting.
+
+## Specs
+
+| Property | Value | Token |
+| --- | --- | --- |
+| Height | 48px | `--control-select-menu-height` |
+| Padding | 6px top and bottom, 10px left and right | `--control-select-menu-padding` |
+| Corner radius | 12px | `--ha-border-radius-lg`, through `--control-select-menu-border-radius` |
+| Gap between icon, text, and arrow | 10px | None |
+| Icon size | 20px | `--mdc-icon-size` |
+| Label size | 12px, letter spacing 0.4px | `--ha-font-size-s` |
+| Value size | 14px | `--ha-font-size-m` |
+| Font weight | 400 | `--ha-font-weight-normal` |
+| Line height | 1.4 | None |
+| Transition | 180ms, ease-in-out | None |
+| Height of a menu option | At least 40px | `--ha-space-10` |
+
+| State | Background | Text |
+| --- | --- | --- |
+| Resting | `--disabled-color` at 20% opacity | `--primary-text-color` |
+| Hover | `--ha-color-on-neutral-quiet` at 20% opacity | `--primary-text-color` |
+| Focus | Resting background, with a 2px ring in `--secondary-text-color` | `--primary-text-color` |
+| Disabled | `--disabled-color` at 20% opacity | `--disabled-color` |
+| Selected option in the menu | `--ha-color-fill-primary-quiet-resting`, `--ha-color-fill-primary-quiet-hover` on hover | `--primary-color` |
+
+## Guidelines
+
+<DoDont doText="Keep the label and the value short." dontText="Use long text that gets cut off in a narrow button.">
+  <ha-control-select-menu slot="do" label="Preset" value="eco" data-props='{"options": [{"value": "eco", "label": "Eco"}]}' style="width: 160px">
+    <ha-svg-icon slot="icon" path="M8 13C6.14 13 4.59 14.28 4.14 16H2V18H4.14C4.59 19.72 6.14 21 8 21S11.41 19.72 11.86 18H22V16H11.86C11.41 14.28 9.86 13 8 13M8 19C6.9 19 6 18.1 6 17C6 15.9 6.9 15 8 15S10 15.9 10 17C10 18.1 9.1 19 8 19M19.86 6C19.41 4.28 17.86 3 16 3S12.59 4.28 12.14 6H2V8H12.14C12.59 9.72 14.14 11 16 11S19.41 9.72 19.86 8H22V6H19.86M16 9C14.9 9 14 8.1 14 7C14 5.9 14.9 5 16 5S18 5.9 18 7C18 8.1 17.1 9 16 9Z"></ha-svg-icon>
+  </ha-control-select-menu>
+  <ha-control-select-menu slot="dont" label="Energy saving preset" value="eco" data-props='{"options": [{"value": "eco", "label": "Energy saving mode"}]}' style="width: 160px">
+    <ha-svg-icon slot="icon" path="M8 13C6.14 13 4.59 14.28 4.14 16H2V18H4.14C4.59 19.72 6.14 21 8 21S11.41 19.72 11.86 18H22V16H11.86C11.41 14.28 9.86 13 8 13M8 19C6.9 19 6 18.1 6 17C6 15.9 6.9 15 8 15S10 15.9 10 17C10 18.1 9.1 19 8 19M19.86 6C19.41 4.28 17.86 3 16 3S12.59 4.28 12.14 6H2V8H12.14C12.59 9.72 14.14 11 16 11S19.41 9.72 19.86 8H22V6H19.86M16 9C14.9 9 14 8.1 14 7C14 5.9 14.9 5 16 5S18 5.9 18 7C18 8.1 17.1 9 16 9Z"></ha-svg-icon>
+  </ha-control-select-menu>
+</DoDont>
+
+- Only hide the label where the surroundings already name the setting, like the tile card does.
+
+## Accessibility
+
+### Keyboard
+
+The button opens a [dropdown](/design/components/dropdown/), and the menu follows its keyboard behavior:
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves focus to the button. A disabled select menu is skipped. |
+| <kbd>Enter</kbd> or <kbd>Space</kbd> | Opens the menu. In the menu, selects the focused option. |
+| <kbd>Arrow down</kbd> and <kbd>Arrow up</kbd> | Moves to the next or previous option. |
+| <kbd>Home</kbd> and <kbd>End</kbd> | Moves to the first or last option. |
+| A letter | Moves to the first option that starts with the typed text. |
+| <kbd>Escape</kbd> | Closes the menu, and moves focus back to the button. |
+
+### Focus
+
+Keyboard focus shows a 2px ring around the button, in the secondary text color.
+
+### Target size
+
+The button is 48px high. Its width is set by the page, 120 to 160 pixels in the more-info dialogs.
+
+### Screen readers
+
+The button is announced with its label and value, and as a button that opens a menu. Without the label, only the value is announced. The options are announced as menu items. The selected option looks selected, but is not announced as selected.
+
+### In the code
+
+- The button is a native `<button>`, with `aria-haspopup="menu"` and `aria-expanded` set by the dropdown.
+- The accessible name is the text inside the button: the label and the value. With `hide-label`, the label is not rendered at all, so screen readers only get the value.
+- SVG icons are hidden from screen readers.
+- The menu has the role `menu`, and each option has the role `menuitem`. The selected option is only marked visually.
+
+## Related
+
+- [Controls](/design/components/controls/): the family the select menu belongs to
+- [Dropdown](/design/components/dropdown/): the menu it opens
+- [Tile card](/design/dashboards/tile-card/): where it shows up as a feature
+
+## In code
+
+The element is `<ha-control-select-menu>`. The menu is an [`ha-dropdown`](/design/components/dropdown/), opened below the button, and at least as wide as the button.
+
+```ts
+html`<ha-control-select-menu
+  .label=${"Preset"}
+  .value=${this.stateObj.attributes.preset_mode}
+  .options=${[
+    { value: "eco", label: "Eco" },
+    { value: "sleep", label: "Sleep" },
+  ]}
+  @wa-select=${this._presetChanged}
+>
+  <ha-svg-icon slot="icon" .path=${mdiTuneVariant}></ha-svg-icon>
+</ha-control-select-menu>`
+```
+
+The component does not change its own value when an option is selected. It fires `wa-select`, and you set `value` from there, usually after the entity has changed. That is also why the demos on this page keep their value.
+
+### Attributes
+
+- `label`: the name of the setting.
+- `value`: the `value` of the selected option.
+- `hide-label`: shows only the value, without the label.
+- `show-arrow`: shows a dropdown arrow at the end.
+- `disabled`: disables the select menu. It does not open.
+
+### Properties
+
+These can only be set as properties:
+
+- `options`: an array of options. Each has a `value` and a `label`, and optionally an icon: `iconPath` for SVG path data, or `icon` for an icon name like `mdi:fan`.
+- `renderIcon`: a function that returns the icon for a value. Used for options without `iconPath` or `icon`, in the menu and on the button.
+
+### Slots
+
+- `icon`: the icon on the button, when the selected option has no icon of its own.
+
+### Events
+
+- `wa-select`: an option was selected. `detail.item.value` is its `value`.
+
+### Styling
+
+- `--control-select-menu-height`: defaults to `48px`.
+- `--control-select-menu-padding`: defaults to `6px 10px`.
+- `--control-select-menu-border-radius`: defaults to `var(--ha-border-radius-lg)`.
+- `--control-select-menu-background-color`: defaults to `var(--disabled-color)`.
+- `--control-select-menu-background-opacity`: defaults to `0.2`.
+- `--control-select-menu-focus-color`: the focus ring. Defaults to `var(--secondary-text-color)`.
+- `--mdc-icon-size`: the icon size. Defaults to `20px`.
+
+The element is `inline-block`, and as wide as its content. Set a `width`, or `display: block` to fill the container, like the tile card features do.
+
+Source: [`src/components/ha-control-select-menu.ts`](https://github.com/home-assistant/frontend/blob/dev/src/components/ha-control-select-menu.ts)

@@ -1,0 +1,60 @@
+---
+title: Alarm panel card
+description: The alarm panel card arms and disarms an alarm, with a keypad for the code.
+sidebarGroup: Controls
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+<Demo hass>
+  <hui-card style="width: 340px" data-props='{"config": {"type": "alarm-panel", "entity": "alarm_control_panel.home_alarm"}}'></hui-card>
+</Demo>
+
+## Usage
+
+The alarm panel card looks and works like the keypad of an alarm system. At the top, you see the name and a chip with the state, like **Disarmed**. Below it are the buttons to arm the alarm. When the alarm is armed, those make room for a single **Disarm** button, in the danger color. Selecting the state chip opens the more-info dialog.
+
+When the alarm needs a code, the card shows a field for it. For a numeric code, a keypad follows, big enough to use on a wall tablet. For a code with letters, only the field shows, and people type it. When the alarm has no code, or a default code is set for it, there is no field and no keypad at all.
+
+Use the alarm panel card for a dashboard that is the alarm panel, like a tablet at the front door. For a quick look at the state, or to arm it from the room you're in, a [tile card](/design/dashboards/tile-card/) with the alarm modes feature is a lot smaller.
+
+<Demo hass>
+  <hui-card style="width: 340px" data-props='{"config": {"type": "tile", "entity": "alarm_control_panel.home_alarm", "features": [{"type": "alarm-modes", "modes": ["armed_home", "armed_away", "disarmed"]}]}}'></hui-card>
+</Demo>
+
+### Arm buttons
+
+The card shows **Arm home** and **Arm away** by default, if the alarm supports them. With `states`, you pick which buttons show, and in which order. Show the modes people actually use. Every extra button is one more thing to read in a hurry.
+
+<Demo hass>
+  <hui-card style="width: 340px" data-props='{"config": {"type": "alarm-panel", "entity": "alarm_control_panel.home_alarm", "states": ["arm_home", "arm_away", "arm_night"]}}'></hui-card>
+</Demo>
+
+### Content
+
+- Use a name that says which alarm it is when there is more than one, like **Garage alarm**. Otherwise, the name of the entity is fine.
+- Leave out arm modes the alarm does not support. The card filters them out of the default, but not out of a list you set yourself.
+
+## Configuration
+
+- `entity` (string, required): the alarm to show. Only entities of the `alarm_control_panel` domain work.
+- `name` (string): the name to show. Defaults to the name of the entity.
+- `states` (list): the arm buttons to show: `arm_home`, `arm_away`, `arm_night`, `arm_vacation`, and `arm_custom_bypass`. Defaults to `arm_home` and `arm_away`, if the alarm supports them.
+- `theme` (string): a theme to apply to this card only.
+
+```yaml
+type: alarm-panel
+entity: alarm_control_panel.home_alarm
+states:
+  - arm_home
+  - arm_away
+  - arm_night
+```
+
+## In code
+
+The card lives in `src/panels/lovelace/cards/hui-alarm-panel-card.ts`, and the element is `<hui-alarm-panel-card>`. The arm buttons are [`<ha-button>`](/design/components/button/) elements in the filled appearance, the keypad is a grid of [`<ha-control-button>`](/design/components/controls/) elements, and the code field is an [`<ha-input>`](/design/components/input/). Whether the field and the keypad show depends on the `code_format` attribute of the entity, and on the default code in the entity registry options.
+
+The card has no grid options of its own, so in the sections view it takes the full width of the section and as much height as it needs.
+
+[Source](https://github.com/home-assistant/frontend/blob/dev/src/panels/lovelace/cards/hui-alarm-panel-card.ts)

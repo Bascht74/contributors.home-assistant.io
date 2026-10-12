@@ -1,0 +1,181 @@
+---
+title: Badge
+description: Badges show a small piece of status information, like a temperature or the state of a light, in a compact pill.
+sidebarGroup: Feedback and status
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+import DoDont from "../../../../components/docs/DoDont.astro";
+
+<Demo>
+  <ha-badge label="Living room">
+    <ha-svg-icon slot="icon" path="M15 13V5A3 3 0 0 0 9 5V13A5 5 0 1 0 15 13M12 4A1 1 0 0 1 13 5V8H11V5A1 1 0 0 1 12 4Z"></ha-svg-icon>
+    21.5 °C
+  </ha-badge>
+  <ha-badge type="button">
+    <ha-svg-icon slot="icon" path="M12,2A7,7 0 0,0 5,9C5,11.38 6.19,13.47 8,14.74V17A1,1 0 0,0 9,18H15A1,1 0 0,0 16,17V14.74C17.81,13.47 19,11.38 19,9A7,7 0 0,0 12,2M9,21A1,1 0 0,0 10,22H14A1,1 0 0,0 15,21V20H9V21Z"></ha-svg-icon>
+    On
+  </ha-badge>
+  <ha-badge icon-only type="button">
+    <ha-svg-icon slot="icon" path="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.67 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z"></ha-svg-icon>
+  </ha-badge>
+</Demo>
+
+## Overview
+
+A badge shows one thing at a glance: a state, a value, a count. It is what powers the badges at the top of a dashboard, like the entity badge and the energy total badges. It is a compact pill with an optional icon, an optional label, and the value.
+
+## When to use
+
+Use a badge for:
+
+- A single fact, like a temperature, the state of a light, or a count
+- A compact shortcut to more detail, like opening the more info dialog of an entity
+
+Don't use a badge for:
+
+- More than one fact. Use a card.
+- A message that needs to be read, like an error. Use an [alert](/design/components/alert/).
+- An action that is not about the value it shows. Use a [button](/design/components/button/).
+
+## Anatomy
+
+1. **Container**: the pill, with the background, border, and shadow of a card
+2. **Icon**: optional, colored with the badge color. An image here becomes a round picture.
+3. **Label**: optional small secondary text above the content
+4. **Content**: the value or state
+
+## Variants
+
+### With or without a label
+
+The label sits above the content, in small secondary text. Use it to say _what_ the value is about, like the area or the entity name. Leave it out when the icon and value already make that clear.
+
+<Demo>
+  <ha-badge>21.5 °C</ha-badge>
+  <ha-badge label="Living room">21.5 °C</ha-badge>
+</Demo>
+
+### Badge or button
+
+By default, a badge is static. Make it a button badge when selecting it does something, like opening the more info dialog of an entity. A button badge gets hover and press feedback, a pointer cursor, and keyboard focus, and screen readers announce it as a button.
+
+<Demo>
+  <ha-badge>Static</ha-badge>
+  <ha-badge type="button">Selectable</ha-badge>
+</Demo>
+
+### Icon only
+
+An icon only badge drops the label and content, and becomes a round icon. Use it only for icons people recognize without text. Otherwise, keep the text.
+
+## Behavior
+
+- **Static**: a badge of the default type has no hover, focus, or pressed state.
+- **Hover**: a button badge gets an overlay in the badge color at 4% opacity.
+- **Pressed**: a button badge gets an overlay in the badge color at 12% opacity.
+- **Focus**: a focused button badge gets a border and a 1px ring in the badge color. The change takes 180ms.
+
+## Specs
+
+| Property | Value | Token |
+| --- | --- | --- |
+| Height and minimum width | 36px | `--ha-badge-size` |
+| Padding left and right | 12px | None |
+| Padding left and right, icon only | 0 | None |
+| Corner radius | Half the height, 18px | `--ha-badge-border-radius` |
+| Gap between icon and text | 8px | `--ha-space-2` |
+| Icon size | 18px | `--ha-badge-icon-size` |
+| Image in the icon slot | 30px, round | `--ha-border-radius-circle` |
+| Border width | 1px | `--ha-card-border-width` |
+| Label | 10px, weight 500, line height 10px | `--ha-font-size-xs`, `--ha-font-weight-medium` |
+| Content | 12px, weight 500, line height 1.2 | `--ha-font-size-s`, `--ha-font-weight-medium`, `--ha-line-height-condensed` |
+
+| Part | Color |
+| --- | --- |
+| Background | `--ha-card-background`, falling back to `--card-background-color` |
+| Border | `--ha-card-border-color`, falling back to `--divider-color` |
+| Shadow | `--ha-card-box-shadow`, none by default |
+| Icon, focus border, and focus ring | `--badge-color`, defaults to `--secondary-text-color` |
+| Label | `--secondary-text-color` |
+| Content | `--primary-text-color` |
+
+## Guidelines
+
+<DoDont doText="Keep the content to a value with its unit, or a state." dontText="Put a sentence in a badge.">
+  <ha-badge slot="do" label="Living room"><ha-svg-icon slot="icon" path="M15 13V5A3 3 0 0 0 9 5V13A5 5 0 1 0 15 13M12 4A1 1 0 0 1 13 5V8H11V5A1 1 0 0 1 12 4Z"></ha-svg-icon>21.5 °C</ha-badge>
+  <ha-badge slot="dont"><ha-svg-icon slot="icon" path="M15 13V5A3 3 0 0 0 9 5V13A5 5 0 1 0 15 13M12 4A1 1 0 0 1 13 5V8H11V5A1 1 0 0 1 12 4Z"></ha-svg-icon>The living room is 21.5 °C</ha-badge>
+</DoDont>
+
+- Keep a badge to a single fact. If you need more room, use a card.
+- Only make a badge a button badge when selecting it does something. Don't make a badge look selectable when it isn't.
+- See [UI text](/design/ui-text/) for how to write states and units.
+
+## Accessibility
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves focus to a button badge. A static badge is not focusable. |
+
+The badge has no key handler of its own. What <kbd>Enter</kbd> or <kbd>Space</kbd> do on a button badge depends on the handler the page adds.
+
+### Focus
+
+A focused button badge gets a border and a thin ring in the badge color, only when you use a keyboard.
+
+### Target size
+
+The badge is 36px high, and at least 36px wide.
+
+### Screen readers
+
+A screen reader reads the label and the content. A button badge is announced as a button. An icon only badge has no text of its own, so it needs a name from the page that uses it.
+
+### In the code
+
+- A button badge has the role `button` and `tabindex="0"`. A static badge has no role, and can't be focused.
+- The focus style uses `:focus-visible`.
+
+## Related
+
+- [Label badge](/design/components/label-badge/): the older round badge
+- [State icon](/design/components/state-icon/): the icon that badges for entities show
+- [Alert](/design/components/alert/): for a message instead of a value
+
+## In code
+
+The element is `<ha-badge>`. The content goes in the default slot, the icon in the `icon` slot.
+
+```html
+<ha-badge label="Living room">
+  <ha-svg-icon slot="icon" path="..."></ha-svg-icon>
+  21.5 °C
+</ha-badge>
+
+<ha-badge type="button">On</ha-badge>
+```
+
+### Attributes
+
+- `type`: `badge` (default) or `button`.
+- `label`: small text above the content.
+- `icon-only`: shows only the icon. Hides the label and the content.
+
+### Slots
+
+- Default: the content of the badge.
+- `icon`: the icon, usually an `ha-svg-icon` or `ha-state-icon`. An `img` in this slot is shown as a round 30 pixel picture, like an entity picture.
+
+### Styling
+
+- `--badge-color`: the icon color, and the focus ring color. Defaults to `var(--secondary-text-color)`. Dashboard badges set it to the state color of the entity.
+- `--ha-badge-size`: the height, and the minimum width. Defaults to `36px`.
+- `--ha-badge-border-radius`: the corner radius. Defaults to half the size, which makes it a pill.
+- `--ha-badge-font-size`: the size of the content text. Defaults to `var(--ha-font-size-s)`.
+- `--ha-badge-icon-size`: the icon size. Defaults to `18px`.
+
+The background, border, and shadow follow the card variables (`--ha-card-background`, `--ha-card-border-color`, `--ha-card-border-width`, `--ha-card-box-shadow`), so badges match the cards of the theme.
+
+Source: [`src/components/ha-badge.ts`](https://github.com/home-assistant/frontend/blob/dev/src/components/ha-badge.ts)

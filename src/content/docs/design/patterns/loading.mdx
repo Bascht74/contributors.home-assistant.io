@@ -1,0 +1,90 @@
+---
+title: Loading
+description: How Home Assistant shows that something is on its way, from a spinner to a button that reports how its action went.
+order: 2
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+Your home is not always instant. A device takes a moment to answer, history has to be fetched, a backup takes minutes. A good wait tells people that something is happening, and where the result will show up.
+
+## When to use
+
+Show a loading state whenever people would otherwise look at a screen that seems stuck or empty. Pick the indicator by where the wait happens:
+
+- **A whole area loads, and you don't know how long it takes**: a [spinner](/design/components/spinner/).
+- **A button started an action that runs on the spot**: the button shows that it is busy.
+- **The action finishes in place and has nowhere else to show its result**: a [progress button](/design/components/progress-button/).
+- **Content loads into a layout you already know**, like rows of a table or the text of a tile: a skeleton, a grey placeholder in the shape of the content.
+- **An operation has several steps**: show progress through the steps, so people know how far along it is.
+
+## How it works
+
+### Spinner
+
+The spinner comes in four sizes: `tiny` (16 pixels), `small` (28), `medium` (48, the default), and `large` (68).
+
+<Demo>
+  <ha-spinner size="tiny"></ha-spinner>
+  <ha-spinner size="small"></ha-spinner>
+  <ha-spinner size="medium"></ha-spinner>
+  <ha-spinner size="large"></ha-spinner>
+</Demo>
+
+### Busy buttons
+
+A [button](/design/components/button/) with `loading` shows a spinner instead of its label and can't be selected again, so the action does not start twice. The confirmation dialogs of the frontend do this with their main button while the action runs.
+
+A progress button goes one step further. When the action is done, it shows a check mark on a green button or an alert icon on a red one, for two seconds. It says *that* something failed, not *why*. When people need to know why, also show an [error](/design/patterns/errors/).
+
+<Demo>
+  <ha-button loading>Save</ha-button>
+  <ha-progress-button progress>Restart</ha-progress-button>
+</Demo>
+
+### Skeletons
+
+A skeleton keeps the layout in place while the content loads, so nothing jumps around when it arrives. The frontend has `ha-skeleton`, with `ha-skeleton-text` and `ha-skeleton-icon` for the common shapes. Data tables, tiles, and the devices dashboard use them.
+
+<Demo layout="stack" caption="A row of a data table while it loads: ha-skeleton-icon and ha-skeleton-text.">
+  <div style="display: flex; align-items: center; gap: 16px">
+    <ha-skeleton-icon></ha-skeleton-icon>
+    <ha-skeleton-text></ha-skeleton-text>
+  </div>
+  <div style="display: flex; align-items: center; gap: 16px">
+    <ha-skeleton-icon></ha-skeleton-icon>
+    <ha-skeleton-text style="--ha-skeleton-text-width: 200px"></ha-skeleton-text>
+  </div>
+</Demo>
+
+### Where loading ends
+
+A loading state always ends in one of three places: the content, an [empty state](/design/patterns/empty-states/), or an [error](/design/patterns/errors/). Never leave a spinner running when the request failed, and never show "nothing here" while the data is still on its way.
+
+Dashboard cards follow the same rule. Every card handles loading, an error, an unavailable entity, and an entity that does not exist.
+
+## Accessibility
+
+- The spinner has the role of a progress bar, with a translated "Loading" label.
+- Skeletons and spinners keep their meaning without motion. Skeletons stop pulsing when people ask for reduced motion. See [Motion](/design/foundations/motion/).
+- When loading ends in an error, show it as text people can read, not only as a red button.
+
+## Components
+
+- [Spinner](/design/components/spinner/)
+- [Button](/design/components/button/) and [progress button](/design/components/progress-button/)
+- [Alert](/design/components/alert/), when loading fails
+
+## In code
+
+```ts
+html`
+  <ha-spinner size="small"></ha-spinner>
+  <ha-button .loading=${this._saving}>Save</ha-button>
+  <ha-progress-button .progress=${this._running}>
+    Restart
+  </ha-progress-button>
+`;
+```
+
+When the action of a progress button is done, call `actionSuccess()` or `actionError()` on it. The skeletons, `ha-skeleton`, `ha-skeleton-text`, and `ha-skeleton-icon`, live in `src/components/skeleton/`.

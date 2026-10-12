@@ -1,0 +1,74 @@
+---
+title: Thermostat card
+description: The thermostat card shows a climate or water heater entity as a dial, to read the temperature and set the target.
+sidebarGroup: Controls
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+<Demo hass>
+  <hui-card style="width: 340px" data-props='{"config": {"type": "thermostat", "entity": "climate.thermostat"}}'></hui-card>
+</Demo>
+
+## Usage
+
+The thermostat card is a big dial for one climate or water heater entity. The ring shows the target temperature, and you drag it, or use the minus and plus buttons, to change it. The big number in the middle is the target, with the current temperature and what the device is doing, like **Preheating**, around it. The menu button in the corner opens the more-info dialog, with all modes and settings.
+
+The dial takes the color of what the device does: orange when it heats, blue when it cools. When the device is off, the dial is gray and the controls step back.
+
+<Demo hass>
+  <hui-card style="width: 340px" data-props='{"config": {"type": "thermostat", "entity": "climate.bedroom_air_conditioner"}}'></hui-card>
+  <hui-card style="width: 340px" data-props='{"config": {"type": "thermostat", "entity": "water_heater.water_heater"}}'></hui-card>
+</Demo>
+
+Use the thermostat card when changing the temperature is the reason people open the dashboard, like on a climate view or on a tablet in the hallway. The card is tall: in the sections view it takes five rows. When the temperature is one of many things in a room, a [tile card](/design/dashboards/tile-card/) with the target temperature feature takes one row and does the same job.
+
+### Current temperature first
+
+With `show_current_as_primary: true`, the big number is the current temperature, and the target moves to the smaller line. Use it when people mostly want to know how warm it is, and only sometimes change the target.
+
+<Demo hass>
+  <hui-card style="width: 340px" data-props='{"config": {"type": "thermostat", "entity": "climate.thermostat", "show_current_as_primary": true}}'></hui-card>
+</Demo>
+
+### Features
+
+Like the tile card, the thermostat card takes features below the dial. The modes of the device are a good fit: the HVAC modes, the presets, or the fan modes. Each feature adds rows to the card in the sections view, so add only what people change often. The rest is one tap away in the more-info dialog.
+
+<Demo hass>
+  <hui-card style="width: 340px" data-props='{"config": {"type": "thermostat", "entity": "climate.thermostat", "features": [{"type": "climate-hvac-modes", "hvac_modes": ["off", "heat", "cool", "auto"]}]}}'></hui-card>
+  <hui-card style="width: 340px" data-props='{"config": {"type": "thermostat", "entity": "climate.bedroom_air_conditioner", "features": [{"type": "climate-fan-modes", "style": "icons"}]}}'></hui-card>
+</Demo>
+
+### Content
+
+- The name sits at the top of the card. Keep it short, and leave it out when the section already says which room it is.
+- Pick the features that match the device. An air conditioner and a radiator valve have very different modes.
+
+## Configuration
+
+- `entity` (string, required): the entity to show. Only entities of the `climate` or `water_heater` domain work.
+- `name` (string): the name to show. Defaults to the name of the entity.
+- `show_current_as_primary` (boolean): shows the current temperature as the big number, and the target below it. Defaults to `false`.
+- `theme` (string): a theme to apply to this card only.
+- `features` (list): the features to show below the dial, each with a `type`.
+
+```yaml
+type: thermostat
+entity: climate.thermostat
+features:
+  - type: climate-hvac-modes
+    hvac_modes:
+      - "off"
+      - "heat"
+      - "cool"
+      - "auto"
+```
+
+## In code
+
+The card lives in `src/panels/lovelace/cards/hui-thermostat-card.ts`, and the element is `<hui-thermostat-card>`. It does not draw the dial itself. It reuses the control of the more-info dialog: `<ha-state-control-climate-temperature>` for climate entities, and `<ha-state-control-water_heater-temperature>` for water heaters. Both are built on the [`<ha-control-circular-slider>`](/design/components/controls/). Fix something in the dial, and both the card and the dialog get it.
+
+The features render with `<hui-card-features>`, the same element the tile card uses. In the sections view, the card takes 12 columns and 5 rows, and can shrink to 6 columns and 2 rows. Features add rows on top of that.
+
+[Source](https://github.com/home-assistant/frontend/blob/dev/src/panels/lovelace/cards/hui-thermostat-card.ts)

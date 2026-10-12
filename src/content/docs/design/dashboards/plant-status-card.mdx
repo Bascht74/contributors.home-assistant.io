@@ -1,0 +1,50 @@
+---
+title: Plant status card
+description: The plant status card shows the readings of a plant, like moisture and light, and points out the one that needs attention.
+sidebarGroup: Information
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+<Demo hass>
+  <hui-card style="width: 380px" data-props='{"config": {"type": "plant-status", "entity": "plant.monstera"}}'></hui-card>
+</Demo>
+
+## Usage
+
+The plant status card is made for one kind of entity: a plant from the plant integration. That entity bundles the sensors of a plant, like moisture, temperature, light, conductivity, and battery, and knows the range each one should be in. The card shows all readings in a row, each with an icon, the value, and the unit.
+
+A reading outside its range is shown in bold, in the error color. In the demo, the moisture of the Monstera is too low. That is the whole point of the card: you see at a glance which plant needs water, light, or a new battery.
+
+Selecting a reading opens the more-info dialog of the sensor behind it, with its history.
+
+The card only works with plant entities. For a single plant sensor, like a moisture sensor without the plant integration, use a [tile card](/design/dashboards/tile-card/) or a [sensor card](/design/dashboards/sensor-card/).
+
+### Picture
+
+When the plant entity has a picture, the card shows it as a banner, with the name on top of it. Without a picture, only the name is shown, as in the demo.
+
+### Content
+
+- The card shows the readings the plant has. You can't pick which ones, so leave out a sensor in the plant integration if it should not be on the card.
+- The battery icon follows the level, and takes the color of the battery level, like red when it is almost empty.
+- Use `name` when the name of the plant entity is not the name people use for the plant.
+
+## Configuration
+
+- `entity` (string, required): the plant entity to show.
+- `name` (string): the name to show. Defaults to the name of the entity.
+- `theme` (string): the theme for this card.
+
+```yaml
+type: plant-status
+entity: plant.monstera
+```
+
+## In code
+
+The card lives in `src/panels/lovelace/cards/hui-plant-status-card.ts`, and the element is `<hui-plant-status-card>`. The readings it shows are the attributes of the plant entity that it knows: `moisture`, `temperature`, `brightness`, `conductivity`, and `battery`. The `problem` attribute of the entity says which ones are out of range. The `sensors` attribute links each reading to its sensor entity: the card uses it to format the value like that sensor, and to open its more-info dialog.
+
+The card has a fixed size of 3 in the masonry view, and takes the full width of a section.
+
+[Source](https://github.com/home-assistant/frontend/blob/dev/src/panels/lovelace/cards/hui-plant-status-card.ts)

@@ -1,0 +1,64 @@
+---
+title: To-do list card
+description: The to-do list card shows the items of a to-do list, to check them off, add new ones, and reorder them.
+sidebarGroup: Controls
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+<Demo hass>
+  <hui-card style="width: 360px" data-props='{"config": {"type": "todo-list", "entity": "todo.shopping_list"}}'></hui-card>
+</Demo>
+
+## Usage
+
+The to-do list card shows one to-do list, like the shopping list. At the top is a field to add an item. Below it, the items are grouped: the items still to do under **Active**, and the done ones under **Completed**. Items without a status get their own group. Each item has a checkbox. Selecting the item opens it to edit, with its description and due date.
+
+The menu next to a group header holds the actions for that group, like reordering the active items, or clearing all completed ones. What the card offers depends on the list: a list that can't create or move items shows no field to add them, and no option to reorder.
+
+Use the to-do list card for a list people work with every day, like groceries or chores. To only show how many items are left, a [tile card](/design/dashboards/tile-card/) of the to-do entity is enough. Its state is the number of items still to do.
+
+### Hide what's done
+
+With `hide_completed: true`, the card only shows what's left to do. Use it for a list that grows long, like a shopping list that is never cleared. With `hide_create: true`, the field to add items goes away, for a list that is read on a wall tablet more than it is edited.
+
+<Demo hass>
+  <hui-card style="width: 360px" data-props='{"config": {"type": "todo-list", "entity": "todo.shopping_list", "hide_completed": true, "hide_create": true}}'></hui-card>
+</Demo>
+
+### Order
+
+By default, the items keep the order of the list, which people can change by dragging. With `display_order`, you sort them by name or by due date instead. Use `due_date_period` to only show the items that are due in a period, like today, or this week.
+
+### Content
+
+- Set a `title` when the dashboard has more than one list. The name of the list does not show on the card by itself.
+- For a list that has a clear owner or place, put the card in the matching section, so people find it where they expect it.
+
+## Configuration
+
+- `entity` (string, required): the to-do list to show. Only entities of the `todo` domain work.
+- `title` (string): a title above the list.
+- `hide_completed` (boolean): hides the completed items. Defaults to `false`.
+- `hide_create` (boolean): hides the field to add items. Defaults to `false`.
+- `hide_section_headers` (boolean): hides the **Active** and **Completed** headers. Defaults to `false`.
+- `display_order` (string): `none`, `alpha_asc`, `alpha_desc`, `duedate_asc`, or `duedate_desc`. Defaults to `none`, the order of the list.
+- `due_date_period` (period): only shows items that are due in this period, like today or the next 7 days.
+- `item_tap_action` (string): what happens when you select an item: `edit` or `toggle`. Defaults to `edit`.
+- `theme` (string): a theme to apply to this card only.
+
+```yaml
+type: todo-list
+entity: todo.shopping_list
+title: "Groceries"
+hide_completed: true
+display_order: "alpha_asc"
+```
+
+## In code
+
+The card lives in `src/panels/lovelace/cards/hui-todo-list-card.ts`, and the element is `<hui-todo-list-card>`. It subscribes to the items of the list with `subscribeItems` from `src/data/todo.ts`, so changes from other places show up right away. Reordering uses `<ha-sortable>`, and editing an item opens the to-do item dialog from `src/panels/todo/`.
+
+Which controls show depends on the supported features of the entity, like `CREATE_TODO_ITEM` and `MOVE_TODO_ITEM` in `src/data/todo.ts`.
+
+[Source](https://github.com/home-assistant/frontend/blob/dev/src/panels/lovelace/cards/hui-todo-list-card.ts)

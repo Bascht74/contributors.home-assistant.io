@@ -1,0 +1,95 @@
+---
+title: Picture elements card
+description: The picture elements card places icons, labels, badges, and buttons anywhere on an image, like the lights on a floor plan.
+sidebarGroup: Media and pictures
+---
+
+## Usage
+
+The picture elements card is a picture with things on top of it. Each element sits at a position you choose, in percentages of the image: an icon for the lamp in the corner of the living room, the temperature next to the window, a button to turn everything off. It is the card people use for floor plans, and for a photo of a room with its devices marked on it.
+
+This page has no live example. The demo home on this site has no pictures or cameras to show.
+
+It is also the most free-form card there is. Nothing about the layout is decided for you, so the result is only as clear as the person who builds it makes it. Reach for it when the position on the picture carries meaning, like where a device is in the house. When it doesn't, a [picture glance card](/design/dashboards/picture-glance-card/) or a section of [tile cards](/design/dashboards/tile-card/) is easier to make, and easier to use on every screen size.
+
+### Elements
+
+- `state-icon`: the icon of an entity, colored by its state. Selecting it opens the more-info dialog.
+- `state-label`: the state of an entity as text, or one of its attributes, with an optional `prefix` and `suffix`.
+- `state-badge`: the state of an entity as a round label badge.
+- `icon`: a fixed icon, for an action that is not tied to the state of an entity.
+- `image`: an image on top of the picture, which can follow the state of an entity with `state_image` and `state_filter`. Use it to draw a lamp that lights up.
+- `action-button`: a text button that performs an action, like `light.turn_off`. The older name, `service-button`, still works.
+- `conditional`: a group of elements that only shows when its conditions are met.
+
+Every element takes a `style`, a map of CSS properties. Use `top` and `left` to place it. The element is centered on that point, so `top: 50%` and `left: 50%` puts it right in the middle of the image. The style can also scale, rotate, or color it.
+
+### Tapping elements
+
+Icons and labels are small, and on a busy floor plan they are hard to hit with a finger. So the card routes a tap to the nearest icon or label, up to 24 pixels away. A tap in the gap between two lamps goes to the closest one, and two overlapping elements no longer steal each other's taps.
+
+By default, selecting or holding an element opens the more-info dialog of its entity. Set `tap_action` to `toggle` for elements people use as a switch, like the lamps on a floor plan.
+
+### Dark mode
+
+A floor plan drawn for a light background looks harsh in the dark theme. With `dark_mode_image`, the card shows another image in the dark theme. With `dark_mode_filter`, it applies a CSS filter to the same image instead, like `invert(1) hue-rotate(180deg)`.
+
+### Content
+
+- Use an image with a fixed aspect ratio, and place elements in percentages. Then the elements stay in place on every screen size.
+- Make the state visible on the picture itself where you can, with a state icon or an image that lights up. A floor plan full of text labels is a table in disguise.
+- Keep elements large enough to tap. Scale icons up with `--mdc-icon-size` in the style, rather than placing them closer together.
+- Give icons and buttons a `title`. It is the tooltip, and the name screen readers use.
+
+## Configuration
+
+- `elements` (list, required): the elements to place, each with a `type` and a `style`.
+- `image` (string or media): the picture. One of `image`, `image_entity`, `camera_image`, or `state_image` is required.
+- `image_entity` (string): an image or person entity to take the picture from.
+- `camera_image` (string): a camera entity to show as the picture.
+- `camera_view` (string): `auto` for snapshots, or `live` for the live stream. Defaults to `auto`.
+- `entity` (string): the entity the picture follows, for `state_image` and `state_filter`.
+- `state_image` (map): a picture for each state of `entity`. Requires `entity`.
+- `state_filter` (map): a CSS filter for each state of `entity`.
+- `dark_mode_image` (string or media): the picture to use in the dark theme.
+- `dark_mode_filter` (string): a CSS filter for the picture in the dark theme.
+- `aspect_ratio` (string): the shape of the picture, like `16x9` or `50%`.
+- `title` (string): a title above the picture.
+- `theme` (string): a theme to apply to the card.
+
+```yaml
+type: picture-elements
+image: "/local/floor_plan.png"
+dark_mode_filter: "invert(1) hue-rotate(180deg)"
+elements:
+  - type: state-icon
+    entity: light.living_room_lamp
+    tap_action:
+      action: toggle
+    style:
+      top: "30%"
+      left: "20%"
+  - type: state-label
+    entity: sensor.living_room_temperature
+    style:
+      top: "40%"
+      left: "20%"
+  - type: action-button
+    title: "All off"
+    action: light.turn_off
+    target:
+      entity_id: all
+    style:
+      top: "90%"
+      left: "85%"
+```
+
+## In code
+
+The card lives in `src/panels/lovelace/cards/hui-picture-elements-card.ts`, and the element is `<hui-picture-elements-card>`. The picture is a `<hui-image>`. The elements live in `src/panels/lovelace/elements/`, one per type, like `<hui-state-icon-element>`, and `create-styled-hui-element.ts` applies their `style`. An `action-button` is created as `<hui-service-button-element>`. Every element is absolutely positioned with `transform: translate(-50%, -50%)`, which is why it is centered on its `top` and `left`.
+
+The routing of taps to the nearest element lives in `src/panels/lovelace/cards/picture-elements/nearest-hit.ts`. Elements that take part set `delegatedActions` and report their hit area with `getHitInfo()`.
+
+The card throws `Image required` without an image source, and `Elements required` without a list of elements. It has no grid options of its own: in the sections view, it takes all 12 columns, and its height follows the picture.
+
+[Source](https://github.com/home-assistant/frontend/blob/dev/src/panels/lovelace/cards/hui-picture-elements-card.ts)

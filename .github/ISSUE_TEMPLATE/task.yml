@@ -1,0 +1,50 @@
+name: Task
+description: For staff and authorized contributors only. Create a task.
+type: Task
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Restricted access
+
+        **This form is restricted to Open Home Foundation staff and authorized contributors.** Task issues opened by anyone else are closed automatically.
+
+        Want to help out? Use one of these instead:
+
+        - Something on a page is wrong, missing, or unclear: use the [page feedback form](https://github.com/home-assistant/contributors.home-assistant.io/issues/new?template=feedback.yml).
+        - A bug in Home Assistant itself: [Report a bug](https://contributors.home-assistant.io/start/report-a-bug/) explains where it goes.
+        - An idea for Home Assistant: [feature requests](https://github.com/home-assistant/feature-requests/discussions).
+
+        ---
+
+        ### For authorized contributors
+
+        Use this form for work on the site that needs tracking, like a new page, a restructured area, or a change to the site itself.
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: |
+        Describe the task: what needs to be done, why, and what the result should be.
+
+        Be specific about constraints, like pages that move and need a redirect.
+      placeholder: |
+        - What needs to be done
+        - Why this task is needed
+        - Expected outcome
+        - Any constraints or requirements
+    validations:
+      required: true
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: Additional context
+      description: |
+        Links and context that help, like related issues, pull requests in other repositories, or design work.
+      placeholder: |
+        - Related issue: [link]
+        - Source pull request: [link]
+        - Architecture decision record: [link]
+        - Design or mockup: [link]
+    validations:
+      required: false

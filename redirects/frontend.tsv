@@ -1,0 +1,17 @@
+/docs/frontend	/frontend/
+/docs/frontend/architecture	/frontend/architecture/
+/docs/frontend/design	/frontend/development/gallery-and-demo/
+/docs/frontend/development	/frontend/development/
+/docs/frontend/data	/frontend/reference/hass-object/
+/docs/frontend/external-authentication	/frontend/reference/external-auth/
+/docs/frontend/external-bus	/frontend/reference/external-bus/
+/docs/frontend/extending/adding-state-card	/frontend/extending/state-card/
+/docs/frontend/extending/adding-more-info-dialogs	/frontend/extending/more-info/
+/docs/frontend/extending/websocket-api	/frontend/extending/websocket-api/
+/docs/frontend/custom-ui/custom-card	/frontend/custom-ui/card/
+/docs/frontend/custom-ui/custom-card-feature	/frontend/custom-ui/card-feature/
+/docs/frontend/custom-ui/custom-badge	/frontend/custom-ui/badge/
+/docs/frontend/custom-ui/custom-strategy	/frontend/custom-ui/strategy/
+/docs/frontend/custom-ui/custom-view	/frontend/custom-ui/view/
+/docs/frontend/custom-ui/creating-custom-panels	/frontend/custom-ui/panel/
+/docs/frontend/custom-ui/registering-resources	/frontend/custom-ui/resources/

@@ -1,0 +1,232 @@
+---
+title: Device picker
+description: The device picker lets people choose one device, with search, from all devices in their home.
+sidebarGroup: Pickers
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+import DoDont from "../../../../components/docs/DoDont.astro";
+
+<Demo hass layout="stack">
+  <ha-device-picker label="Device" value="thermostat"></ha-device-picker>
+  <ha-device-picker label="Device"></ha-device-picker>
+</Demo>
+
+## Overview
+
+The device picker is a field for choosing one [device](/glossary/device/): a physical device, or a service that Home Assistant shows as a device. Think of the device a device trigger or action works on, or the device a card is about. Select the field to open a searchable list. Each row shows the device name, its area, and the logo and name of its integration.
+
+## When to use
+
+Use the device picker for:
+
+- Choosing exactly one device
+- Fields where the device itself matters, not one of its values or controls
+
+Don't use the device picker for:
+
+- A single value or control, like a temperature or a light. Pick an entity with the [entity picker](/design/components/entity-picker/). Most automations and cards work on entities, not devices.
+- Picking several devices. Use the device [selector](/design/components/selector/), which can allow more than one.
+- Picking what an action works on. Use the target selector: it accepts devices, but also entities, areas, floors, and labels.
+- A field in a form. Use the device selector in a [form](/design/components/form/), and the form renders the picker for you.
+
+## Anatomy
+
+1. **Field**: the button that shows the value and opens the list
+2. **Label**: inside the field, above the value once a device is picked
+3. **Value or placeholder**: the device name, or **Select a device** when empty
+4. **Clear button**: removes the value, when the field is not required
+5. **Arrow**: shows that the field opens a list
+6. **Helper**: optional text below the field
+7. **List**: the popover with a search field and the devices. Each row has the integration logo, the device name, its area, and the integration name at the end.
+
+## Variants
+
+### Filtered
+
+Only offer devices that make sense for the field. You can filter on the entities a device has, like only devices with a light:
+
+<Demo hass layout="stack">
+  <ha-device-picker label="Device" include-domains='["light"]'></ha-device-picker>
+</Demo>
+
+You can also filter on the device class of those entities, leave out entities of some domains, or leave out certain devices. For anything else, like a filter on the manufacturer or the integration, a filter can be written in code.
+
+### With a helper
+
+The label names what the device is for. Add a helper below the field when the choice needs explaining.
+
+<Demo hass layout="stack">
+  <ha-device-picker label="Speaker" include-domains='["media_player"]' helper="Announcements play on this device."></ha-device-picker>
+</Demo>
+
+### Child devices
+
+Some devices are part of another device, like the channels of a multi-channel relay. The list shows those child devices indented below their parent, connected with a line, so the relation is visible at a glance. The order stays like that while searching. The home in these demos has no child devices.
+
+## Behavior
+
+- **Enabled**: selecting the field opens the list, and moves focus to its search field.
+- **Hover and pressed**: the field shows a ripple.
+- **Focus**: the line at the bottom of the field turns 2px thick, in the primary color.
+- **Search**: typing filters the list as you type. When nothing matches, the list says **No devices found for** your search term. When there are no devices, it says **No devices available**.
+- **Unknown**: when the value is a device that does not exist, like one that was removed, the field turns to the quiet warning color and shows **Unknown device selected**.
+- **Replaced**: sometimes an integration replaces one device with several new ones. When the value points to such a replaced device, the field shows **Replaced device**, with a warning [alert](/design/components/alert/) below it. With one replacement, its **Update** button switches to it. With several, **Choose** opens a dialog to pick one. That depends on information from Home Assistant that the demos on this page don't have.
+- **Disabled**: the field is dimmed to 50% opacity and can't be opened.
+- **Narrow screens**: when the window is at most 870px wide or 500px high, the list opens as a bottom sheet instead of a popover.
+
+Picking a device closes the list. The new value is reported once the list has closed.
+
+<Demo hass layout="stack">
+  <ha-device-picker label="Device" value="attic_lamp"></ha-device-picker>
+  <ha-device-picker label="Device" value="desk_plug" disabled></ha-device-picker>
+</Demo>
+
+## Specs
+
+The device picker uses the shared picker field and list of the frontend, `ha-picker-field` and `ha-generic-picker`.
+
+### Field
+
+| Property | Value | Token |
+| --- | --- | --- |
+| Minimum height | 56px | None |
+| Padding start | 16px | `--ha-space-4` |
+| Padding end | 8px | `--ha-space-2` |
+| Gap between parts | 8px | `--ha-space-2` |
+| Corner radius | 4px at the top, square at the bottom | `--ha-border-radius-sm` |
+| Background | Form background | `--ha-color-form-background` |
+| Bottom line | 1px | `--ha-color-border-neutral-loud` |
+| Bottom line, focused | 2px | `--mdc-theme-primary` |
+| Bottom line, invalid | 2px | `--error-color` |
+| Placeholder text | Secondary text color | `--secondary-text-color` |
+| Clear button | 32px | `--ha-icon-button-size` |
+| Arrow icon | 20px, in a 32px wide area | `--mdc-icon-size` |
+| Unknown background | Quiet warning fill | `--ha-color-fill-warning-quiet-resting` |
+| Unknown text | Warning text | `--ha-color-on-warning-normal` |
+| Disabled | 50% opacity on the disabled form background | `--ha-color-form-background-disabled` |
+| Space above the helper | 8px | `--ha-space-2` |
+
+### List
+
+| Property | Value | Token |
+| --- | --- | --- |
+| Width | The width of the field, at least 250px | `--ha-generic-picker-width` |
+| Maximum height | The smaller of 70% of the window height and 500px. When the window is at most 1000px high, the smaller of 70% and 400px | None |
+| Corner radius | 8px | `--ha-border-radius-md` |
+| Shadow | Medium shadow | `--ha-box-shadow-m` |
+| Child device indent | 48px | `--ha-space-12` |
+| Bottom sheet corner radius | 20px | `--ha-border-radius-2xl` |
+| Bottom sheet maximum width | 600px | None |
+
+## Guidelines
+
+- Only offer devices that make sense for the field. A field for a speaker should not list thermostats.
+- Prefer an entity over a device when people care about a single value or control.
+
+<DoDont hass doText="Filter the list to the devices that fit, and say what the device is for." dontText="Offer every device in the home under a generic label.">
+  <ha-device-picker slot="do" label="Speaker" include-domains='["media_player"]'></ha-device-picker>
+  <ha-device-picker slot="dont" label="Device"></ha-device-picker>
+</DoDont>
+
+## Accessibility
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves focus to the field, and to the clear button when there is one. A disabled field is skipped. |
+| <kbd>Enter</kbd> or <kbd>Space</kbd> | Opens the list, when the field has focus. |
+| Typing | Searches the list. Focus is in the search field when the list opens. |
+| <kbd>Arrow down</kbd> and <kbd>Arrow up</kbd> | Moves through the devices. |
+| <kbd>Home</kbd> and <kbd>End</kbd> | Jumps to the first or last device. |
+| <kbd>Page up</kbd> and <kbd>Page down</kbd> | Moves a page through the list. |
+| <kbd>Enter</kbd> | Picks the highlighted device. While searching, the top match is highlighted. With only one option in the list, <kbd>Enter</kbd> picks it. |
+| <kbd>Escape</kbd> | Closes the list. |
+
+### Focus
+
+Focus on the field shows as a thicker bottom line, not as a focus ring. While the list is open as a popover, focus stays inside it. In the list, focus stays in the search field while the arrow keys move the highlight.
+
+### Target size
+
+The field is at least 56px high and fills the width it gets. The clear button is 32px by 32px.
+
+### Screen readers
+
+- The field is announced as a button, named by its label and the device in it.
+- The list is announced as a dialog with a list of options, and the picked device as selected.
+- The clear button is announced as "Clear", in the language of the user.
+
+### In the code
+
+- Focus is delegated to a native `<button>` in the field. The popover traps focus. The highlighted row in the list is marked with an `active` attribute. The list does not set `aria-activedescendant`.
+- The field is a native `<button>`. Its accessible name is the label together with the text in the field.
+- The list opens in an element with the role `dialog` and `aria-modal="true"`, named after the label.
+- The list has the role `listbox`, and each device the role `option`, with `aria-selected` for the picked device.
+- The integration logo in each row has an empty `alt`, so it is skipped by screen readers. The integration name is in the row as text.
+- The clear button has the accessible name "Clear", translated into the language of the user.
+
+## Related
+
+- [Entity picker](/design/components/entity-picker/): pick one entity
+- [Area picker](/design/components/area-picker/): pick one area
+- [Selector](/design/components/selector/): the device selector, for one or several devices
+- [Form](/design/components/form/): renders the picker from a schema
+
+## In code
+
+The element is `<ha-device-picker>`. Unlike the entity and area pickers, it needs `hass`.
+
+```ts
+html`
+  <ha-device-picker
+    .hass=${this.hass}
+    .label=${"Device"}
+    .value=${this._deviceId}
+    .includeDomains=${["light"]}
+    @value-changed=${this._deviceChanged}
+  ></ha-device-picker>
+`;
+```
+
+In HTML, the list attributes take JSON:
+
+```html
+<ha-device-picker label="Device" include-domains='["light"]'></ha-device-picker>
+```
+
+### Attributes
+
+- `label`: the label of the field.
+- `value`: the ID of the selected device.
+- `helper`: help text below the field.
+- `placeholder`: the text in the empty field. Defaults to **Select a device**.
+- `search-label`: the placeholder of the search field in the list.
+- `include-domains`: only show devices with entities of these domains.
+- `exclude-domains`: hide devices with entities of these domains.
+- `include-device-classes`: only show devices with entities of these device classes.
+- `exclude-devices`: hide these devices.
+- `hide-clear-icon`: hide the button that clears the value.
+- `required`: marks the field as required.
+- `disabled`: disables the picker.
+- `autofocus`: focuses the picker when it renders.
+
+### Properties
+
+These can only be set from code:
+
+- `hass`: the Home Assistant object. Required.
+- `deviceFilter`: a function that gets each device registry entry, and returns `true` to show it.
+- `entityFilter`: a function that gets the state object of each entity, and returns `true` to keep it. Only devices with a matching entity show.
+- `replacementDeviceIds`: when the value is a replaced device, limits the devices it can be replaced with to these IDs.
+
+### Methods
+
+- `open()`: opens the list.
+
+### Events
+
+- `value-changed`: fires when people pick or clear a device. The new device ID is in `event.detail.value`.
+
+Source: [`src/components/device/ha-device-picker.ts`](https://github.com/home-assistant/frontend/blob/dev/src/components/device/ha-device-picker.ts)

@@ -1,0 +1,252 @@
+---
+import { PLAUSIBLE, SITE } from "../data/site";
+import { SOCIAL_LINKS } from "../data/social";
+import Logo from "./Logo.astro";
+
+interface Props {
+  // Sits directly under the page, without the usual space above it.
+  flush?: boolean;
+}
+
+const { flush = false } = Astro.props;
+
+const COLUMNS = [
+  {
+    title: "Contribute",
+    links: [
+      { label: "Get started", href: "/start/" },
+      { label: "All areas", href: "/#areas" },
+      { label: "Glossary", href: "/glossary/" },
+      { label: "Data and analytics", href: "/data/" },
+      { label: "Code of conduct", href: "/start/code-of-conduct/" },
+      { label: "Contributor License Agreement", href: "/start/licensing/" },
+    ],
+  },
+  {
+    title: "Stay up to date",
+    links: [
+      { label: "Blog", href: "/blog/" },
+      { label: "Blog RSS feed", href: "/blog/rss.xml" },
+      { label: "Newsletter", href: "https://newsletter.openhomefoundation.org/" },
+      { label: "Integration alerts", href: "https://alerts.home-assistant.io/" },
+      { label: "System status", href: "https://status.home-assistant.io/" },
+    ],
+  },
+  {
+    title: "More Home Assistant",
+    links: [
+      { label: "Home Assistant", href: "https://www.home-assistant.io/" },
+      { label: "Community forum", href: "https://community.home-assistant.io/" },
+      { label: "Creator Network", href: "https://creators.home-assistant.io/" },
+      { label: "Works With Home Assistant", href: "https://works-with.home-assistant.io/" },
+    ],
+  },
+];
+---
+
+<footer data-pagefind-ignore class:list={{ flush }}>
+  <div class="inner">
+    <div class="brand">
+      <a class="home" href="/" aria-label="Home Assistant Contributors, homepage">
+        <Logo variant="white" />
+      </a>
+      <p>
+        Home Assistant is a project of the{" "}
+        <a href="https://www.openhomefoundation.org/">Open Home Foundation</a>.
+      </p>
+      <ul class="social">
+        {
+          SOCIAL_LINKS.map((social) => (
+            <li>
+              <a href={social.url} rel="me noopener noreferrer" aria-label={social.title} title={social.title}>
+                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                  <path d={social.icon.path} fill="currentColor" />
+                </svg>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    {
+      COLUMNS.map((column) => (
+        <nav aria-label={column.title}>
+          <h2>{column.title}</h2>
+          <ul>
+            {column.links.map((link) => (
+              <li>
+                <a href={link.href}>{link.label}</a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      ))
+    }
+  </div>
+
+  <div class="bottom">
+    <div class="bottom-inner">
+      <p class="analytics">
+        This website uses{" "}
+        <a href={PLAUSIBLE.about}>privacy-first analytics</a> to help us
+        improve the site. You can view all data in our{" "}
+        <a href={PLAUSIBLE.dashboard}>public dashboard</a>.
+      </p>
+      <ul class="legal">
+        <li><a href="https://www.home-assistant.io/privacy/">Privacy</a></li>
+        <li><a href="https://www.home-assistant.io/security/">Security</a></li>
+        <li><a href={SITE.repository}>Source on GitHub</a></li>
+      </ul>
+      <a class="netlify" href="https://www.netlify.com">
+        <img src="/images/netlify-badge.svg" alt="Deploys by Netlify" width="114" height="51" />
+      </a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  footer {
+    margin-top: var(--ha-space-20);
+    background: linear-gradient(118deg, var(--brand-navy-deep) 15%, var(--brand-navy) 83%);
+    color: #ffffff;
+  }
+
+  .flush {
+    margin-top: 0;
+  }
+
+  .inner {
+    max-width: var(--site-page-width);
+    margin: 0 auto;
+    padding: var(--ha-space-16) var(--site-gutter) var(--ha-space-12);
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr));
+    gap: var(--ha-space-10) var(--ha-space-8);
+  }
+
+  @media (max-width: 960px) {
+    .inner {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .brand {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .inner {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  a {
+    color: #ffffff;
+  }
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .home {
+    font-size: 20px;
+    text-decoration: none;
+  }
+
+  .brand p {
+    max-width: 320px;
+    margin: var(--ha-space-5) 0 0;
+    color: #b1c3cf;
+    line-height: 1.5;
+  }
+
+  .social {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: var(--ha-space-6);
+    margin-left: calc(-1 * var(--ha-space-3));
+  }
+
+  .social a {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 44px;
+    border-radius: 50%;
+    color: #b1c3cf;
+  }
+
+  .social a:hover {
+    background: rgb(255 255 255 / 0.08);
+    color: #ffffff;
+  }
+
+  h2 {
+    margin: 0 0 var(--ha-space-4);
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  nav ul {
+    display: grid;
+    gap: var(--ha-space-1);
+  }
+
+  nav a {
+    display: inline-block;
+    padding: var(--ha-space-1) 0;
+    color: #b1c3cf;
+    text-decoration: none;
+  }
+
+  nav a:hover {
+    color: #ffffff;
+    text-decoration: underline;
+  }
+
+  .bottom {
+    border-top: 1px solid rgb(255 255 255 / 0.1);
+  }
+
+  .bottom-inner {
+    max-width: var(--site-page-width);
+    margin: 0 auto;
+    padding: var(--ha-space-6) var(--site-gutter);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--ha-space-4);
+  }
+
+  .analytics {
+    flex: 1 1 100%;
+    max-width: 544px;
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #b1c3cf;
+  }
+
+  .analytics a {
+    color: #ffffff;
+  }
+
+  .legal {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ha-space-2) var(--ha-space-6);
+    font-size: 14px;
+  }
+
+  .legal a {
+    color: #b1c3cf;
+  }
+
+  .netlify img {
+    display: block;
+  }
+</style>

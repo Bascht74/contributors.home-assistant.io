@@ -1,0 +1,403 @@
+---
+title: Selector
+description: ha-selector renders the right control for a selector, the short description of a value that integrations, blueprints, and forms use everywhere in Home Assistant.
+sidebarGroup: Forms
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+import DoDont from "../../../../components/docs/DoDont.astro";
+
+<Demo hass layout="stack">
+  <ha-selector label="Light" data-props='{"selector": {"entity": {"filter": {"domain": "light"}}}, "value": "light.living_room_lamp", "required": false}'></ha-selector>
+  <ha-selector label="Brightness" data-props='{"selector": {"number": {"min": 0, "max": 100, "unit_of_measurement": "%"}}, "value": 70, "required": false}'></ha-selector>
+  <ha-selector label="Turn off when nobody is home" data-props='{"selector": {"boolean": {}}, "value": true, "required": false}'></ha-selector>
+</Demo>
+
+## Overview
+
+A selector describes a value: "an entity from the light domain", "a number between 0 and 100", "one of these options". The selector component takes that description and shows the matching control. It is the reason the same kind of value looks the same everywhere in Home Assistant.
+
+The selectors are shared with the rest of Home Assistant:
+
+- Integrations use them for the fields of their actions. The form you get when you add an action to an automation is built from them.
+- Blueprints use them for their inputs.
+- Integrations can use them in the forms of their config flows and options flows.
+- The frontend uses them in its own forms, like the visual editors of dashboard cards.
+
+## When to use
+
+Use the selector component on its own for:
+
+- Rendering fields one by one, from selectors you get from somewhere else. The frontend does that for the fields of actions, triggers, and conditions, and for blueprint inputs.
+
+Don't use it on its own for:
+
+- A form. Put the selector in the schema of a [form](/design/components/form/), and the form renders it, with labels, helpers, errors, and layout. That is what you need most of the time.
+
+## Anatomy
+
+The selector has no parts of its own. It shows one control for the type of the selector, and passes on the label, helper, value, and other settings. That control is often one of the other components on this site, like the [entity picker](/design/components/entity-picker/) or the [switch](/design/components/switch/).
+
+## Variants
+
+Each selector type is a variant. These are the ones you meet most. Each section says what people see, and what kind of value they give. The options of each type are listed under [options per type](#options-per-type), in the code section.
+
+### Text
+
+For free text, in a [text input](/design/components/input/). It can grow to several lines for longer text, hide what people type for a password, check for an email address or a web address, and show fixed text before or after the value. It can also take a list of values.
+
+<Demo hass layout="stack">
+  <ha-selector label="Name" data-props='{"selector": {"text": {}}, "value": "Living room", "required": false}'></ha-selector>
+  <ha-selector label="Message" data-props='{"selector": {"text": {"multiline": true}}, "value": "The front door is open.", "required": false}'></ha-selector>
+  <ha-selector label="Password" data-props='{"selector": {"text": {"type": "password"}}, "required": false}'></ha-selector>
+  <ha-selector label="Address" data-props='{"selector": {"text": {"prefix": "https://", "suffix": "/api"}}, "value": "example.local", "required": false}'></ha-selector>
+</Demo>
+
+### Number
+
+For a number. With a range, it shows a [slider](/design/components/slider/), with a field next to it to type the exact number. It can also show only the field, which is what it does without a range. A unit and a step size are optional.
+
+<Demo hass layout="stack">
+  <ha-selector label="Volume" data-props='{"selector": {"number": {"min": 0, "max": 100, "unit_of_measurement": "%"}}, "value": 35, "required": false}'></ha-selector>
+  <ha-selector label="Target temperature" data-props='{"selector": {"number": {"min": 7, "max": 35, "step": 0.5, "mode": "box", "unit_of_measurement": "°C"}}, "value": 21, "required": false}'></ha-selector>
+</Demo>
+
+### Boolean
+
+For on or off. It shows a [switch](/design/components/switch/), with the label next to it.
+
+<Demo hass layout="stack">
+  <ha-selector label="Show the state" helper="Shows the state below the name." data-props='{"selector": {"boolean": {}}, "value": true, "required": false}'></ha-selector>
+</Demo>
+
+### Select
+
+For one option out of a list. Each option has a value and a label people see.
+
+With fewer than six options, the options show as radio buttons. With six or more, they show in a dropdown. The selector can also be told which of the two to use.
+
+<Demo hass layout="stack">
+  <ha-selector label="Mode" data-props='{"selector": {"select": {"options": [{"value": "single", "label": "Single"}, {"value": "restart", "label": "Restart"}, {"value": "queued", "label": "Queued"}, {"value": "parallel", "label": "Parallel"}]}}, "value": "single", "required": false}'></ha-selector>
+  <ha-selector label="Day" data-props='{"selector": {"select": {"mode": "dropdown", "options": [{"value": "mon", "label": "Monday"}, {"value": "tue", "label": "Tuesday"}, {"value": "wed", "label": "Wednesday"}, {"value": "thu", "label": "Thursday"}, {"value": "fri", "label": "Friday"}, {"value": "sat", "label": "Saturday"}, {"value": "sun", "label": "Sunday"}]}}, "value": "mon", "required": false}'></ha-selector>
+</Demo>
+
+The options can also show as a [select box](/design/components/select-box/): large tiles, with a description, and optionally an image. Use it for a few options that need explaining.
+
+<Demo hass layout="stack">
+  <ha-selector label="Layout" data-props='{"selector": {"select": {"mode": "box", "options": [{"value": "horizontal", "label": "Horizontal", "description": "The icon next to the name."}, {"value": "vertical", "label": "Vertical", "description": "The icon above the name."}]}}, "value": "horizontal", "required": false}'></ha-selector>
+</Demo>
+
+People can also pick several options. As a list, the options then show as checkboxes. As a dropdown, the picked options show as chips above it. The selector can let people type their own value, and sort the options by label.
+
+<Demo hass layout="stack">
+  <ha-selector label="Notify on" data-props='{"selector": {"select": {"multiple": true, "options": [{"value": "open", "label": "Open"}, {"value": "closed", "label": "Closed"}, {"value": "unavailable", "label": "Unavailable"}]}}, "value": ["open"], "required": false}'></ha-selector>
+</Demo>
+
+### Entity
+
+For an entity. It shows the [entity picker](/design/components/entity-picker/). It can offer only the entities that fit, by their domain, device class, integration, supported features, or unit. People can pick one entity, or several.
+
+<Demo hass layout="stack">
+  <ha-selector label="Temperature sensor" data-props='{"selector": {"entity": {"filter": {"domain": "sensor", "device_class": "temperature"}}}, "value": "sensor.living_room_temperature", "required": false}'></ha-selector>
+  <ha-selector label="Lights" data-props='{"selector": {"entity": {"multiple": true, "filter": {"domain": "light"}}}, "value": ["light.living_room_lamp"], "required": false}'></ha-selector>
+</Demo>
+
+### Device
+
+For a device. It shows the [device picker](/design/components/device-picker/). It can filter on the device itself, like its integration or manufacturer, or only offer devices with matching entities. People can pick one device, or several.
+
+<Demo hass layout="stack">
+  <ha-selector label="Speaker" data-props='{"selector": {"device": {"entity": {"domain": "media_player"}}}, "value": "speaker", "required": false}'></ha-selector>
+</Demo>
+
+### Area
+
+For an area. It shows the [area picker](/design/components/area-picker/). Like the device selector, it can filter on the entities and devices in an area. People can pick one area, or several.
+
+<Demo hass layout="stack">
+  <ha-selector label="Area" data-props='{"selector": {"area": {}}, "value": "kitchen", "required": false}'></ha-selector>
+  <ha-selector label="Areas" data-props='{"selector": {"area": {"multiple": true}}, "value": ["living_room", "bedroom"], "required": false}'></ha-selector>
+</Demo>
+
+### Floor and label
+
+For a floor, or a label. They work like the area selector, though the label selector has no filters.
+
+<Demo hass layout="stack">
+  <ha-selector label="Floor" data-props='{"selector": {"floor": {}}, "value": "ground", "required": false}'></ha-selector>
+  <ha-selector label="Label" data-props='{"selector": {"label": {}}, "value": "energy", "required": false}'></ha-selector>
+</Demo>
+
+### Target
+
+For what an action works on. People can add entities, devices, areas, floors, and labels, in any mix, and the action applies to all of them. What can be added can be filtered, like the entity and device selectors.
+
+<Demo hass layout="stack">
+  <ha-selector label="Targets" data-props='{"selector": {"target": {"entity": {"domain": "light"}}}, "value": {"area_id": ["living_room"], "entity_id": ["light.kitchen_ceiling"]}, "required": false}'></ha-selector>
+</Demo>
+
+### Time and date
+
+For a time of day, a date, or both. The time selector shows seconds, unless they are turned off.
+
+<Demo hass layout="stack">
+  <ha-selector label="Wake-up time" data-props='{"selector": {"time": {"no_second": true}}, "value": "07:30:00", "required": false}'></ha-selector>
+  <ha-selector label="Date" data-props='{"selector": {"date": {}}, "value": "2026-12-24", "required": false}'></ha-selector>
+  <ha-selector label="Date and time" data-props='{"selector": {"datetime": {}}, "value": "2026-12-24 07:30:00", "required": false}'></ha-selector>
+</Demo>
+
+### Duration
+
+For an amount of time, like a delay or a transition. It shows hours, minutes, and seconds. Days and milliseconds can be added, and the seconds left out.
+
+<Demo hass layout="stack">
+  <ha-selector label="Delay" data-props='{"selector": {"duration": {}}, "value": {"hours": 0, "minutes": 5, "seconds": 0}, "required": false}'></ha-selector>
+  <ha-selector label="Keep the history for" data-props='{"selector": {"duration": {"enable_day": true, "enable_second": false}}, "value": {"days": 10, "hours": 0, "minutes": 0}, "required": false}'></ha-selector>
+</Demo>
+
+A duration can also be negative, like an offset to sunset in the sun condition. In the offset version, people first choose **No offset**, **Before**, or **After**, and then enter the duration.
+
+### Color temperature
+
+For a color temperature, as a slider with the color of the light behind it, in kelvin or in mireds.
+
+<Demo hass layout="stack">
+  <ha-selector label="Color temperature" data-props='{"selector": {"color_temp": {"unit": "kelvin", "min": 2200, "max": 6500}}, "value": 2700, "required": false}'></ha-selector>
+</Demo>
+
+### Color
+
+The RGB color selector is for a color, picked with the color picker of the browser.
+
+<Demo hass layout="stack">
+  <ha-selector label="Color" data-props='{"selector": {"color_rgb": {}}, "value": [255, 160, 60], "required": false}'></ha-selector>
+</Demo>
+
+For the color of something on a dashboard, use the theme color selector instead. It offers the colors of the theme by name, so the color follows the theme.
+
+### Icon
+
+For an icon, with a searchable list of all icons. It can show the icon that is used when people pick none.
+
+<Demo hass layout="stack">
+  <ha-selector label="Icon" data-props='{"selector": {"icon": {}}, "value": "mdi:sofa", "required": false}'></ha-selector>
+</Demo>
+
+### State
+
+For a state of an entity, like heat for a thermostat. The selector offers the possible states of one entity, with their translated names. In a form, that entity often comes from another field.
+
+<Demo hass layout="stack">
+  <ha-selector label="State" data-props='{"selector": {"state": {"entity_id": "climate.thermostat"}}, "value": "heat", "required": false}'></ha-selector>
+</Demo>
+
+### Selectors without a demo
+
+Some selectors need more of Home Assistant than the demos on this page have. The location selector shows a map. The template and object selectors are code editors, and an object selector with fields is a list of small forms. The action, condition, and trigger selectors show the full automation editor for their part. The media selector browses media from your media players.
+
+There are more than sixty selector types in all. The full list is under [all selector types](#all-selector-types), in the code section.
+
+## Behavior
+
+- **Changes**: when people change the value, the selector reports the new value. Its shape depends on the type.
+- **Required**: a selector is required unless it is marked optional. A required selector without a check of its own is not valid when it is empty.
+- **Disabled**: a disabled selector disables its control.
+- **Older selectors**: older names and filter options are converted to the current form before the control shows.
+
+The states of each control, like hover, focus, and errors, are those of the component it renders.
+
+## Specs
+
+The selector draws nothing of its own, so it has no sizes, spacing, or colors. Each type looks like the component it shows: see the specs of the [text input](/design/components/input/), [switch](/design/components/switch/), [slider](/design/components/slider/), [select box](/design/components/select-box/), and the pickers for [entities](/design/components/entity-picker/), [devices](/design/components/device-picker/), and [areas](/design/components/area-picker/).
+
+## Guidelines
+
+Pick the most specific selector for the value. An entity ID is text, but the entity selector gives people a searchable list, with names and icons, and only offers entities that fit. The more specific the selector, the less people have to type, and the fewer mistakes they can make.
+
+<DoDont hass doText="Use the entity selector for an entity." dontText="Ask people to type an entity ID in a text field.">
+  <ha-selector slot="do" label="Light" data-props='{"selector": {"entity": {"filter": {"domain": "light"}}}, "value": "light.living_room_lamp", "required": false}'></ha-selector>
+  <ha-selector slot="dont" label="Light" data-props='{"selector": {"text": {}}, "value": "light.living_room_lamp", "required": false}'></ha-selector>
+</DoDont>
+
+- Show the options of a select as a select box for a few options that need explaining.
+- Use the target selector for actions, so people can say "all lights in the living room" instead of picking each light. To pick one specific entity, use the entity selector.
+
+## Accessibility
+
+### Keyboard, focus, and screen readers
+
+The selector adds nothing of its own. Keyboard support, focus, and what a screen reader announces come from the control it shows: see the page of each component, like the [entity picker](/design/components/entity-picker/), [switch](/design/components/switch/), or [slider](/design/components/slider/).
+
+### In the code
+
+`ha-selector` adds no role, label, or keys of its own. Calling `focus()` on it focuses the control it renders.
+
+## Related
+
+- [Form](/design/components/form/): renders selectors from a schema
+- [Entity picker](/design/components/entity-picker/), [device picker](/design/components/device-picker/), and [area picker](/design/components/area-picker/): the controls behind the entity, device, and area selectors
+- [Select box](/design/components/select-box/): the box mode of the select selector
+- [Selectors documentation](https://www.home-assistant.io/docs/blueprint/selectors/): all options, as integrations and blueprints use them
+
+## In code
+
+The element is `<ha-selector>`. The selector and most values can only be set from code, as properties.
+
+```ts
+html`
+  <ha-selector
+    .hass=${this.hass}
+    .selector=${{ number: { min: 0, max: 100, unit_of_measurement: "%" } }}
+    .value=${this._brightness}
+    .label=${"Brightness"}
+    .required=${false}
+    @value-changed=${this._brightnessChanged}
+  ></ha-selector>
+`;
+```
+
+In HTML on this site, the properties go in `data-props`, as JSON:
+
+```html
+<ha-selector label="Brightness" data-props='{"selector": {"number": {"min": 0, "max": 100}}, "value": 70}'></ha-selector>
+```
+
+### Selectors in YAML and code
+
+In YAML, a selector is a key with the type, and the options below it:
+
+```yaml
+brightness:
+  selector:
+    number:
+      min: 0
+      max: 100
+      unit_of_measurement: "%"
+```
+
+In the frontend, it is the same, as an object:
+
+```js
+{ number: { min: 0, max: 100, unit_of_measurement: "%" } }
+```
+
+For all options of each selector, as integrations and blueprints use them, see the [selectors documentation](https://www.home-assistant.io/docs/blueprint/selectors/).
+
+### Options per type
+
+The options most used, per type. The [selectors documentation](https://www.home-assistant.io/docs/blueprint/selectors/) on home-assistant.io has all of them.
+
+- `text`: `multiline` for longer text, `type` for another input type like `password`, `email`, or `url`, `prefix` and `suffix` for text around the value, and `multiple` for a list. The value is a string, or a list of strings.
+- `number`: `min`, `max`, `step`, and `unit_of_measurement`. `mode` is `slider` or `box`. Without a range, it is a box. The value is a number.
+- `boolean`: no options. The value is `true` or `false`.
+- `select`: `options`, as strings or objects with a `value` and a `label`. `mode` is `list`, `dropdown`, or `box`. Without a mode, fewer than six options are a list. `multiple`, `custom_value`, and `sort`. The value is the `value` of the picked option, or a list with `multiple`.
+- `entity`: `filter`, on `domain`, `device_class`, `integration`, `supported_features`, or `unit_of_measurement`, and `multiple`. The value is an entity ID, or a list of entity IDs.
+- `device`: `filter`, on the device itself, like its `integration` or `manufacturer`, `entity`, to only offer devices with matching entities, and `multiple`. The value is a device ID, or a list of device IDs.
+- `area` and `floor`: `entity` and `device`, to only offer the ones with matching entities or devices, and `multiple`. `label`: only `multiple`. The value is an ID, or a list of IDs.
+- `target`: `entity` and `device`, to filter what can be added. The value is an object with an `entity_id`, `device_id`, `area_id`, `floor_id`, and `label_id`, each an ID or a list of IDs, and only the ones in use.
+- `time`: `no_second` hides the seconds. The value is a string like `07:30:00`. A `date` gives `2026-12-24`, and a `datetime` gives `2026-12-24 07:30:00`.
+- `duration`: `enable_day`, `enable_millisecond`, and `enable_second` (set it to `false` to drop the seconds). `mode` set to `signed` allows a negative duration, and `mode` set to `offset` asks for **No offset**, **Before**, or **After** first. The value is an object with `hours`, `minutes`, and `seconds`, and `days` and `milliseconds` when enabled.
+- `color_temp`: `unit` set to `kelvin`, and the range with `min` and `max`. Without a unit, it works in mireds. The value is a number.
+- `color_rgb`: no options. The value is a list of the red, green, and blue values, from 0 to 255.
+- `ui_color`: the colors of the theme, by name.
+- `icon`: `placeholder`, the icon that is used when people pick none. The value is the icon name, like `mdi:sofa`.
+- `state`: `entity_id`, the entity whose states it offers. In a form, the entity often comes from another field, through `context`. The value is the state.
+
+### All selector types
+
+The frontend knows these selector types:
+
+- `action`: a list of actions, like in a script.
+- `addon`: an app. Older name of the `app` selector.
+- `app`: an app.
+- `area`: an area.
+- `areas_display`: the order of areas, and which are hidden.
+- `assist_pipeline`: an Assist pipeline.
+- `attribute`: an attribute of an entity.
+- `automation_behavior`: how an automation handles several triggers or conditions.
+- `backup_location`: a location to store backups.
+- `boolean`: on or off.
+- `button_toggle`: one option out of a few, as a row of buttons.
+- `choose`: lets people choose between several selectors, like a number or an entity.
+- `color_rgb`: a color, as red, green, and blue.
+- `color_temp`: a color temperature.
+- `condition`: a list of conditions.
+- `config_entry`: an integration entry.
+- `constant`: a fixed value, shown as text.
+- `conversation_agent`: a conversation agent.
+- `country`: a country.
+- `date`: a date.
+- `datetime`: a date and a time.
+- `device`: a device.
+- `device_class`: a device class of a domain.
+- `duration`: an amount of time.
+- `entity`: an entity.
+- `entity_name`: how the name of an entity is shown on a dashboard.
+- `file`: a file to upload.
+- `floor`: a floor.
+- `icon`: an icon.
+- `label`: a label.
+- `language`: a language.
+- `location`: a place on a map, optionally with a radius.
+- `media`: a media item, from the media browser.
+- `navigation`: a path in Home Assistant, like a dashboard view.
+- `number`: a number.
+- `numeric_threshold`: a threshold, like above or below a number or the state of an entity.
+- `object`: any data, as YAML, or a list of items with fixed fields.
+- `period`: a period of time, like today or this week.
+- `qr_code`: shows a QR code. It does not take input.
+- `select`: one or more options from a list.
+- `selector`: a selector, for editors that build selectors themselves, like the blueprint editor.
+- `serial_port`: a serial port, like a USB stick.
+- `state`: a state of an entity.
+- `state_class`: a state class of a sensor.
+- `statistic`: a statistic.
+- `stt`: a speech-to-text engine.
+- `target`: entities, devices, areas, floors, and labels for an action.
+- `template`: a template, in a code editor.
+- `text`: text.
+- `theme`: a theme.
+- `time`: a time of day.
+- `timezone`: a time zone.
+- `trigger`: a list of triggers.
+- `tts`: a text-to-speech engine.
+- `tts_voice`: a voice of a text-to-speech engine.
+- `ui_action`: what happens when people tap a card.
+- `ui_clock_date_format`: the date format of a clock card.
+- `ui_color`: a color of the theme.
+- `ui_state_content`: what a card shows as the state of an entity.
+- `ui_time_format`: a time format.
+- `unit_of_measurement`: a unit of measurement.
+
+The selectors that start with `ui_` are made for the editors of dashboard cards.
+
+### Properties
+
+These can only be set from code:
+
+- `selector`: the selector. Required.
+- `hass`: the Home Assistant object. Most selectors need it.
+- `context`: values from elsewhere that some selectors use, like the entity for the state selector. `ha-form` fills this from the `context` of a field.
+- `localizeValue`: a function that gets a translation key, and returns the text. Selectors with a `translation_key` use it for the labels of their options.
+
+### Attributes
+
+- `value`: the value. Use the property for anything that is not a string.
+- `label`: the label.
+- `helper`: help text, below the control.
+- `placeholder`: the value to show when there is none. `ha-form` sets it to the default of a field.
+- `name`: the name of the field.
+- `required`: marks the field as required. Note: this is `true` by default. Set the property to `false` for optional fields.
+- `disabled`: disables the control.
+- `narrow`: tells the control it is on a narrow screen.
+
+### Methods
+
+- `reportValidity()`: checks the value, and returns `true` when it is valid.
+- `focus()`: focuses the control.
+
+### Events
+
+- `value-changed`: fires when people change the value. The new value is in `event.detail.value`. Its shape depends on the selector type.
+
+Source: [`src/components/ha-selector/ha-selector.ts`](https://github.com/home-assistant/frontend/blob/dev/src/components/ha-selector/ha-selector.ts). The selector types are in [`src/data/selector.ts`](https://github.com/home-assistant/frontend/blob/dev/src/data/selector.ts), and each type has its own component in [`src/components/ha-selector/`](https://github.com/home-assistant/frontend/tree/dev/src/components/ha-selector).

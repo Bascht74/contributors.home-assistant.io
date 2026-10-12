@@ -1,0 +1,139 @@
+---
+// The stage that live frontend components stand on, shared by Demo and
+// DoDont: the theme of the app, a spinner while the components load, and
+// nothing visible before a component is defined.
+//
+// The stage has the .ha-demo class, which public/components/loader.js
+// looks for: it loads the components of a stage when it comes near, and
+// the frontend theme only applies inside it. The caller adds the loader
+// script, and the look of its own variant, like the padding or a colored
+// top border, from its own styles.
+interface Props {
+  // "row" puts examples next to each other, "stack" below each other.
+  // Without one, the stage is a row too.
+  layout?: "row" | "stack";
+  // Wraps the examples in a fake Home Assistant (see demo-runtime/demo-home.ts).
+  hass?: boolean;
+}
+
+const { layout, hass = false } = Astro.props;
+---
+
+<div class:list={["ha-demo", "stage", layout && `stage--${layout}`]}>
+  <svg class="stage-spinner" viewBox="0 0 48 48" aria-hidden="true"><circle class="track" cx="24" cy="24" r="22"></circle><circle class="indicator" cx="24" cy="24" r="22"></circle></svg>
+  {
+    hass ? (
+      <ha-demo-hass>
+        <slot />
+      </ha-demo-hass>
+    ) : (
+      <slot />
+    )
+  }
+</div>
+
+<style>
+  /*
+   * The stage shows the components the way they look in the app: its theme
+   * (light or dark, following the site), Roboto, and the 14px base size.
+   */
+  .stage {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    /* Centered, so a card with its own border sits in the middle of the
+       stage, instead of hugging its left edge. */
+    justify-content: center;
+    gap: var(--ha-space-3);
+    /* Room for the loading spinner, and for a row of small components like
+       buttons once they load, so the stage keeps its height for those. */
+    min-height: 120px;
+    padding: var(--ha-space-8) var(--ha-space-6);
+    border: 1px solid var(--site-border);
+    border-radius: var(--site-radius-tile);
+    background: var(--card-background-color, #ffffff);
+    color: var(--primary-text-color, #141414);
+    font-family: Roboto, Noto, sans-serif;
+    font-size: 14px;
+    /* What the app sets on its body. The line height of the site would leak
+       into every component that does not set its own, like the rows of an
+       entities card, and text would render heavier than in the app. */
+    font-weight: 400;
+    line-height: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .stage--stack {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  /* Keep components invisible until they are defined, so nothing jumps. */
+  .stage :global(:not(:defined)) {
+    visibility: hidden;
+  }
+
+  /*
+   * While a component in the stage is still loading, show the spinner of
+   * Home Assistant itself (ha-spinner, built on the Web Awesome spinner),
+   * redrawn here because that element has to load too: the same track,
+   * color, arc, and speed. It hides once every element in the stage is
+   * defined.
+   */
+  .stage-spinner {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 40px;
+    height: 40px;
+    margin: -20px 0 0 -20px;
+    animation: stage-spin 3.5s linear infinite;
+  }
+
+  .stage:has(:global(:not(:defined))) .stage-spinner {
+    display: block;
+  }
+
+  .stage-spinner circle {
+    fill: none;
+    stroke-width: 4;
+  }
+
+  .stage-spinner .track {
+    stroke: var(--divider-color, rgb(0 0 0 / 0.12));
+  }
+
+  /* The circumference of r=22 is 138.2. The dash values are the ones of the
+     Web Awesome spinner, as fractions of that circumference. */
+  .stage-spinner .indicator {
+    stroke: var(--primary-color, #009ac7);
+    stroke-linecap: round;
+    stroke-dasharray: 82.5 110;
+    stroke-dashoffset: -5.5;
+    animation: stage-dash 1.5s ease-in-out infinite;
+  }
+
+  @keyframes stage-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes stage-dash {
+    0% {
+      stroke-dasharray: 1.1 165;
+      stroke-dashoffset: 0;
+    }
+    50% {
+      stroke-dasharray: 99 165;
+      stroke-dashoffset: -38.4;
+    }
+    100% {
+      stroke-dasharray: 99 165;
+      stroke-dashoffset: -136.4;
+    }
+  }
+</style>

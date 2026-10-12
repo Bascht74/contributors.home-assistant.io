@@ -1,0 +1,74 @@
+---
+title: Sensor card
+description: The sensor card shows the value of one numeric sensor in large type, with an optional line graph of its recent history underneath.
+sidebarGroup: Information
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+<Demo hass>
+  <hui-card style="width: 340px" data-props='{"config": {"type": "sensor", "entity": "sensor.living_room_temperature", "graph": "line"}}'></hui-card>
+</Demo>
+
+## Usage
+
+The sensor card is for one number that people want to read at a glance, and see the trend of: a temperature, the power a device uses, the humidity in a room. It shows the name and the icon at the top, the value in large type, and a line graph of the last 24 hours at the bottom.
+
+It takes sensors, numbers, input numbers, and counters. The value has to be numeric for the graph to make sense.
+
+Use the [tile card](/design/dashboards/tile-card/) when the value is one of many in a section and the trend doesn't matter. Use the [gauge card](/design/dashboards/gauge-card/) when the position of the value within a range matters more than its history. Use the [history graph card](/design/dashboards/history-graph-card/) to compare several entities, or when people need axes and exact values from the past.
+
+### With or without a graph
+
+With `graph: line`, the card adds the graph. Without it, the card only shows the value. That plain version is the same as the [entity card](/design/dashboards/entity-card/), so if you don't want the graph, use that card instead.
+
+<Demo hass>
+  <hui-card style="width: 300px" data-props='{"config": {"type": "sensor", "entity": "sensor.desk_plug_power", "graph": "line"}}'></hui-card>
+  <hui-card style="width: 300px" data-props='{"config": {"type": "sensor", "entity": "sensor.outdoor_humidity"}}'></hui-card>
+</Demo>
+
+The graph is a sparkline: no axes, no labels, no tooltip. It shows the shape of the trend, not the numbers. That keeps the card calm, and it works because the current value sits right above it.
+
+### Time range and detail
+
+`hours_to_show` sets how far back the graph goes. A short range shows quick changes, like the power of a device that just turned on. A long range shows patterns, like a temperature over a day.
+
+With `detail: 2`, the graph uses more points and follows every change. The default, `detail: 1`, averages the values per hour, which gives a smoother line. Pick the smooth line unless the peaks are the point.
+
+<Demo hass>
+  <hui-card style="width: 300px" data-props='{"config": {"type": "sensor", "entity": "sensor.desk_plug_power", "graph": "line", "hours_to_show": 6, "detail": 2}}'></hui-card>
+  <hui-card style="width: 300px" data-props='{"config": {"type": "sensor", "entity": "sensor.desk_plug_power", "graph": "line", "hours_to_show": 6}}'></hui-card>
+</Demo>
+
+### Content
+
+- The name comes from the entity. Keep it short, the card is half a section wide.
+- Leave the unit alone. The entity provides it, and the card formats the value for the language of the user. Override `unit` only for an entity that has no unit of its own.
+- Set `limits` only when the default scale of the graph hides what matters, like small changes in a temperature that never drops below 18 degrees.
+
+## Configuration
+
+- `entity` (string, required): a sensor, number, input number, or counter entity.
+- `name` (string): the name to show. Defaults to the name of the entity.
+- `icon` (string): the icon to show. Defaults to the icon of the entity.
+- `graph` (string): `line` adds the graph, `none` leaves it out. Defaults to `none`.
+- `unit` (string): the unit to show. Defaults to the unit of the entity.
+- `detail` (number): `1` for an hourly average, `2` for more detail. Defaults to `1`.
+- `hours_to_show` (number): how many hours the graph shows. Defaults to `24`.
+- `limits` (map): `min` and `max` for the vertical scale of the graph. By default, the scale follows the values.
+- `theme` (string): a theme for this card only.
+
+```yaml
+type: sensor
+entity: sensor.desk_plug_power
+graph: line
+hours_to_show: 6
+```
+
+## In code
+
+The card lives in `src/panels/lovelace/cards/hui-sensor-card.ts`, and the element is `<hui-sensor-card>`. It extends the entity card (`hui-entity-card.ts`): it turns its own options into an entity card configuration, and adds the graph as a footer. The graph is the graph header and footer element, in `src/panels/lovelace/header-footer/hui-graph-header-footer.ts`, which the entities card can use as a footer too.
+
+In the sections view, the card takes 6 of the 12 columns, and 2 rows. It can't get smaller than that.
+
+[Source](https://github.com/home-assistant/frontend/blob/dev/src/panels/lovelace/cards/hui-sensor-card.ts)

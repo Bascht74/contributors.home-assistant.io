@@ -1,0 +1,44 @@
+---
+title: Design
+description: The open design resource of Home Assistant. Principles, foundations, components, and patterns, for the designers and developers who build the interface together.
+---
+
+import DesignHashRedirect from "../../../components/docs/DesignHashRedirect.astro";
+
+<DesignHashRedirect />
+
+Home Assistant runs in millions of homes, used by everyone from someone who just plugged in their first smart plug to someone running hundreds of automations. Design is how we make one product work for all of them. That covers more than visuals: how a setting is named, what a dialog asks, and what happens when something goes wrong are all design decisions.
+
+This area is the open design resource of Home Assistant, and the reference for how the interface looks and behaves: usage, specs, and accessibility. Together with the [Brand](/brand/) area, it replaces design.home-assistant.io. It is for everyone who shapes the interface: designers who propose a better flow, developers who build a screen, writers who choose the words, and anyone who wants to understand why the interface works the way it does. Every page is written for designers and developers alike.
+
+You do not need to be a professional designer to help. If you notice what makes something confusing, and you can sketch or describe a better way, you have a lot to give.
+
+## Start here
+
+- [Your first design contribution](/design/first-contribution/): find something to work on and share your first proposal.
+- [How we design](/design/how-we-design/): where design happens, how to write a proposal, who decides, and how research shapes it.
+- [Principles](/design/principles/): the values behind every design decision.
+- [Who we design for](/design/users/): the three types of users we keep in mind.
+
+## Guidelines and reference
+
+- [Foundations](/design/foundations/): color, typography, spacing, motion, and accessibility. The design tokens and rules behind everything.
+- [Components](/design/components/): the building blocks of the interface, with guidelines, specs, accessibility, and code.
+- [Patterns](/design/patterns/): how components work together in recurring situations, like forms, loading, empty states, errors, and confirmations.
+- [Dashboards](/design/dashboards/): the cards people put on their dashboards, and how to pick the right one.
+- [More info](/design/more-info/): the dialog that opens when you select an entity, and the view each type of entity gets in it.
+- [UI text](/design/ui-text/): how the interface talks.
+- [Brand](/brand/): the personality, voice, name, and logo of Home Assistant. It has its own area, because it belongs to everyone who contributes.
+
+## For developers
+
+Component, card, and more-info pages put design first and code last. Skip to the **In code** section at the end of a page for the element, its attributes, and how to use it. The examples on these pages are the real frontend components, running live.
+
+How to set up the frontend, build a panel or a custom card, and get your pull request reviewed lives in the [Frontend](/frontend/) area.
+
+## Who to talk to
+
+- The **#designers** channel on the [Home Assistant Discord](https://www.home-assistant.io/join-chat-design) is where designers meet. Product and UX discussions happen in **#product-and-ux**. Can't see the channels? Pick the right role under **Channels & Roles**.
+- Proposals, feedback, and research are shared in the [UX design discussions](https://github.com/OpenHomeFoundation/ux-design/discussions) of the Open Home Foundation. The [project board](https://github.com/orgs/OpenHomeFoundation/projects/7) lists the design tasks that are active and planned.
+- Concrete problems in the interface are issues in the frontend repository, with the [`UX`](https://github.com/home-assistant/frontend/labels/UX) label.
+- A page in this area that is wrong or missing? Open an issue or a pull request on [this site](https://github.com/home-assistant/contributors.home-assistant.io).

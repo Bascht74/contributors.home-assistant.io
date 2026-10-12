@@ -1,0 +1,117 @@
+---
+title: Marquee text
+description: Marquee text slowly scrolls a single line back and forth when it is too long to fit.
+sidebarGroup: Layout and content
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+import DoDont from "../../../../components/docs/DoDont.astro";
+
+<Demo>
+  <ha-marquee-text style="width: 220px">Bohemian Rhapsody (Remastered 2011), Queen, A Night at the Opera</ha-marquee-text>
+</Demo>
+
+## Overview
+
+Marquee text keeps a single line readable in a fixed space, by scrolling it left until the end is visible, pausing, and scrolling back. Text that fits does not move.
+
+## When to use
+
+Use marquee text for:
+
+- Text that changes on its own and that people only glance at, like the title of the song that is playing in the media player dialog, or the date lines of the clock card
+
+Don't use marquee text for:
+
+- Labels, buttons, or anything people need to read to get a task done
+- Most other text. Moving text is harder to read and distracting, so it is the exception. Let text wrap, or cut it off with an ellipsis and show the full text somewhere else.
+- A long text of several lines. Use [faded](/design/components/faded/) content.
+
+## Anatomy
+
+1. **Container**: takes the full width available, and clips the text
+2. **Text**: the single line, which moves inside the container
+
+## Variants
+
+### Pause on hover
+
+Marquee text can pause while the pointer is over it, so people can stop the text to read it. It also pauses while the text is touched.
+
+<Demo>
+  <ha-marquee-text pause-on-hover style="width: 220px">Hover over me to pause this long line of text</ha-marquee-text>
+</Demo>
+
+## Behavior
+
+- **Fits**: text that fits in the container does not move.
+- **Too long**: the text scrolls left at 15 pixels per second (on a 60 Hz screen) until its end is visible, pauses for 1 second, scrolls back to the start, pauses again, and repeats.
+- **Hover**: when pausing is on, the text stops while the pointer is over it, or while it is touched, and continues when the pointer leaves or the touch ends. Without it, hover has no effect.
+- The text can't be selected, and does not react to the pointer itself.
+
+## Specs
+
+| Property | Value |
+| --- | --- |
+| Width | 100% of its container |
+| Speed | 15 pixels per second by default. The component moves the text by a sixtieth of the speed each frame, so on a screen faster than 60 Hz it scrolls faster. |
+| Pause at each end | 1000ms by default |
+| Font size | 1em, the size of the text around it |
+| Wrapping | None, the text stays on one line |
+
+The component sets no colors of its own. The text keeps the color of the page around it.
+
+## Guidelines
+
+<DoDont doText="Turn on pause on hover, so people can stop the text to read it." dontText="Leave the text moving with no way to stop it.">
+  <ha-marquee-text slot="do" pause-on-hover style="width: 220px">Bohemian Rhapsody (Remastered 2011), Queen, A Night at the Opera</ha-marquee-text>
+  <ha-marquee-text slot="dont" style="width: 220px">Bohemian Rhapsody (Remastered 2011), Queen, A Night at the Opera</ha-marquee-text>
+</DoDont>
+
+Every use in the frontend pauses on hover, and so should yours.
+
+## Accessibility
+
+### Keyboard
+
+Marquee text is not focusable, and has no keyboard interaction. Pausing only works with a pointer or touch.
+
+### Motion
+
+The scrolling does not look at the reduced motion setting of the system. It keeps moving for people who asked for less motion. This is one more reason to keep it for text that people only glance at.
+
+### Screen readers
+
+Screen readers read the full text, not only the part that is visible.
+
+### In the code
+
+The component has no role. The text in the default slot is part of the page.
+
+## Related
+
+- [Faded](/design/components/faded/): long text of several lines, cut off and faded out
+
+## In code
+
+The element is `<ha-marquee-text>`. It takes the full width of its container, so constrain it with the layout or a width.
+
+```html
+<ha-marquee-text pause-on-hover>
+  Bohemian Rhapsody (Remastered 2011)
+</ha-marquee-text>
+```
+
+The component measures the text once, when it first renders. If the text changes later and becomes longer or shorter, the scroll distance is not measured again.
+
+### Attributes
+
+- `speed`: the scroll speed in pixels per second. Defaults to `15`.
+- `pause-duration`: how long to pause at each end, in milliseconds. Defaults to `1000`.
+- `pause-on-hover`: pauses the scrolling while the pointer is over the text, or while it is touched. Off by default.
+
+### Slots
+
+- Default: the text. Keep it to plain text on one line.
+
+Source: [`src/components/ha-marquee-text.ts`](https://github.com/home-assistant/frontend/blob/dev/src/components/ha-marquee-text.ts)

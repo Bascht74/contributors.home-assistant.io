@@ -1,0 +1,866 @@
+---
+// Three columns, like Starlight: the sidebar of the area on the left, the
+// page in the middle, and "On this page" on the right. Built for long
+// reference pages, so it uses the full width of the window.
+import type { MarkdownHeading } from "astro";
+import Breadcrumbs from "../components/Breadcrumbs.astro";
+import GroupSections from "../components/GroupSections.astro";
+import Icon from "../components/Icon.astro";
+import PageFeedback from "../components/PageFeedback.astro";
+import Sidebar from "../components/Sidebar.astro";
+import TableOfContents from "../components/TableOfContents.astro";
+import type { Area } from "../data/areas";
+import { editUrl, historyUrl } from "../data/site";
+import { lastUpdated } from "../lib/git-dates";
+import { docsCardSlug, ogImagePath } from "../lib/og";
+import {
+  type Crumb,
+  type DocsEntry,
+  groupOverview,
+  isIndex,
+  markdownHref,
+  type NavNode,
+  pagination,
+  pathOf,
+} from "../lib/docs";
+import Base from "./Base.astro";
+
+interface Props {
+  entry: DocsEntry;
+  area: Area;
+  sidebar: NavNode[];
+  breadcrumbs: Crumb[];
+  headings: MarkdownHeading[];
+}
+
+const { entry, area, sidebar, breadcrumbs } = Astro.props;
+
+// An overview ends with the pages of the sidebar groups it has no heading
+// for. Those headings belong in "On this page" too.
+const overview = isIndex(entry) ? await groupOverview(pathOf(entry)) : undefined;
+const groupHeadings: MarkdownHeading[] = overview?.heading
+  ? [
+      { depth: 2, slug: overview.heading.id, text: overview.heading.text },
+      ...overview.sections.map((section) => ({ depth: 3, slug: section.id, text: section.name })),
+    ]
+  : [];
+const headings = [...Astro.props.headings, ...groupHeadings];
+const { previous, next } = pagination(sidebar);
+const hasToc = headings.some((heading) => heading.depth === 2 || heading.depth === 3);
+const updated = lastUpdated(entry.filePath);
+
+// Where the page lives, for the search results: the area and the folders
+// on the way, without "Contributors" in front or the page itself at the end.
+const trail = breadcrumbs.slice(1, breadcrumbs.length > 2 ? -1 : undefined);
+const searchTrail = trail.map((crumb) => crumb.label).join(" › ");
+
+// Every name a glossary term goes by, so searching for any of them finds
+// the term, and the old name finds the new one.
+const term = entry.data.term;
+const searchAliases = term
+  ? [...term.aliases, ...term.code, ...(term.ui ? [term.ui] : []), ...term.formerly].join(", ")
+  : "";
+---
+
+<Base
+  title={entry.data.title}
+  description={entry.data.description}
+  area={area}
+  image={ogImagePath(docsCardSlug(entry))}
+  markdown={markdownHref(entry)}
+  wide
+>
+  <div class="crumb-bar">
+    <button
+      type="button"
+      class="sidebar-toggle"
+      aria-controls="sidebar"
+      aria-expanded="true"
+      aria-label="Hide sidebar"
+      data-sidebar-toggle
+    >
+      <Icon name="sidebar" size={18} />
+    </button>
+
+    <!-- On small screens the sidebar and "On this page" open as panels from this bar. -->
+    {/* No static aria-expanded on these buttons: a popovertarget button gets
+        its expanded state from the browser, also without JavaScript. */}
+    <button
+      type="button"
+      class="panel-toggle"
+      popovertarget="docs-menu"
+      aria-label={`Menu: ${area.title}`}
+    >
+      <Icon name="menu" size={20} />
+    </button>
+    <div id="docs-menu" class="panel" popover data-docs-panel>
+      <Sidebar items={sidebar} label={`${area.title} (menu)`} />
+    </div>
+
+    <Breadcrumbs crumbs={breadcrumbs} />
+
+    {
+      hasToc && (
+        <>
+          <button
+            type="button"
+            class="panel-toggle panel-toggle--toc"
+            popovertarget="docs-toc"
+            aria-label="On this page"
+          >
+            <Icon name="list" size={20} />
+          </button>
+          <div id="docs-toc" class="panel panel--toc" popover data-docs-panel>
+            <TableOfContents headings={headings} />
+          </div>
+        </>
+      )
+    }
+  </div>
+
+  <div class:list={["layout", { "has-toc": hasToc }]}>
+    <aside class="sidebar-wide" id="sidebar">
+      <a class:list={["area", `area--${area.group}`]} href={`/${area.id}/`}>
+        <span class="badge"><Icon name={area.icon} size={18} /></span>
+        {area.title}
+      </a>
+      <Sidebar items={sidebar} label={area.title} />
+    </aside>
+
+    <main id="_top">
+      <!-- Between the two breakpoints "On this page" folds into a menu above the page. -->
+      {
+        hasToc && (
+          <details class="toc-narrow">
+            <summary>
+              On this page
+              <Icon name="chevron-down" size={18} />
+            </summary>
+            <TableOfContents headings={headings} />
+          </details>
+        )
+      }
+
+      <article id="main-content" tabindex="-1" data-pagefind-body>
+        <meta data-pagefind-filter="area[content]" content={area.id} />
+        <meta data-pagefind-meta="trail[content]" content={searchTrail} />
+        {searchAliases && <meta data-pagefind-meta="aliases[content]" content={searchAliases} />}
+        {term && <meta data-pagefind-meta="definition[content]" content={entry.data.description} />}
+        <header class="page-header">
+          <h1 data-pagefind-meta="title" data-pagefind-weight="10">{entry.data.title}</h1>
+          <p class="lede" data-pagefind-weight="2">{entry.data.description}</p>
+        </header>
+        <div class="prose">
+          <slot />
+          {overview && <GroupSections overview={overview} />}
+        </div>
+      </article>
+
+      <footer class="page-footer" data-pagefind-ignore>
+        <PageFeedback area={area.id} />
+
+        {
+          entry.filePath && (
+            <div class="page-links">
+              <a class="edit" href={editUrl(entry.filePath)}>
+                <Icon name="edit" size={16} />
+                Edit this page
+              </a>
+              <a class="edit" href={historyUrl(entry.filePath)}>
+                <Icon name="history" size={16} />
+                View history
+              </a>
+            </div>
+          )
+        }
+
+        {
+          updated && (
+            <p class="verified">
+              Last updated on{" "}
+              <time datetime={updated.toISOString()}>{updated.toLocaleDateString("en-US", { dateStyle: "long", timeZone: "UTC" })}</time>.
+            </p>
+          )
+        }
+
+        {
+          entry.data.lastVerified && (
+            <p class="verified">
+              Last verified{entry.data.source && <> against <a href={entry.data.source}>the source</a></>} on{" "}
+              <time datetime={entry.data.lastVerified.toISOString().slice(0, 10)}>{entry.data.lastVerified.toLocaleDateString("en-US", { dateStyle: "long", timeZone: "UTC" })}</time>.
+            </p>
+          )
+        }
+
+        {
+          (previous || next) && (
+            <nav class="pagination" aria-label="Previous and next page">
+              {previous && (
+                <a class="previous" href={previous.href} rel="prev">
+                  <span class="direction">Previous</span>
+                  <span class="label">{previous.label}</span>
+                </a>
+              )}
+              {next && (
+                <a class="next" href={next.href} rel="next">
+                  <span class="direction">Next</span>
+                  <span class="label">{next.label}</span>
+                </a>
+              )}
+            </nav>
+          )
+        }
+      </footer>
+    </main>
+
+    {
+      hasToc && (
+        <aside class="toc-wide">
+          <TableOfContents headings={headings} />
+        </aside>
+      )
+    }
+  </div>
+</Base>
+
+<script>
+  // Hides and shows the sidebar. The choice is kept per browser; the inline
+  // script in the Base layout applies it before the first paint.
+  const toggle = document.querySelector<HTMLButtonElement>("[data-sidebar-toggle]");
+
+  function render(collapsed: boolean) {
+    toggle?.setAttribute("aria-expanded", String(!collapsed));
+    toggle?.setAttribute("aria-label", collapsed ? "Show sidebar" : "Hide sidebar");
+  }
+
+  render(document.documentElement.dataset.sidebar === "collapsed");
+
+  toggle?.addEventListener("click", () => {
+    const collapsed = document.documentElement.dataset.sidebar !== "collapsed";
+
+    if (collapsed) {
+      document.documentElement.dataset.sidebar = "collapsed";
+    } else {
+      delete document.documentElement.dataset.sidebar;
+    }
+
+    try {
+      localStorage.setItem("sidebar", collapsed ? "collapsed" : "open");
+    } catch {
+      // Storage can be blocked. The choice then lasts for this page only.
+    }
+
+    render(collapsed);
+  });
+
+  // On small screens the sidebar and "On this page" are popovers. The browser
+  // already handles Escape, a tap outside, and keeping only one open. This
+  // adds the rest: placing them, focus, and the expanded state as an
+  // attribute, so the open panel's button can be styled.
+  const crumbBar = document.querySelector<HTMLElement>(".crumb-bar");
+  const panels = [...document.querySelectorAll<HTMLElement>("[data-docs-panel]")];
+
+  for (const panel of panels) {
+    const button = document.querySelector<HTMLButtonElement>(`[popovertarget="${panel.id}"]`);
+
+    // Right under the crumb bar, wherever the page is scrolled to. The bar
+    // may still be sliding into view, so this measures where it ends up:
+    // its box without the slide.
+    panel.addEventListener("beforetoggle", (event) => {
+      if (event.newState === "open" && crumbBar) {
+        crumbBar.removeAttribute("data-hidden");
+        const slide = new DOMMatrixReadOnly(getComputedStyle(crumbBar).transform).m42;
+        const bottom = crumbBar.getBoundingClientRect().bottom - slide;
+        panel.style.setProperty("--panel-top", `${Math.round(bottom)}px`);
+      }
+    });
+
+    panel.addEventListener("toggle", (event) => {
+      const open = event.newState === "open";
+      button?.setAttribute("aria-expanded", String(open));
+
+      if (!open) {
+        return;
+      }
+
+      // Start at the current page or section, in the middle of the panel.
+      const target = panel.querySelector<HTMLAnchorElement>("a[aria-current]") ?? panel.querySelector("a");
+      if (target) {
+        const offset = target.getBoundingClientRect().top - panel.getBoundingClientRect().top;
+        panel.scrollTop += offset - (panel.clientHeight - target.offsetHeight) / 2;
+        target.focus({ preventScroll: true });
+      }
+    });
+
+    // Picking a link closes the panel. Focus leaves the link first, or the
+    // browser puts it back on the button, and after a jump to a section the
+    // next Tab should continue from that section.
+    panel.addEventListener("click", (event) => {
+      if (event.target instanceof Element && event.target.closest("a")) {
+        if (document.activeElement instanceof HTMLElement) {
+          document.activeElement.blur();
+        }
+        panel.hidePopover();
+      }
+    });
+  }
+
+  // On small screens the crumb bar sticks under the header. It slides away
+  // when you scroll down, and comes back when you scroll up a bit, so the
+  // menu is always one small scroll away. The thresholds keep tiny scrolls
+  // and the rubber band at the ends of the page from making it flicker.
+  const smallScreen = matchMedia("(max-width: 860px)");
+  const revealAfter = 24;
+  const hideAfter = 8;
+  let lastScroll = window.scrollY;
+  let travel = 0;
+  let scheduled = false;
+
+  function panelOpen() {
+    return panels.some((panel) => panel.matches(":popover-open"));
+  }
+
+  function updateCrumbBar() {
+    scheduled = false;
+    if (!crumbBar) {
+      return;
+    }
+
+    // The rubber band scrolls past the ends of the page. Those positions
+    // count as the ends themselves.
+    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+    const scroll = Math.min(Math.max(window.scrollY, 0), Math.max(maxScroll, 0));
+    const delta = scroll - lastScroll;
+    lastScroll = scroll;
+
+    // Count the distance in one direction, and start over on a turn.
+    travel = Math.sign(delta) === Math.sign(travel) ? travel + delta : delta;
+
+    // The bar sits right under the sticky header, so it sticks from the
+    // first pixel. It stays until you scrolled about its own height.
+    const nearTop = scroll <= crumbBar.offsetHeight;
+    // Keyboard focus in the bar keeps it, a tap on one of its buttons does not.
+    const keyboardFocus = crumbBar.querySelector(":focus-visible") !== null;
+    const keepVisible = !smallScreen.matches || nearTop || panelOpen() || keyboardFocus;
+
+    if (keepVisible || travel <= -revealAfter) {
+      crumbBar.removeAttribute("data-hidden");
+    } else if (travel >= hideAfter) {
+      crumbBar.setAttribute("data-hidden", "");
+    }
+  }
+
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (!scheduled) {
+        scheduled = true;
+        requestAnimationFrame(updateCrumbBar);
+      }
+    },
+    { passive: true },
+  );
+
+  // Tabbing into the bar brings it back.
+  crumbBar?.addEventListener("focusin", () => crumbBar.removeAttribute("data-hidden"));
+
+  // Jumps to a section leave room for the bar, so they need its height. It
+  // grows when the breadcrumbs wrap or the text is larger.
+  if (crumbBar) {
+    new ResizeObserver(() => {
+      document.documentElement.style.setProperty("--crumb-bar-height", `${Math.ceil(crumbBar.offsetHeight)}px`);
+    }).observe(crumbBar);
+  }
+
+  // The panels only exist on small screens, so they close when the window
+  // grows past the breakpoint.
+  smallScreen.addEventListener("change", (event) => {
+    if (event.matches) {
+      return;
+    }
+
+    for (const panel of panels) {
+      if (panel.matches(":popover-open")) {
+        panel.hidePopover();
+      }
+    }
+  });
+</script>
+
+<style>
+  /* The bar with the sidebar toggle and the breadcrumbs, like GitHub Docs. */
+  .crumb-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--ha-space-3);
+    min-height: 48px;
+    padding: var(--ha-space-1) var(--site-gutter) var(--ha-space-1) var(--ha-space-3);
+    border-bottom: 1px solid var(--site-border);
+    background: var(--site-surface);
+  }
+
+  .sidebar-toggle,
+  .panel-toggle {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 40px;
+    height: 40px;
+    border: 0;
+    border-radius: var(--ha-border-radius-md);
+    background: transparent;
+    color: var(--site-text-muted);
+    cursor: pointer;
+  }
+
+  .sidebar-toggle:hover,
+  .panel-toggle:hover,
+  .panel-toggle[aria-expanded="true"] {
+    background: var(--site-surface-hover);
+    color: var(--site-text);
+  }
+
+  /* The panel toggles only show on small screens. */
+  .panel-toggle {
+    display: none;
+  }
+
+  /*
+   * The sidebar and "On this page" as panels on small screens. They open in
+   * the top layer, under the crumb bar: the menu on the left, "On this page"
+   * on the right. Without JavaScript they open under the header instead.
+   */
+  .panel {
+    position: fixed;
+    inset: var(--panel-top, var(--site-header-height)) auto auto var(--ha-space-2);
+    width: min(420px, calc(100vw - 2 * var(--ha-space-2)));
+    max-height: min(75vh, calc(100dvh - var(--panel-top, var(--site-header-height)) - var(--ha-space-4)));
+    margin: var(--ha-space-1) 0 0;
+    padding: var(--ha-space-3);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border: 1px solid var(--site-border);
+    border-radius: var(--site-radius-tile);
+    background: var(--site-surface);
+    color: var(--site-text);
+    box-shadow: var(--ha-box-shadow-l);
+  }
+
+  .panel--toc {
+    left: auto;
+    right: var(--ha-space-2);
+  }
+
+  .panel :global(.toc) {
+    padding: var(--ha-space-1) var(--ha-space-1) var(--ha-space-1) var(--ha-space-2);
+  }
+
+  /* Rows as tall as the ones in the menu, so they are easy to tap. */
+  .panel :global(.toc a) {
+    padding-block: var(--ha-space-2);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .crumb-bar {
+      transition:
+        transform 0.2s ease,
+        opacity 0.2s ease;
+    }
+
+    .panel:popover-open {
+      transition:
+        opacity 0.15s ease,
+        translate 0.15s ease;
+    }
+
+    @starting-style {
+      .panel:popover-open {
+        opacity: 0;
+        translate: 0 calc(-1 * var(--ha-space-1));
+      }
+    }
+  }
+
+  /*
+   * Collapsing only zeroes the sidebar column. The table of contents column
+   * is up to the screen width alone, so the two never fight over the grid.
+   */
+  :global(:root[data-sidebar="collapsed"]) .layout {
+    --sidebar-width: 0px;
+  }
+
+  /* With the sidebar hidden, the page sits in the middle of the free space. */
+  :global(:root[data-sidebar="collapsed"]) :is(article, .page-footer) {
+    margin-inline: auto;
+  }
+
+  :global(:root[data-sidebar="collapsed"]) .sidebar-wide {
+    display: none;
+  }
+
+  /*
+   * The sidebar column gets its background from the layout, not from the
+   * sidebar itself: the sidebar is sticky and one screen tall, the column
+   * runs the full length of the page.
+   */
+  /*
+   * Always three columns, with every part in its own one. A column that has
+   * nothing to show is 0px wide, so the page never moves into the wrong one.
+   */
+  .layout {
+    --sidebar-width: 300px;
+    --toc-width: 0px;
+
+    display: grid;
+    grid-template-columns: var(--sidebar-width) minmax(0, 1fr) var(--toc-width);
+    min-height: calc(100vh - var(--site-header-height));
+    background: linear-gradient(
+      to right,
+      var(--site-bg) calc(var(--sidebar-width) - 1px),
+      var(--site-border) calc(var(--sidebar-width) - 1px),
+      var(--site-border) var(--sidebar-width),
+      var(--site-surface) var(--sidebar-width)
+    );
+  }
+
+  .layout.has-toc {
+    --toc-width: 260px;
+  }
+
+  .sidebar-wide {
+    grid-column: 1;
+  }
+
+  main {
+    grid-column: 2;
+  }
+
+  .toc-wide {
+    grid-column: 3;
+  }
+
+  /* Sidebar */
+
+  .sidebar-wide {
+    position: sticky;
+    top: var(--site-header-height);
+    align-self: start;
+    height: calc(100vh - var(--site-header-height));
+    overflow-y: auto;
+    padding: var(--ha-space-6) var(--ha-space-4) var(--ha-space-10);
+  }
+
+  /* "Start here" and "Understand how it works" use the default colors. */
+  .area {
+    --tile-color: var(--site-tile-everyone);
+    --tile-bg: var(--site-tile-everyone-bg);
+
+    display: flex;
+    align-items: center;
+    gap: var(--ha-space-3);
+    margin-bottom: var(--ha-space-4);
+    padding: 0 var(--ha-space-3);
+    color: var(--site-text);
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+  }
+
+  .area:hover {
+    color: var(--site-text);
+  }
+
+  .area--build {
+    --tile-color: var(--site-tile-build);
+    --tile-bg: var(--site-tile-build-bg);
+  }
+
+  .area--shape {
+    --tile-color: var(--site-tile-shape);
+    --tile-bg: var(--site-tile-shape-bg);
+  }
+
+  .area--run {
+    --tile-color: var(--site-tile-run);
+    --tile-bg: var(--site-tile-run-bg);
+  }
+
+  .badge {
+    display: grid;
+    place-items: center;
+    flex: 0 0 36px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--tile-bg, var(--site-tile-everyone-bg));
+    color: var(--tile-color, var(--site-tile-everyone));
+  }
+
+  /* Page */
+
+  main {
+    min-width: 0;
+    padding: var(--ha-space-10) clamp(20px, 4vw, 64px) var(--ha-space-16);
+  }
+
+  article,
+  .page-footer {
+    max-width: 832px;
+  }
+
+  .page-header {
+    margin-bottom: var(--ha-space-8);
+    padding-bottom: var(--ha-space-8);
+    border-bottom: 1px solid var(--site-border);
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(32px, 3.5vw, 44px);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+  }
+
+  .lede {
+    margin: var(--ha-space-3) 0 0;
+    font-size: 19px;
+    line-height: 1.5;
+    color: var(--site-text-muted);
+  }
+
+  .prose {
+    max-width: none;
+  }
+
+  /* Feedback, edit link, and pagination */
+
+  .page-footer {
+    margin-top: var(--ha-space-16);
+    display: grid;
+    gap: var(--ha-space-8);
+  }
+
+  .page-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ha-space-2) var(--ha-space-6);
+  }
+
+  .edit {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--ha-space-2);
+    justify-self: start;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .verified {
+    margin: 0;
+    font-size: 14px;
+    color: var(--site-text-muted);
+  }
+
+  .pagination {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--ha-space-4);
+  }
+
+  .pagination a {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ha-space-1);
+    padding: var(--ha-space-4) var(--ha-space-5);
+    border: 1px solid var(--site-border);
+    border-radius: var(--site-radius-tile);
+    color: var(--site-text);
+    text-decoration: none;
+  }
+
+  .pagination a:hover {
+    border-color: var(--site-link);
+  }
+
+  .pagination .next {
+    grid-column: 2;
+    text-align: right;
+  }
+
+  .direction {
+    font-size: 14px;
+    color: var(--site-text-muted);
+  }
+
+  .label {
+    font-size: 18px;
+    font-weight: 650;
+    color: var(--site-link);
+  }
+
+  /* On this page */
+
+  .toc-wide {
+    position: sticky;
+    top: var(--site-header-height);
+    align-self: start;
+    max-height: calc(100vh - var(--site-header-height));
+    overflow-y: auto;
+    padding: var(--ha-space-10) var(--ha-space-6) var(--ha-space-10) 0;
+  }
+
+  /* Folded "On this page" for medium screens */
+
+  .toc-narrow {
+    display: none;
+    margin-bottom: var(--ha-space-4);
+    border: 1px solid var(--site-border);
+    border-radius: var(--site-radius-tile);
+    background: var(--site-surface);
+  }
+
+  .toc-narrow summary {
+    display: flex;
+    align-items: center;
+    gap: var(--ha-space-3);
+    min-height: 52px;
+    padding: var(--ha-space-2) var(--ha-space-4);
+    font-weight: 700;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .toc-narrow summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .toc-narrow summary > :global(svg:last-child) {
+    margin-left: auto;
+    transition: rotate 0.2s ease;
+  }
+
+  .toc-narrow[open] summary > :global(svg:last-child) {
+    rotate: 180deg;
+  }
+
+  .toc-narrow :global(.toc) {
+    padding: 0 var(--ha-space-4) var(--ha-space-4);
+  }
+
+  .toc-narrow :global(.toc .title) {
+    display: none;
+  }
+
+  /*
+   * On a wide screen, the page and "On this page" stay together, centered in
+   * the space next to the sidebar, instead of drifting apart with a gap in
+   * between. Text keeps a readable line length. Tables, code, and demos get
+   * the extra width: they are the parts that feel cramped.
+   */
+  @media (min-width: 1680px) {
+    .layout {
+      --main-width: calc(1120px + 2 * 64px);
+
+      grid-template-columns:
+        var(--sidebar-width) minmax(0, 1fr) minmax(0, var(--main-width))
+        var(--toc-width) minmax(0, 1fr);
+    }
+
+    main {
+      grid-column: 3;
+    }
+
+    .toc-wide {
+      grid-column: 4;
+    }
+
+    article,
+    .page-footer {
+      max-width: 1120px;
+    }
+
+    .page-header,
+    .page-footer,
+    .prose > :global(:is(p, ul, ol, dl, blockquote, h2, h3, h4, h5, h6, .heading-wrapper, hr, details, .callout)) {
+      max-width: 832px;
+    }
+  }
+
+  @media (max-width: 1200px) {
+    .layout {
+      --sidebar-width: 280px;
+    }
+
+    .layout.has-toc {
+      --toc-width: 0px;
+    }
+
+    .toc-wide {
+      display: none;
+    }
+
+    .toc-narrow {
+      display: block;
+    }
+  }
+
+  @media (max-width: 860px) {
+    .layout,
+    .layout.has-toc {
+      display: block;
+      background: var(--site-surface);
+    }
+
+    .sidebar-wide,
+    .toc-narrow {
+      display: none;
+    }
+
+    /* On small screens the sidebar and "On this page" open from the bar. */
+    .sidebar-toggle {
+      display: none;
+    }
+
+    .panel-toggle {
+      display: grid;
+    }
+
+    /* Under the header, sliding out of view while you read. See the script. */
+    .crumb-bar {
+      position: sticky;
+      top: var(--site-header-height);
+      z-index: 9;
+      gap: var(--ha-space-2);
+      padding-left: var(--ha-space-2);
+    }
+
+    /*
+     * Hidden, it tucks under the header and fades out. It stays inside the
+     * window, so tabbing into it brings it back without scrolling the page.
+     */
+    .crumb-bar[data-hidden] {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+
+    /* A jump to a section lands below the bar, also when it shows. */
+    :global(:root .prose :is(h2, h3, h4, h5, h6)) {
+      scroll-margin-top: calc(var(--site-header-height) + var(--crumb-bar-height, 49px) + var(--ha-space-4));
+    }
+
+    .crumb-bar :global(.breadcrumbs) {
+      flex: 1 1 auto;
+    }
+
+    /* The icon lines up with the page gutter, like the menu icon on the left. */
+    .panel-toggle--toc {
+      margin-right: calc(var(--ha-space-2) - var(--site-gutter));
+    }
+
+    main {
+      padding-top: var(--ha-space-5);
+    }
+  }
+</style>

@@ -1,0 +1,124 @@
+---
+title: Entities card
+description: The entities card shows a list of entities, one per row, each with the control that fits it. It is the compact way to show many entities in one card.
+sidebarGroup: Entity cards
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+<Demo hass>
+  <hui-card style="width: 380px" data-props='{"config": {"type": "entities", "title": "Living room", "entities": ["light.living_room_lamp", "media_player.living_room_speaker", "climate.thermostat", "sensor.living_room_temperature", "sensor.living_room_humidity"]}}'></hui-card>
+</Demo>
+
+## Usage
+
+The entities card is a list. Every entity gets a row with its icon, its name, and on the right, its state or the control that fits the domain: a switch for a light, a slider for an input number, a dropdown for a select, buttons for a lock or a cover. Selecting the name or the icon opens the more-info dialog.
+
+Use it when you want to show many entities in little room, like the settings of a device, or all helpers of a routine. For a few entities people use often, [tile cards](/design/dashboards/tile-card/) are easier to read and to hit. For a row of states without controls, use the [glance card](/design/dashboards/glance-card/).
+
+### Rows that fit the entity
+
+The row is picked by the domain of the entity. You don't configure that; the entities card does it for you.
+
+<Demo hass>
+  <hui-card style="width: 380px" data-props='{"config": {"type": "entities", "entities": ["input_boolean.guest_mode", "input_number.comfort_temperature", "input_select.house_mode", "lock.front_door", "cover.bedroom_blinds", "scene.movie_night", "timer.laundry"]}}'></hui-card>
+</Demo>
+
+### Title and header toggle
+
+With a `title`, the card gets a header. When the card has at least two entities that can be toggled, the header gets a toggle that switches them all at once. Set `show_header_toggle: false` when that toggle makes no sense, like for a list that mixes lights and a lock.
+
+<Demo hass>
+  <hui-card style="width: 380px" data-props='{"config": {"type": "entities", "title": "Lights", "entities": ["light.living_room_lamp", "light.hallway", "light.kitchen_ceiling"]}}'></hui-card>
+</Demo>
+
+### Special rows
+
+Not every row is an entity. Special rows have a `type` and structure the list, or add something that is not an entity:
+
+- `divider`: a line between groups of rows.
+- `section`: a line with a label, to start a new group.
+- `attribute`: one attribute of an entity, as its own row.
+- `weblink`: a link to a page.
+- `buttons`: a row of small buttons, one per entity.
+- `text`: a name with a fixed text.
+- `button`: a row with a button that runs an action.
+- `conditional`: a row that only shows when its conditions are met.
+- `cast`: starts casting a dashboard to a Google Cast device.
+
+<Demo hass>
+  <hui-card style="width: 380px" data-props='{"config": {"type": "entities", "title": "Hallway", "show_header_toggle": false, "entities": ["light.hallway", "lock.front_door", {"type": "divider"}, {"type": "attribute", "entity": "lock.front_door", "attribute": "changed_by", "name": "Last locked by"}, {"type": "section", "label": "Sensors"}, "binary_sensor.front_door", "binary_sensor.hallway_motion", {"type": "weblink", "name": "Smart lock manual", "url": "https://www.home-assistant.io/integrations/nuki/"}]}}'></hui-card>
+</Demo>
+
+Use dividers and sections sparingly. If a list needs many sections, it is probably several cards.
+
+### Header and footer
+
+The card can have a header and a footer. A `graph` shows the history of one entity, `buttons` shows a row of buttons, and `picture` shows an image. A graph footer turns a list of readings into a small overview.
+
+<Demo hass>
+  <hui-card style="width: 380px" data-props='{"config": {"type": "entities", "title": "Office", "entities": ["switch.desk_plug", "sensor.desk_plug_power", "sensor.desk_plug_energy"], "footer": {"type": "graph", "entity": "sensor.desk_plug_power", "hours_to_show": 12}}}'></hui-card>
+  <hui-card style="width: 380px" data-props='{"config": {"type": "entities", "entities": ["input_select.house_mode", "input_boolean.guest_mode"], "header": {"type": "buttons", "entities": ["scene.movie_night", "scene.good_night"]}}}'></hui-card>
+</Demo>
+
+### Row options
+
+A row can override the name and the icon of its entity, and show `secondary_info` below the name, like the time of the last change or an attribute. With `color: none`, the icon of a row no longer follows the state.
+
+<Demo hass>
+  <hui-card style="width: 380px" data-props='{"config": {"type": "entities", "entities": [{"entity": "light.living_room_lamp", "secondary_info": "brightness"}, {"entity": "binary_sensor.front_door", "secondary_info": "last_changed"}, {"entity": "sensor.living_room_temperature", "name": "Temperature", "icon": "mdi:sofa"}]}}'></hui-card>
+</Demo>
+
+### Content
+
+- Group the rows that belong together. A list that mixes rooms and devices is hard to scan.
+- Keep names short. The control on the right takes room, and a long name gets cut off.
+- Let the card pick the row. Override the type only when you need a special row.
+
+## Configuration
+
+- `entities` (list, required): the rows. Each row is an entity ID, or a mapping with an `entity` and options, or a special row with a `type`.
+- `title` (string): the title in the header of the card.
+- `icon` (string): an icon in front of the title.
+- `show_header_toggle` (boolean): shows a toggle for all entities in the header. Defaults to showing it when the card has a title and at least two entities that can be toggled.
+- `color` (string): how to color the icons of the rows. Defaults to `state`, the color of the state. Use `none` for the default icon color.
+- `header` (mapping): a header of type `graph`, `buttons`, or `picture`.
+- `footer` (mapping): a footer of type `graph`, `buttons`, or `picture`.
+- `theme` (string): the theme to use for this card.
+
+The options of an entity row:
+
+- `entity` (string, required): the entity of the row.
+- `name` (string): the name to show. Defaults to the name of the entity.
+- `icon` (string): the icon to show. Defaults to the icon of the entity.
+- `image` (string): a picture to show instead of the icon.
+- `secondary_info` (string or list): extra information below the name. It takes the same values as `state_content` of the [tile card](/design/dashboards/tile-card/): `state`, `last_changed`, `last_updated`, `area_name`, or the name of an attribute. The older values, like `last-changed` and `position`, still work.
+- `color` (string): the color of the icon. Overrides the color of the card.
+- `tap_action`, `hold_action`, `double_tap_action` (action): what happens when you select, hold, or double tap the row. Not every row type supports them.
+
+```yaml
+type: entities
+title: "Hallway"
+show_header_toggle: false
+entities:
+  - light.hallway
+  - lock.front_door
+  - type: section
+    label: "Sensors"
+  - binary_sensor.front_door
+  - entity: binary_sensor.hallway_motion
+    secondary_info: last_changed
+footer:
+  type: graph
+  entity: sensor.hallway_illuminance
+```
+
+## In code
+
+The card lives in `src/panels/lovelace/cards/hui-entities-card.ts`, and the element is `<hui-entities-card>`. The rows are created by `createRowElement` in `src/panels/lovelace/create-element/create-row-element.ts`, which maps each domain to a row. The entity rows live in `src/panels/lovelace/entity-rows/`, the special rows in `src/panels/lovelace/special-rows/`, and the headers and footers in `src/panels/lovelace/header-footer/`.
+
+Rows of entities share `<hui-generic-entity-row>`, which renders the icon, the name, and the secondary info, and leaves the right side to the row. A new entity row starts there.
+
+In the sections view, the card takes all 12 columns and grows with its rows. It can shrink to 3 columns.
+
+[Source](https://github.com/home-assistant/frontend/blob/dev/src/panels/lovelace/cards/hui-entities-card.ts)

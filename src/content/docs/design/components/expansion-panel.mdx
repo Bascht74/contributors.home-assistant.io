@@ -1,0 +1,203 @@
+---
+title: Expansion panel
+description: An expansion panel hides a section behind a header, so people can open it when they need it.
+sidebarGroup: Layout and content
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+<Demo layout="stack">
+  <ha-expansion-panel outlined header="Advanced settings" secondary="Only change these if you know what they do">
+    <p>Polling interval, timeouts, and other options most people never need to touch.</p>
+  </ha-expansion-panel>
+</Demo>
+
+## Overview
+
+An expansion panel hides a section behind a header, so people can open it when they need it. It keeps a screen short and calm: the things most people need sit on the screen itself, and the rest waits in a panel.
+
+## When to use
+
+Use an expansion panel for:
+
+- Advanced options in a form
+- The optional fields of a dialog
+- A group of filters
+
+Don't use an expansion panel for:
+
+- What people need to complete the task. If someone has to open the panel every time, the content should not be in a panel.
+- A set of rows that open something else. Use a [list](/design/components/list/).
+
+## Anatomy
+
+1. **Container**: with `outlined`, a border and rounded corners around the whole panel
+2. **Header**: the row people select to open or close the panel
+3. **Leading icon**: optional, an icon at the start of the header
+4. **Title**: the header text
+5. **Secondary text**: optional, a short line below the title
+6. **Chevron**: points down when closed, and turns up when open. At the end of the header, or at the start with `left-chevron`.
+7. **Header icons**: optional, actions at the end of the header
+8. **Content**: the section that opens and closes
+
+## Variants
+
+### Header
+
+The header says what is inside. Keep it short: **Advanced settings**, **Areas**, **Network**. A secondary line below it can give a short summary, like the current value or why someone would open it.
+
+<Demo layout="stack">
+  <ha-expansion-panel outlined header="Network">
+    <p>IP address, DNS, and proxy settings.</p>
+  </ha-expansion-panel>
+  <ha-expansion-panel outlined header="Network" secondary="Using DHCP">
+    <p>IP address, DNS, and proxy settings.</p>
+  </ha-expansion-panel>
+</Demo>
+
+### Outlined
+
+An outlined panel gets a border and rounded corners. The frontend uses it when the panel sits in a form or a dialog, next to other fields, so it reads as one block. The expandable section of a [form](/design/components/form/) and the card editors do this. Without the outline, the panel blends into its surroundings, which works in a list of panels, like the filter panes and the card picker.
+
+<Demo layout="stack">
+  <ha-expansion-panel header="Without outline">
+    <p>The content of the panel.</p>
+  </ha-expansion-panel>
+  <ha-expansion-panel outlined header="With outline">
+    <p>The content of the panel.</p>
+  </ha-expansion-panel>
+</Demo>
+
+### Chevron on the left
+
+By default, the chevron sits at the end of the header. It can move to the start. The filter panes on the configuration pages use this, with a count of active filters and a button to clear them in the header.
+
+<Demo layout="stack">
+  <ha-expansion-panel left-chevron header="Areas">
+    <p>Filter by area.</p>
+  </ha-expansion-panel>
+</Demo>
+
+### Open by default
+
+A panel can be open from the start.
+
+<Demo layout="stack">
+  <ha-expansion-panel outlined expanded header="Data to back up">
+    <p>Settings and history, media, and the share folder.</p>
+  </ha-expansion-panel>
+</Demo>
+
+### Always open
+
+Without the chevron, people can no longer open or close the panel. Open from the start, it is a section that looks like a panel but always stays open.
+
+## Behavior
+
+- **Closed**: only the header shows. The content is not rendered at all.
+- **Opening and closing**: selecting the header opens or closes the panel. The content slides open or closed in 300ms, and the chevron turns in 150ms.
+- **Focus**: while the header has focus, it gets the input fill as background. With keyboard focus, the chevron also gets a round neutral fill.
+- **Always open**: the header can't be selected or focused.
+
+## Specs
+
+| Property | Value | Token |
+| --- | --- | --- |
+| Header minimum height | 48px | None |
+| Header padding | 0 top and bottom, 8px left and right | `--expansion-panel-summary-padding` |
+| Content padding | 0 top and bottom, 8px left and right | `--expansion-panel-content-padding` |
+| Header font weight | 500 | `--ha-font-weight-medium` |
+| Title color | Primary text color | `--primary-text-color` |
+| Secondary text size | 12px | `--ha-font-size-s` |
+| Secondary text color | Secondary text color | `--secondary-text-color` |
+| Space between chevron or leading icon and title | 8px | None |
+| Chevron size | 24px | None |
+| Border, outlined | 1px solid | `--outline-color` |
+| Corner radius, outlined | 12px | `--ha-border-radius-lg`, through `--ha-card-border-radius` |
+| Header background on focus | Input fill | `--input-fill-color` |
+| Chevron background on keyboard focus | Round neutral fill | `--ha-color-fill-neutral-normal-active` |
+| Open and close animation | 300ms, `cubic-bezier(0.4, 0, 0.2, 1)` | None |
+| Chevron rotation | 180 degrees in 150ms, `cubic-bezier(0.4, 0, 0.2, 1)` | None |
+
+## Guidelines
+
+- Follow what the frontend does: an outlined panel in a form or a dialog, next to other fields, and no outline in a list of panels, like the filter panes.
+
+## Accessibility
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves focus to the header. A panel that is always open is skipped. |
+| <kbd>Enter</kbd> or <kbd>Space</kbd> | Opens or closes the panel. |
+
+### Focus
+
+While the header has focus, it gets the input fill as background. With keyboard focus, the chevron also gets a round neutral fill.
+
+### Target size
+
+The header is at least 48px high, and as wide as the panel.
+
+### Screen readers
+
+The header is announced as a button that is expanded or collapsed. The open content is announced as a region, named after the header.
+
+### In the code
+
+- The header has the role `button`, with `aria-expanded` set to `true` or `false`.
+- The content has the role `region`, and is named by the header through `aria-labelledby`.
+- While the panel is closed, the content has `aria-hidden="true"`, and is not rendered.
+- The chevron is decorative and hidden from screen readers.
+
+## Related
+
+- [List](/design/components/list/): rows that open something else
+- [Form](/design/components/form/): the `expandable` schema type shows an expansion panel
+- [Dialog](/design/components/dialog/): where panels hold optional fields
+
+## In code
+
+The element is `<ha-expansion-panel>`. The content goes in the default slot.
+
+```html
+<ha-expansion-panel outlined header="Advanced settings" secondary="Optional">
+  <p>...</p>
+</ha-expansion-panel>
+```
+
+The content only renders while the panel is open. Keep that in mind if something inside needs to exist before it is opened.
+
+### Attributes
+
+- `header`: the header text.
+- `secondary`: a short line of text below the header.
+- `expanded`: opens the panel. Reflected, and updated when people open or close the panel.
+- `outlined`: adds a border and rounded corners.
+- `left-chevron`: puts the chevron at the start of the header.
+- `no-collapse`: removes the chevron, and the panel can no longer be opened or closed by people. Combine it with `expanded` for a section that looks like a panel but always stays open.
+
+### Slots
+
+- Default: the content.
+- `header`: replaces the header text, and the secondary text, with your own content.
+- `secondary`: replaces the secondary text.
+- `leading-icon`: an icon at the start of the header.
+- `icons`: actions at the end of the header, like an icon button.
+- `event`: content between the header and the chevron.
+
+### Events
+
+- `expanded-will-change`: fires just before the panel opens or closes. The `detail` has the new `expanded` value.
+- `expanded-changed`: fires after the panel opened or closed. The `detail` has the new `expanded` value.
+
+### Styling
+
+- `--expansion-panel-summary-padding`: padding of the header. Defaults to `0 8px`.
+- `--expansion-panel-content-padding`: padding of the content. Defaults to `0 8px`.
+- `--ha-card-border-radius`: the corner radius of an outlined panel. Defaults to `var(--ha-border-radius-lg)`.
+
+The `summary` part targets the header, for anything the custom properties don't cover.
+
+Source: [`src/components/ha-expansion-panel.ts`](https://github.com/home-assistant/frontend/blob/dev/src/components/ha-expansion-panel.ts)

@@ -1,0 +1,79 @@
+---
+// A do and a don't, side by side, with live components: guidance you can
+// see, instead of a rule you have to picture. On a phone they stack.
+//
+// In MDX:
+//   <DoDont doText="One accent button per view." dontText="Several accent buttons.">
+//     <ha-button slot="do">Save</ha-button>
+//     <Fragment slot="dont">
+//       <ha-button>Save</ha-button>
+//       <ha-button>Delete</ha-button>
+//     </Fragment>
+//   </DoDont>
+//
+// Like a demo, `hass` wraps both sides in the fake Home Assistant.
+// The captions are not called do and dont: in MDX, Astro puts slotted
+// content on the props under the slot name, which would overwrite them.
+import DemoStage from "./DemoStage.astro";
+
+interface Props {
+  doText: string;
+  dontText: string;
+  hass?: boolean;
+}
+
+const { doText, dontText, hass = false } = Astro.props;
+---
+
+<div class="dodont" data-pagefind-ignore>
+  <figure class="side side--do">
+    <DemoStage hass={hass}><slot name="do" /></DemoStage>
+    <figcaption><strong>Do</strong> {doText}</figcaption>
+  </figure>
+  <figure class="side side--dont">
+    <DemoStage hass={hass}><slot name="dont" /></DemoStage>
+    <figcaption><strong>Don't</strong> {dontText}</figcaption>
+  </figure>
+</div>
+
+<script is:inline type="module" src="/components/loader.js"></script>
+
+<style>
+  .dodont {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+    gap: var(--ha-space-4);
+    margin: var(--ha-space-6) 0;
+  }
+
+  .side {
+    margin: 0;
+  }
+
+  /* The same stage as a demo, with a little less room, and the color of
+     its side on top. The stage is styled in DemoStage, so its own classes
+     are global from here. */
+  .side :global(.stage) {
+    padding: var(--ha-space-6);
+    border-top: 4px solid var(--side-color);
+  }
+
+  .side--do {
+    --side-color: var(--site-tile-run);
+  }
+
+  .side--dont {
+    --side-color: var(--site-tile-shape);
+  }
+
+  figcaption {
+    margin-top: var(--ha-space-2);
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  figcaption strong {
+    color: var(--side-color);
+    margin-right: var(--ha-space-1);
+  }
+</style>

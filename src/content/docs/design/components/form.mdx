@@ -1,0 +1,322 @@
+---
+title: Form
+description: ha-form renders a complete form from a schema, with the right field for each value, and gives back the data.
+sidebarGroup: Forms
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+import DoDont from "../../../../components/docs/DoDont.astro";
+
+<Demo hass layout="stack">
+  <ha-form data-props='{"schema": [{"name": "Host", "required": true, "selector": {"text": {}}}, {"name": "Port", "selector": {"number": {"min": 1, "max": 65535, "mode": "box"}}}, {"name": "Use SSL", "selector": {"boolean": {}}}], "data": {"Host": "192.168.1.20", "Port": 8080, "Use SSL": false}}'></ha-form>
+</Demo>
+
+## Overview
+
+The form component turns a schema into a form. The schema is a list of fields. Each field has a name, and says what kind of value it holds. The form picks the right control for each field, lays them out, and reports the data back as one object, keyed by the field names.
+
+You find it all over Home Assistant: in the config flows of integrations, in the options of helpers, in the visual editors of dashboard cards, and in the settings of automations and scripts. The forms of config flows come straight from the integration, as a schema the backend sends. The frontend renders them with the same component.
+
+The demos on this page use readable names, like **Host**, because the name is the label when there is nothing else. In real code, names are keys like `host`, and the labels come from translations. See [labels and helpers](#labels-and-helpers).
+
+## When to use
+
+Use the form for:
+
+- A form with more than a field or two. You write less code, and your form looks and behaves like every other form in Home Assistant: same spacing, same controls, same validation.
+- Settings that are saved together, like the options of a helper or the editor of a card
+
+Don't use the form for:
+
+- A single control that does its own thing, like a switch that applies a setting right away. Use that component directly, like a [switch](/design/components/switch/) or an [input](/design/components/input/).
+
+## Anatomy
+
+1. **Form error**: an error about the whole form, at the top
+2. **Field error or warning**: an [alert](/design/components/alert/) right above the field it is about
+3. **Field**: the control for one value, with its label and helper. Most fields are a [selector](/design/components/selector/).
+4. **Grid**: optional, fields next to each other
+5. **Expandable section**: optional, fields under a header that opens and closes
+
+## Variants
+
+### Fields are selectors
+
+Almost every field in the frontend is a selector: a short description of the value, like "an entity from the light domain" or "a number between 0 and 100". The selector picks the control. These are the same selectors integrations use for the fields of their actions, and blueprints use for their inputs. The [selector](/design/components/selector/) page lists them all, with a demo of each.
+
+<Demo hass layout="stack">
+  <ha-form data-props='{"schema": [{"name": "Light", "selector": {"entity": {"filter": {"domain": "light"}}}}, {"name": "Brightness", "selector": {"number": {"min": 0, "max": 100, "unit_of_measurement": "%"}}}, {"name": "Transition", "selector": {"duration": {}}}], "data": {"Light": "light.living_room_lamp", "Brightness": 70}}'></ha-form>
+</Demo>
+
+### Required fields and defaults
+
+A required field gets a required marker, and an empty value fails validation. A default is the value when people leave the field empty. For a field that is not required, the default shows as the placeholder.
+
+<Demo hass layout="stack">
+  <ha-form data-props='{"schema": [{"name": "Name", "required": true, "selector": {"text": {}}}, {"name": "Scan interval", "default": 30, "selector": {"number": {"min": 5, "max": 3600, "mode": "box", "unit_of_measurement": "seconds"}}}], "data": {}}'></ha-form>
+</Demo>
+
+### Labels and helpers
+
+Every field gets a label, and can get help text below it. Both come from the translations. Without a translated label, the form shows the name of the field. That is fine for a quick test, but not for people: names are keys like `scan_interval`, and they are not translated. The values inside a field, like the options of a select, are translated too.
+
+### Grids
+
+A grid puts fields next to each other. Use it for short fields that belong together, like a minimum and a maximum. The columns are at least 200 pixels wide, and wrap to new rows when there is no room, so a grid stacks on a phone.
+
+<Demo hass layout="stack">
+  <ha-form data-props='{"schema": [{"name": "", "type": "grid", "schema": [{"name": "Minimum", "selector": {"number": {"mode": "box"}}}, {"name": "Maximum", "selector": {"number": {"mode": "box"}}}]}, {"name": "Step", "selector": {"number": {"mode": "box"}}}], "data": {"Minimum": 0, "Maximum": 100, "Step": 1}}'></ha-form>
+</Demo>
+
+### Expandable sections
+
+An expandable section groups fields under a header that people can open and close. Use it to keep a long form calm: put the fields most people need at the top, and tuck the rest away, like advanced options or the interactions of a card.
+
+<Demo hass layout="stack">
+  <ha-form data-props='{"schema": [{"name": "Name", "selector": {"text": {}}}, {"name": "advanced", "type": "expandable", "flatten": true, "title": "Advanced options", "schema": [{"name": "Scan interval", "selector": {"number": {"min": 5, "max": 3600, "mode": "box", "unit_of_measurement": "seconds"}}}, {"name": "Debug logging", "selector": {"boolean": {}}}]}], "data": {"Name": "Living room"}}'></ha-form>
+</Demo>
+
+The header text is the title of the section, or, without one, its translated label. A section can have an icon in front of the header. Sections start closed, unless they are set to start open. The help text of the section shows as a description at the top of its content. The card editors use these sections a lot, with an icon, like **Content** and **Interactions**.
+
+### Fields on a condition
+
+Some fields only matter when another field has a certain value. Such a field is only shown when its condition matches. Here, the username and password only show once authentication is turned on:
+
+<Demo hass layout="stack">
+  <ha-form data-props='{"schema": [{"name": "Use authentication", "selector": {"boolean": {}}}, {"name": "Username", "visible": {"field": "Use authentication", "value": true}, "selector": {"text": {}}}, {"name": "Password", "visible": {"field": "Use authentication", "value": true}, "selector": {"text": {"type": "password"}}}], "data": {"Use authentication": false}}'></ha-form>
+</Demo>
+
+### Other field types
+
+Before selectors, the form had its own field types, and it still renders them. You mostly see them in config flows, where the backend still sends them. In new forms, use selectors.
+
+<Demo hass layout="stack">
+  <ha-form data-props='{"schema": [{"name": "Name", "type": "string"}, {"name": "Port", "type": "integer"}, {"name": "Mode", "type": "select", "options": [["auto", "Automatic"], ["manual", "Manual"]]}, {"name": "Enabled", "type": "boolean"}], "data": {"Name": "Living room", "Mode": "auto", "Enabled": true}}'></ha-form>
+</Demo>
+
+The full list of types is under [other field types](#other-field-types-in-code), in the code section.
+
+## Behavior
+
+- **Changes**: every change in any field updates the data of the form, and reports all of it at once.
+- **Errors**: a form error shows at the top, in an error alert. An error for a field shows in an error alert right above that field. A list of errors shows as a bulleted list in the alert.
+- **Warnings**: a warning for a field shows in a warning alert right above that field, when the field has no error. There are no warnings for the whole form.
+- **Validation**: checking the form checks every visible field, and moves focus to the first field that is not valid.
+- **Hidden fields**: a field whose condition does not match is not rendered, and is skipped when the form is checked. Its value no longer counts for the conditions of other fields.
+- **Disabled**: a disabled form disables all its fields. A single field can be disabled too.
+
+<Demo hass layout="stack">
+  <ha-form data-props='{"schema": [{"name": "Host", "required": true, "selector": {"text": {}}}, {"name": "Port", "selector": {"number": {"min": 1, "max": 65535, "mode": "box"}}}], "data": {"Host": "192.168.1.200", "Port": 8080}, "error": {"base": "Could not connect to the device.", "Host": "No device answers on this address."}}'></ha-form>
+</Demo>
+
+## Specs
+
+The form only sets the spacing between its parts. Each field has the specs of its own component.
+
+| Property | Value | Token |
+| --- | --- | --- |
+| Space between fields | 24px | None |
+| Space between a field alert and its field | 4px | None |
+| Grid column gap | 8px | `--ha-space-2` |
+| Grid row gap | 24px | `--ha-space-6` |
+| Grid minimum column width | 200px | `--form-grid-min-width` |
+| Grid columns | As many as fit | `--form-grid-column-count` |
+| Expandable section | Outlined [expansion panel](/design/components/expansion-panel/), 8px corner radius | `--ha-border-radius-md` |
+| Expandable section content padding | 12px | None |
+| Space below a section description | 24px | None |
+| Section icon color | Secondary text color | `--secondary-text-color` |
+
+## Guidelines
+
+- Make fields optional when that makes sense, and give them a sensible default. A good default helps people, without getting in the way of those who want something else.
+- Give every field a proper label, helper text where it helps, and clear validation feedback. See [UI text](/design/ui-text/) for the words.
+
+<DoDont hass doText="Say what went wrong, and what people can do about it." dontText="Show a vague error that leaves people guessing.">
+  <ha-form slot="do" data-props='{"schema": [{"name": "Host", "required": true, "selector": {"text": {}}}], "data": {"Host": "192.168.1.200"}, "error": {"Host": "No device answers on this address. Check that the device is turned on."}}'></ha-form>
+  <ha-form slot="dont" data-props='{"schema": [{"name": "Host", "required": true, "selector": {"text": {}}}], "data": {"Host": "192.168.1.200"}, "error": {"Host": "Invalid input."}}'></ha-form>
+</DoDont>
+
+## Accessibility
+
+### Keyboard and focus
+
+The form adds no keys of its own: each field handles its own keyboard input. <kbd>Tab</kbd> moves through the fields in the order of the schema. Focusing the form focuses its first field. Checking the form moves focus to the first field that is not valid.
+
+### Screen readers
+
+Each field is announced by its own label, as described on the page of its component. Errors and warnings that appear on a form that is already open are read out right away by most screen readers, but they are not linked to their field. The header of an expandable section is announced as a heading.
+
+### In the code
+
+- The form delegates focus, so focusing `<ha-form>` focuses its first field.
+- The form is not a `<form>` element and has no role of its own.
+- Each field gets its label from `computeLabel`, and the field component turns it into the accessible name. See the page of each component for how.
+- Errors and warnings are alerts with the role `alert`. When they appear on a form that is already open, most screen readers read them out right away. They are not connected to their field with `aria-describedby`.
+- The header of an expandable section has the role `heading`, at level 3 by default.
+
+## Related
+
+- [Selector](/design/components/selector/): the fields of a form
+- [Expansion panel](/design/components/expansion-panel/): the base of expandable sections
+- [Alert](/design/components/alert/): how errors and warnings show
+- [UI text](/design/ui-text/): how to write labels, helpers, and errors
+
+## In code
+
+The element is `<ha-form>`. The schema, the data, and the functions can only be set from code, as properties.
+
+```ts
+const SCHEMA = [
+  { name: "host", required: true, selector: { text: {} } },
+  { name: "port", selector: { number: { min: 1, max: 65535, mode: "box" } } },
+  { name: "ssl", selector: { boolean: {} } },
+] as const satisfies readonly HaFormSchema[];
+
+html`
+  <ha-form
+    .hass=${this.hass}
+    .data=${this._data}
+    .schema=${SCHEMA}
+    .error=${this._errors}
+    .computeLabel=${this._computeLabel}
+    .computeHelper=${this._computeHelper}
+    @value-changed=${this._valueChanged}
+  ></ha-form>
+`;
+```
+
+In HTML on this site, the properties go in `data-props`, as JSON:
+
+```html
+<ha-form data-props='{"schema": [{"name": "Host", "selector": {"text": {}}}], "data": {}}'></ha-form>
+```
+
+### Fields
+
+A field looks like this:
+
+```js
+{ name: "brightness", selector: { number: { min: 0, max: 100, unit_of_measurement: "%" } } }
+```
+
+Every field can also have:
+
+- `required`: the field needs a value. It gets a required marker, and empty values fail validation.
+- `default`: the value when people leave the field empty. For a field that is not required, the default shows as the placeholder.
+- `disabled`: shows the field, but people can't change it.
+- `description`: an object with a `suggested_value`, which is filled in when the form opens, and a `suffix`, shown at the end of the older text and number fields.
+- `visible`: when to show the field. See [conditions](#conditions).
+- `context`: passes the value of another field to this one. See [context](#context).
+
+### Labels, helpers, and values
+
+In real code, pass `computeLabel`. It gets the schema of each field, and returns the label. Most forms look the name up in the translations:
+
+```ts
+private _computeLabel = (schema: SchemaUnion<typeof SCHEMA>) =>
+  this.hass.localize(`ui.panel.config.my_feature.fields.${schema.name}`);
+```
+
+`computeHelper` works the same, and returns the help text below a field. Return nothing for fields that don't need help.
+
+For the values inside a field, like the options of a select, pass `localizeValue`. Selectors with a `translation_key` look up their option labels through it.
+
+### Errors and warnings
+
+Set `error` to show what went wrong. It is an object, keyed by field name. The key `base` is for errors about the whole form, like a failed connection.
+
+Error messages are shown as they are, unless you pass `computeError`. Config flows send translation keys as errors, and use `computeError` to turn them into text.
+
+`warning` works the same, with a warning instead of an error, and `computeWarning` to turn it into text. It has no `base`.
+
+### Grids
+
+```js
+{
+  name: "",
+  type: "grid",
+  schema: [
+    { name: "min", selector: { number: { mode: "box" } } },
+    { name: "max", selector: { number: { mode: "box" } } },
+  ],
+}
+```
+
+With an empty name, the fields of the grid write to the data of the form itself. With a name, they write to a nested object under that name, unless you set `flatten: true`. Set `column_min_width` to change the minimum column width.
+
+### Expandable sections
+
+A section has `type: "expandable"` and its own `schema`. Add an `icon` or an `iconPath` for an icon in front of the header. Set `expanded: true` to open a section from the start. Like grids, the fields of a section write to a nested object, unless you set `flatten: true`. Set `headingLevel` to change the heading level of the header, which is 3 by default.
+
+### Conditions
+
+Set `visible` on a field to show it only on a condition. It can be `true` or `false`, a condition, or a list of conditions that must all match.
+
+```js
+{
+  name: "password",
+  visible: { field: "use_auth", value: true },
+  selector: { text: { type: "password" } },
+}
+```
+
+A condition compares a `field` with a `value`. The `operator` defaults to `eq`, and can also be `not_eq`, `in`, `not_in` (with a list of values), `exists`, or `not_exists`. To combine conditions, use `condition: "and"`, `"or"`, or `"not"`, with a list of `conditions`.
+
+### Context
+
+Some selectors need another value to work: the state selector needs to know which entity to list the states of. Set `context` on the field, to map a context key of the selector to the name of another field. The state selector, for example, reads the entity from the `filter_entity` key:
+
+```js
+{ name: "state", selector: { state: {} }, context: { filter_entity: "entity" } }
+```
+
+### Other field types in code
+
+- `string`: a text field. With `format` set to `email` or `url`, it uses that input type. Fields with a name that contains `password`, `secret`, or `token` are masked.
+- `integer`: a whole number. With both `valueMin` and `valueMax`, it shows a slider.
+- `float`: a decimal number.
+- `boolean`: a checkbox.
+- `select`: one option out of a list of value and label pairs.
+- `multi_select`: several options, as checkboxes, or as a dropdown when the list is long.
+- `positive_time_period_dict`: a duration in hours, minutes, and seconds.
+- `constant`: shows the label and a fixed `value`, as text.
+
+The types `grid`, `expandable`, `optional_actions`, and `divider` are for layout. `optional_actions` hides its fields behind an add button, so people only add the ones they need. `divider` draws a line between fields.
+
+### Properties
+
+These can only be set from code:
+
+- `schema`: the list of fields. Required.
+- `data`: the values, as an object keyed by field name.
+- `hass`: the Home Assistant object. Most selectors need it.
+- `error`: errors to show, keyed by field name, with `base` for the whole form.
+- `warning`: warnings to show, keyed by field name.
+- `computeLabel`: a function that gets the schema of a field and the data, and returns the label.
+- `computeHelper`: a function that gets the schema of a field, and returns the help text.
+- `computeError`: a function that gets an error and the schema, and returns the text to show.
+- `computeWarning`: the same, for warnings.
+- `localizeValue`: a function that gets a translation key, and returns the text. Selectors use it for the labels of their options.
+- `context`: values passed to every selector in the form, merged with the context of each field.
+
+### Attributes
+
+- `disabled`: disables all fields.
+- `narrow`: tells the selectors the form is on a narrow screen.
+
+### Methods
+
+- `reportValidity()`: checks every visible field, focuses the first invalid one, and returns `true` when the form is valid. Call it before you save.
+
+### Events
+
+- `value-changed`: fires on every change in any field. `event.detail.value` holds all the data of the form, not only the changed field. The form updates its own `data` as well.
+
+### Styling
+
+- `--form-grid-column-count`: the number of columns in a grid. By default, as many as fit.
+- `--form-grid-min-width`: the minimum width of a grid column. Defaults to `200px`.
+
+The wrapper around the fields is exposed as the `root` part.
+
+Source: [`src/components/ha-form/ha-form.ts`](https://github.com/home-assistant/frontend/blob/dev/src/components/ha-form/ha-form.ts)

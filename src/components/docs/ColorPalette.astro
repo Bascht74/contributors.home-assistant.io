@@ -1,0 +1,58 @@
+---
+// Shows one color palette straight from the synced tokens, so this page
+// can never drift from what the frontend ships.
+import { type Palette, paletteSwatches } from "../../lib/design-tokens";
+
+interface Props {
+  palette: Palette;
+}
+
+const { palette } = Astro.props;
+const swatches = paletteSwatches(palette);
+---
+
+<ul class="palette">
+  {
+    swatches.map((swatch) => (
+      <li>
+        <span class="chip" style={`background: var(${swatch.token})`} />
+        <code>{swatch.token}</code>
+        <span class="value">{swatch.value}</span>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .palette {
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: var(--ha-space-3);
+  }
+
+  li {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ha-space-1);
+    margin: 0;
+    font-size: 13px;
+  }
+
+  .chip {
+    height: 56px;
+    border-radius: var(--ha-border-radius-lg);
+    border: 1px solid var(--site-border);
+  }
+
+  code {
+    padding: 0;
+    background: none;
+  }
+
+  .value {
+    color: var(--site-text-muted);
+    font-family: var(--site-font-code);
+  }
+</style>

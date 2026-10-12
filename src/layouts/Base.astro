@@ -1,0 +1,136 @@
+---
+import "@fontsource-variable/figtree";
+import "@fontsource-variable/roboto-mono";
+import figtreeLatin from "@fontsource-variable/figtree/files/figtree-latin-wght-normal.woff2?url";
+import "../styles/global.css";
+import CodeBlockCopy from "../components/CodeBlockCopy.astro";
+import MermaidDiagrams from "../components/MermaidDiagrams.astro";
+import Footer from "../components/Footer.astro";
+import Header from "../components/Header.astro";
+import HeadingAnchors from "../components/HeadingAnchors.astro";
+import HoverCards from "../components/HoverCards.astro";
+import PlausibleAnalytics from "../components/PlausibleAnalytics.astro";
+import type { Area } from "../data/areas";
+import { SITE } from "../data/site";
+import { OG_HEIGHT, OG_WIDTH, ogImagePath } from "../lib/og";
+
+interface Props {
+  title: string;
+  description: string;
+  area?: Area;
+  // Full width header and no gap above the footer, for the docs layout.
+  wide?: boolean;
+  // The share card of the page, from ogImagePath() in src/lib/og.ts.
+  image?: string;
+  // For blog posts: shared as an article, with its date and authors.
+  article?: { published: Date; authors: string[] };
+  // For docs pages: the Markdown version of the page, for agents.
+  markdown?: string;
+}
+
+const { title, description, area, wide = false, image = ogImagePath("default"), article, markdown } = Astro.props;
+const pageTitle = title === SITE.title ? title : `${title} | ${SITE.title}`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const imageUrl = new URL(image, Astro.site);
+// Titles of older blog posts put code in backticks. Previews show them as is.
+const shareTitle = title.replace(/`/g, "");
+const imageAlt = title === SITE.title ? SITE.title : `${shareTitle}, on ${SITE.title}`;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={`${SITE.title} blog`}
+      href="/blog/rss.xml"
+    />
+    {markdown && <link rel="alternate" type="text/markdown" href={markdown} />}
+
+    <!--
+      The browser only asks for a font once a styled text needs it, after the
+      first paint. Until it arrives, text shows in the fallback font, which
+      runs taller, and swapping fonts moves everything. Going back to a page
+      that is no longer in the back/forward cache restores the scroll position
+      against that taller page, so you land above where you left. Fetching the
+      font right away has it ready before the first paint.
+    -->
+    <link rel="preload" href={figtreeLatin} as="font" type="font/woff2" crossorigin />
+
+    <!-- Link previews in chat apps, the forum, and social networks. -->
+    <meta property="og:site_name" content={SITE.title} />
+    <meta property="og:title" content={shareTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:type" content={article ? "article" : "website"} />
+    <meta property="og:image" content={imageUrl} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content={String(OG_WIDTH)} />
+    <meta property="og:image:height" content={String(OG_HEIGHT)} />
+    <meta property="og:image:alt" content={imageAlt} />
+    {
+      article && (
+        <>
+          <meta property="article:published_time" content={article.published.toISOString()} />
+          {article.authors.map((author) => (
+            <meta property="article:author" content={author} />
+          ))}
+        </>
+      )
+    }
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={shareTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={imageUrl} />
+    <meta name="twitter:image:alt" content={imageAlt} />
+
+    <!-- Apply the stored color scheme and sidebar state before the first paint. -->
+    <script is:inline>
+      try {
+        const theme = localStorage.getItem("theme");
+        if (theme === "light" || theme === "dark") {
+          document.documentElement.dataset.theme = theme;
+        }
+        if (localStorage.getItem("sidebar") === "collapsed") {
+          document.documentElement.dataset.sidebar = "collapsed";
+        }
+      } catch {}
+    </script>
+
+    <PlausibleAnalytics />
+  </head>
+  <body>
+    {/* Every page marks where its reading content starts, with id="main-content". */}
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <Header area={area} wide={wide} />
+    <slot />
+    <Footer flush={wide} />
+    <HoverCards />
+    <CodeBlockCopy />
+    <HeadingAnchors />
+    <MermaidDiagrams />
+  </body>
+</html>
+
+<style>
+  .skip-link {
+    position: absolute;
+    left: var(--ha-space-4);
+    top: -100px;
+    z-index: 20;
+    padding: var(--ha-space-2) var(--ha-space-4);
+    border-radius: var(--ha-border-radius-md);
+    background: var(--site-accent);
+    color: var(--site-on-accent);
+  }
+
+  .skip-link:focus {
+    top: var(--ha-space-2);
+  }
+</style>

@@ -1,0 +1,194 @@
+---
+title: Select box
+description: Select boxes let people pick one option from a few, shown side by side as cards, with room for a description or an image.
+sidebarGroup: Input
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+import DoDont from "../../../../components/docs/DoDont.astro";
+
+<Demo layout="stack">
+  <ha-select-box data-props='{"options": [{"value": "single", "label": "Single", "description": "Do not start a new run. Issue a warning."}, {"value": "restart", "label": "Restart", "description": "Start a new run after first stopping the previous run."}, {"value": "queued", "label": "Queued", "description": "Start a new run after all previous runs complete."}], "value": "single"}' style="display: block; width: 100%"></ha-select-box>
+</Demo>
+
+## Overview
+
+A select box lets people pick one option from a small set, when the options need explaining. Each option is a card with a radio button, a label, and optionally a description and an image. All options are visible at once, so people can compare them before they choose.
+
+The frontend uses it for choices like these:
+
+- The unit system in the general settings: metric or US customary, with examples of the units that come with each.
+- The mode of an automation, where each mode has a description of what happens when the automation runs again while it is still running.
+- The way a voice assistant processes speech, during setup.
+
+## When to use
+
+Use a select box for:
+
+- Picking one option from a small set, where the options need a description or an image
+
+Don't use a select box for:
+
+- Options that are self-explanatory. A select box takes more room than it needs. Use a regular select or a radio list instead.
+- Long lists. Use a select.
+- A setting that is simply on or off. Use a [switch](/design/components/switch/).
+- Picking several options. Use checkboxes.
+
+## Anatomy
+
+1. **Card**: the bordered container of an option. The whole card can be selected.
+2. **Radio button**: shows which option is selected
+3. **Label**: the name of the option
+4. **Description**: optional, a short explanation below the label
+5. **Image**: optional, below the text, or next to it in a single column
+
+## Variants
+
+### Columns
+
+By default, the options sit next to each other, up to three per row. With more options, they wrap to the next row. Set the maximum number of columns to fit the content: fewer columns give longer descriptions more room.
+
+### Single column
+
+With a single column, each option becomes a row, with the image next to the text. When the image needs the full width, like a wide preview, stack it below the text instead.
+
+<Demo layout="stack">
+  <ha-select-box max_columns="1" data-props='{"options": [{"value": "single", "label": "Single", "description": "Do not start a new run. Issue a warning."}, {"value": "restart", "label": "Restart", "description": "Start a new run after first stopping the previous run."}], "value": "restart"}' style="display: block; width: 100%"></ha-select-box>
+</Demo>
+
+## Behavior
+
+- **Hover**: the card gets a light tint of the divider color.
+- **Selected**: the radio button is checked, and the card gets a 20% tint of the primary color.
+- **Disabled**: a disabled option shows its content and image at 50% opacity, and can't be picked. You can also disable the whole select box.
+- Selecting an option does not change the value on its own. The page sets the new value from the event.
+- Long labels are cut off with an ellipsis. Descriptions wrap.
+- In the dark theme, an option can use its own image. In a right to left language, an image can be mirrored.
+
+## Specs
+
+| Property | Value | Token |
+| --- | --- | --- |
+| Gap between options | 12px | `--ha-space-3` |
+| Card padding | 12px | None |
+| Card border | 1px | `--divider-color` |
+| Card corner radius | 12px | `--ha-border-radius-lg`, through `--ha-card-border-radius` |
+| Gap between radio button and text, and between content and image | 8px | `--ha-space-2` |
+| Gap between label and description | 4px | `--ha-space-1` |
+| Label | 14px, weight 400, `--primary-text-color` | `--ha-font-size-m`, `--ha-font-weight-normal` |
+| Description | 12px, weight 400, `--secondary-text-color` | `--ha-font-size-s`, `--ha-font-weight-normal` |
+| Line height | 1.2 | `--ha-line-height-condensed` |
+| Image size | At most 96px by 96px. Stacked: full width, at most 96px high. | `--ha-select-box-image-size` |
+| Maximum columns | 3 | `max_columns` |
+
+| State | Card tint |
+| --- | --- |
+| Resting | None |
+| Hover | `--divider-color` at 20% opacity |
+| Selected | `--primary-color` at 20% opacity |
+| Disabled | `--disabled-color` at 5% opacity, content at 50% opacity |
+
+The tint changes in 180ms, ease-in-out.
+
+## Guidelines
+
+- Keep the label short: a word or two that names the option, like **Single** or **Restart**.
+- Use the description to explain what the choice means, in a sentence or two.
+- Use an image when a picture explains the option faster than words, like the layout of a card. Images are decorative: the label must still make sense on its own.
+
+<DoDont doText="Name the option in a word or two, and explain it in the description." dontText="Put the whole explanation in the label.">
+  <ha-select-box slot="do" max_columns="1" data-props='{"options": [{"value": "single", "label": "Single", "description": "Do not start a new run. Issue a warning."}], "value": "single"}' style="display: block; width: 100%"></ha-select-box>
+  <ha-select-box slot="dont" max_columns="1" data-props='{"options": [{"value": "single", "label": "Do not start a new run and issue a warning"}], "value": "single"}' style="display: block; width: 100%"></ha-select-box>
+</DoDont>
+
+## Accessibility
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves focus into the group, to the selected option, and out of it again. |
+| Arrow keys | Move to the next or previous option and select it. Disabled options are skipped. |
+| <kbd>Space</kbd> | Selects the focused option. |
+
+### Focus
+
+Focus moves to the selected option in the group. The arrow keys move focus and the selection together.
+
+### Target size
+
+The whole card is the target, not only the radio button.
+
+### Screen readers
+
+The options are announced as a group of radio buttons, each with its label and description, and whether it is selected or disabled. The group itself has no name, so put a heading or label above it that names the choice. Images are skipped.
+
+### In the code
+
+- The options are in a group with the role `radiogroup`. Each radio button has the role `radio`, with `aria-checked` and `aria-disabled`.
+- Each radio button is named by its label, and described by its description, through `aria-labelledby` and `aria-describedby`.
+- The select box has no label of its own, so the group has no accessible name.
+- Images have an empty `alt`.
+
+## Related
+
+- [Switch](/design/components/switch/): a setting that is on or off
+- [Select menu](/design/components/select-menu/): picking an option for a device
+- [Selector](/design/components/selector/): where select boxes show up in forms
+
+## In code
+
+The element is `<ha-select-box>`. The options and the selected value can only be set from code, as properties:
+
+```ts
+html`
+  <ha-select-box
+    .options=${[
+      {
+        value: "single",
+        label: "Single",
+        description: "Do not start a new run. Issue a warning.",
+      },
+      {
+        value: "restart",
+        label: "Restart",
+        description: "Start a new run after first stopping the previous run.",
+      },
+    ]}
+    .value=${this._mode}
+    @value-changed=${this._modeChanged}
+  ></ha-select-box>
+`;
+```
+
+The select box has no label of its own. Put a heading or label above it that names the choice.
+
+### Properties
+
+These can only be set from code:
+
+- `options`: the list of options. Each option has:
+  - `value`: the value of the option. Required.
+  - `label`: the label.
+  - `description`: a short description, below the label.
+  - `image`: the URL of an image, or an object with `src`, `src_dark` (used in the dark theme), and `flip_rtl` (mirrors the image for right-to-left languages).
+  - `disabled`: disables this option.
+- `value`: the value of the selected option.
+
+### Attributes
+
+- `disabled`: disables all options.
+- `max_columns`: the maximum number of options per row. Defaults to `3`. With `1`, each option is a row, with the image next to the text.
+- `stacked_image`: with `max_columns="1"`, shows the image below the text at full width, instead of next to it.
+
+Note the underscores: these two attributes are `max_columns` and `stacked_image`, not `max-columns` and `stacked-image`.
+
+### Events
+
+- `value-changed`: fires when people pick an option. The new value is in `event.detail.value`. The select box does not update its own `value`: set it again from the event.
+
+### Styling
+
+- `--ha-select-box-image-size`: the maximum width and height of the images. Defaults to `96px`.
+
+Source: [`src/components/ha-select-box.ts`](https://github.com/home-assistant/frontend/blob/dev/src/components/ha-select-box.ts)

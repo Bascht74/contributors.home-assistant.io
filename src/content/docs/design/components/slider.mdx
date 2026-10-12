@@ -1,0 +1,215 @@
+---
+title: Slider
+description: Sliders let people pick a number from a range, by dragging.
+sidebarGroup: Input
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+<Demo>
+  <ha-slider min="0" max="100" value="60"></ha-slider>
+</Demo>
+
+## Overview
+
+A slider lets people pick a number from a range, by dragging. People see right away where the value sits between the minimum and the maximum, and can change it with a single drag.
+
+## When to use
+
+Use a slider for:
+
+- A value where the range matters more than the exact number, like a volume, a speed, or a percentage
+
+Don't use a slider for:
+
+- A value without a clear minimum and maximum, or one that people need to enter exactly. Use a [text input](/design/components/input/) with `type="number"`.
+- Controlling a device on a dashboard or in the more info dialog. The frontend has the larger `<ha-control-slider>` for that, see [controls](/design/components/controls/). The slider on this page is for settings, forms, and compact rows.
+
+The number selector in the frontend does both: it shows a slider with a number input next to it, so people can drag for a rough value and type for an exact one. It falls back to only the input when there is no minimum or maximum.
+
+## Anatomy
+
+1. **Label**: optional, above the slider
+2. **Track**: the full range, from minimum to maximum
+3. **Indicator**: the filled part of the track, up to the value
+4. **Markers**: optional, a dot for each step on the track
+5. **Thumb**: the circle people drag, at the current value
+6. **Tooltip**: shows the current value above the thumb while people drag or focus the slider
+7. **Hint**: optional help text below the slider
+
+## Variants
+
+### Size
+
+There are two sizes: small (the default) and medium. They differ in the size of the thumb. The small one fits in rows and forms, which is where most sliders in the frontend live.
+
+<Demo>
+  <ha-slider size="s" min="0" max="100" value="40"></ha-slider>
+  <ha-slider size="m" min="0" max="100" value="40"></ha-slider>
+</Demo>
+
+### Steps and markers
+
+The step sets how fine the value is. With few steps, the slider can show each one as a marker on the track.
+
+<Demo>
+  <ha-slider min="0" max="8" step="1" value="4" with-markers></ha-slider>
+</Demo>
+
+### With a label
+
+A slider shows no number next to it. It can have a label above it.
+
+<Demo>
+  <ha-slider label="Volume" min="0" max="100" value="30"></ha-slider>
+</Demo>
+
+## Behavior
+
+- **Enabled**: the indicator and the thumb are in the primary color, the rest of the track in the disabled color.
+- **Focus**: keyboard focus shows a 2px solid focus ring around the thumb, and opens the tooltip with the value.
+- **Dragging**: the thumb follows the pointer, the value snaps to the nearest step, and the tooltip shows the value.
+- **Disabled**: the track is dimmed to half its opacity. The slider shows the value, but it can't be changed or focused.
+- **Read-only**: shows the value, without letting people change it.
+
+<Demo>
+  <ha-slider min="0" max="100" value="60" disabled></ha-slider>
+</Demo>
+
+The slider follows the text direction of the page: in a right to left language, the minimum is at the right.
+
+## Specs
+
+| Property | Value | Token |
+| --- | --- | --- |
+| Width | 200px, at least 100px | None |
+| Track thickness | 4px | `--ha-slider-track-size` |
+| Track corner radius | 9999px, fully rounded | None |
+| Thumb size, small | 16px | None |
+| Thumb size, medium | 20px | None |
+| Thumb border | None | None |
+| Marker size | 2px, half the track thickness | None |
+| Disabled track opacity | 0.5 | None |
+| Focus ring | 2px solid, around the thumb | `--ha-color-focus` |
+| Tooltip distance from the thumb | 8px | `tooltip-distance` |
+
+| Part | Color |
+| --- | --- |
+| Track | `--disabled-color`, through `--ha-slider-track-color` |
+| Indicator | `--primary-color`, through `--ha-slider-indicator-color` |
+| Thumb | `--primary-color`, through `--ha-slider-thumb-color` |
+| Markers | `--card-background-color` |
+
+The tooltip has no arrow, and uses the same tokens as the [tooltip](/design/components/tooltip/) component:
+
+| Property | Value | Token |
+| --- | --- | --- |
+| Background | Secondary background | `--secondary-background-color`, through `--ha-tooltip-background-color` |
+| Text | Primary text | `--primary-text-color`, through `--ha-tooltip-text-color` |
+| Font size | 12px | `--ha-font-size-s` |
+| Padding | 8px | `--ha-space-2` |
+| Corner radius | 4px | `--ha-border-radius-sm` |
+
+## Guidelines
+
+- Give a slider a label that names what it controls, like **Volume** or **Speed**.
+- Make sure the current value is visible somewhere else when it matters, like in the row or in an input next to it. The tooltip only shows while people drag or focus the slider.
+
+## Accessibility
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves focus to the slider, and away from it. A disabled slider is skipped. |
+| <kbd>Arrow right</kbd> or <kbd>Arrow up</kbd> | Increases the value by one step. In a right to left language, <kbd>Arrow left</kbd> increases. |
+| <kbd>Arrow left</kbd> or <kbd>Arrow down</kbd> | Decreases the value by one step. In a right to left language, <kbd>Arrow right</kbd> decreases. |
+| <kbd>Page up</kbd> | Increases the value by a tenth of the range, at least one step. |
+| <kbd>Page down</kbd> | Decreases the value by a tenth of the range, at least one step. |
+| <kbd>Home</kbd> | Sets the minimum. |
+| <kbd>End</kbd> | Sets the maximum. |
+
+The keys do nothing while the slider is disabled or read-only.
+
+### Focus
+
+Keyboard focus shows a 2px solid focus ring around the thumb, and opens the tooltip with the value.
+
+### Target size
+
+The slider has 14px of extra touch area above and below the track, for a touch target 32px high.
+
+### Screen readers
+
+The slider is announced with its label and its value, formatted for the language of the user. Without a label, it has no name. The hint is read as its description.
+
+### In the code
+
+- The slider has the role `slider`, with `aria-valuemin`, `aria-valuemax`, `aria-valuenow`, and `aria-valuetext`. The value text is the number formatted for the language of the user, or the result of `valueFormatter` when it is set.
+- The accessible name comes from the label, through `aria-labelledby`. Without a label, the slider has no name.
+- The hint is connected with `aria-describedby`.
+- The value in the tooltip is hidden from screen readers. They get it from the value text instead.
+- `aria-disabled` follows `disabled`. `aria-readonly` also follows `disabled`, not `readonly`.
+
+## Related
+
+- [Controls](/design/components/controls/): the larger slider for devices on dashboards
+- [Text input](/design/components/input/): for an exact number
+- [Selector](/design/components/selector/): the number selector shows a slider with an input next to it
+- [Tooltip](/design/components/tooltip/): the same look as the value tooltip
+
+## In code
+
+The element is `<ha-slider>`. It is based on the [Web Awesome slider](https://webawesome.com/docs/components/slider/).
+
+```html
+<ha-slider min="0" max="100" value="60"></ha-slider>
+<ha-slider min="0" max="8" step="1" value="4" with-markers></ha-slider>
+<ha-slider size="m" label="Volume"></ha-slider>
+```
+
+### Attributes
+
+- `value`: the current value. Defaults to `0`.
+- `min`: the minimum value. Defaults to `0`.
+- `max`: the maximum value. Defaults to `100`.
+- `step`: the granularity of the value. Defaults to `1`.
+- `size`: `s` (default) or `m`.
+- `with-markers`: shows a marker at each step.
+- `with-tooltip`: shows the value in a tooltip while dragging or focused. On by default in `<ha-slider>`, so to hide it, set the `withTooltip` property to `false` from code.
+- `tooltip-placement`: `top` (default), `right`, `bottom`, or `left`.
+- `tooltip-distance`: the distance of the tooltip from the thumb, in pixels. Defaults to `8`.
+- `label`: a label above the slider.
+- `hint`: help text below the slider.
+- `disabled`: disables the slider.
+- `readonly`: shows the value, without letting people change it.
+- `orientation`: `horizontal` (default) or `vertical`.
+- `indicator-offset`: the value the colored part of the track starts from. Useful when the range goes below and above zero.
+- `range`, `min-value`, and `max-value`: turn the slider into a range slider with two thumbs. Not used in the frontend yet.
+- `name`: submitted with a form.
+
+The tooltip shows the plain number. To format it, like adding a unit, set the `valueFormatter` property to a function from code.
+
+### Slots
+
+- `label`: a label with markup. Only used when the `label` attribute is not set.
+- `hint`: a hint with markup. Only used when the `hint` attribute is not set.
+- `reference`: labels shown below the track, like the minimum and maximum.
+
+### Events
+
+- `input`: fires continuously while people drag.
+- `change`: fires when people let go, and the value is committed.
+
+Read the new value from `value` on the element. Most sliders in the frontend act on `change` only, and apply the value once people let go.
+
+### Styling
+
+- `--ha-slider-track-size`: the thickness of the track. Defaults to `4px`.
+- `--ha-slider-track-color`: the color of the track. Defaults to `var(--disabled-color)`.
+- `--ha-slider-indicator-color`: the color of the filled part of the track. Defaults to `var(--primary-color)`.
+- `--ha-slider-thumb-color`: the color of the thumb. Defaults to `var(--primary-color)`.
+
+The slider is 200 pixels wide by default, and at least 100 pixels. Set `width` on the element to change that.
+
+Source: [`src/components/ha-slider.ts`](https://github.com/home-assistant/frontend/blob/dev/src/components/ha-slider.ts)

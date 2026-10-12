@@ -1,0 +1,133 @@
+# Path rules for .github/workflows/labeler.yml. A pull request gets a label
+# when it changes a file that matches. Every label here must exist in the
+# repository, see .github/labels.yml.
+#
+# Every area in src/data/areas.ts has an "area: <id>" entry, in the same
+# order. `pnpm structure` fails when one is missing or left over.
+
+"area: start":
+  - changed-files:
+      - any-glob-to-any-file:
+          - src/content/docs/start/**
+
+"area: core":
+  - changed-files:
+      - any-glob-to-any-file:
+          - src/content/docs/core/**
+
+"area: frontend":
+  - changed-files:
+      - any-glob-to-any-file:
+          - src/content/docs/frontend/**
+
+"area: apps":
+  - changed-files:
+      - any-glob-to-any-file:
+          - src/content/docs/apps/**
+
+"area: marketplace":
+  - changed-files:
+      - any-glob-to-any-file:
+          - src/content/docs/marketplace/**
+
+"area: companion":
+  - changed-files:
+      - any-glob-to-any-file:
+          - src/content/docs/companion/**
+
+"area: os":
+  - changed-files:
+      - any-glob-to-any-file:
+          - src/content/docs/os/**
+
+"area: design":
+  - changed-files:
+      - any-glob-to-any-file:
+          - src/content/docs/design/**
+
+"area: brand":
+  - changed-files:
+      - any-glob-to-any-file:
+          - src/content/docs/brand/**
+
+"area: writing":
+  - changed-files:
+      - any-glob-to-any-file:
+          - src/content/docs/writing/**
+
+"area: translate":
+  - changed-files:
+      - any-glob-to-any-file:
+          - src/content/docs/translate/**
+
+"area: community":
+  - changed-files:
+      - any-glob-to-any-file:
+          - src/content/docs/community/**
+
+"area: releases":
+  - changed-files:
+      - any-glob-to-any-file:
+          - src/content/docs/releases/**
+
+"area: roadmap":
+  - changed-files:
+      - any-glob-to-any-file:
+          - src/content/docs/roadmap/**
+
+"area: architecture":
+  - changed-files:
+      - any-glob-to-any-file:
+          - src/content/docs/architecture/**
+
+"area: security":
+  - changed-files:
+      - any-glob-to-any-file:
+          - src/content/docs/security/**
+
+"area: data":
+  - changed-files:
+      - any-glob-to-any-file:
+          - src/content/docs/data/**
+
+"area: glossary":
+  - changed-files:
+      - any-glob-to-any-file:
+          - src/content/docs/glossary/**
+
+blog:
+  - changed-files:
+      - any-glob-to-any-file:
+          - src/content/blog/**
+
+site code:
+  - changed-files:
+      - any-glob-to-any-file:
+          - astro.config.mjs
+          - scripts/**
+          - src/components/**
+          - src/content.config.ts
+          - src/layouts/**
+          - src/lib/**
+          - src/pages/**
+          - src/styles/**
+
+demos:
+  - changed-files:
+      - any-glob-to-any-file:
+          - demo-runtime/**
+          - public/components/**
+          - public/static/**
+
+redirects:
+  - changed-files:
+      - any-glob-to-any-file:
+          - redirects/**
+          - src/data/design-redirects.json
+
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file:
+          - .node-version
+          - package.json
+          - pnpm-lock.yaml

@@ -1,0 +1,77 @@
+name: CI
+
+# Checks every pull request, and every push to main: the code and front
+# matter, the shape of the areas, the build, and every link of the built
+# site. Deploying is Netlify's job, not this workflow's.
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Check and build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          # The full history, so pages can show when they last changed.
+          fetch-depth: 0
+
+      # The version of pnpm comes from packageManager in package.json.
+      - name: Set up pnpm
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check the structure of the areas
+        run: pnpm structure
+
+      - name: Check code and front matter
+        run: pnpm check
+
+      # The share cards are the slow part of a build. Each PNG is cached by a
+      # hash of what is on it, so the cards of an earlier build stay valid.
+      # The key changes on every run and the newest cache is restored, so new
+      # cards add up. A new lockfile or renderer starts over, which keeps old
+      # cards from piling up forever. The events feed is not cached on
+      # purpose: every build reads it fresh.
+      - name: Restore the share card cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: node_modules/.cache/og
+          key: og-${{ hashFiles('pnpm-lock.yaml', 'src/lib/og-render.ts') }}-${{ github.run_id }}
+          restore-keys: og-${{ hashFiles('pnpm-lock.yaml', 'src/lib/og-render.ts') }}-
+
+      - name: Build the site
+        run: pnpm build
+
+      # Only main saves: pull requests restore the cards of main, and do not
+      # fill the cache with a copy per pull request.
+      - name: Save the share card cache
+        if: ${{ github.event_name == 'push' }}
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: node_modules/.cache/og
+          key: og-${{ hashFiles('pnpm-lock.yaml', 'src/lib/og-render.ts') }}-${{ github.run_id }}
+
+      - name: Check links
+        run: pnpm links

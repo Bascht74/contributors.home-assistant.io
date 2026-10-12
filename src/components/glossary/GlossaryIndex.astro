@@ -1,0 +1,191 @@
+---
+// Every term of the glossary on one page, A to Z, with a filter. The filter
+// also finds a term by its other names: its aliases, its old names, and how
+// the code calls it. Type "service" and you find "Action".
+import type { DocsEntry } from "../../lib/docs";
+import { getTerms, letterOf, termHref } from "../../lib/glossary";
+
+const terms = await getTerms();
+
+const letters = new Map<string, DocsEntry[]>();
+for (const term of terms) {
+  const letter = letterOf(term);
+  letters.set(letter, [...(letters.get(letter) ?? []), term]);
+}
+
+const allLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
+// Everything the filter matches on, in lowercase.
+const searchText = (term: DocsEntry) =>
+  [
+    term.data.title,
+    ...(term.data.term?.aliases ?? []),
+    ...(term.data.term?.formerly ?? []),
+    ...(term.data.term?.code ?? []),
+    term.data.term?.ui ?? "",
+  ]
+    .join(" ")
+    .toLowerCase();
+---
+
+<div class="glossary" data-pagefind-ignore>
+  <div class="tools">
+    <label class="filter">
+      <span class="sr-only">Filter terms</span>
+      <input type="search" placeholder="Filter terms, like entity or service" data-glossary-filter />
+    </label>
+    <nav class="letters" aria-label="Jump to a letter">
+      {
+        allLetters.map((letter) =>
+          letters.has(letter) ? (
+            <a href={`#letter-${letter}`}>{letter}</a>
+          ) : (
+            <span aria-hidden="true">{letter}</span>
+          ),
+        )
+      }
+    </nav>
+  </div>
+
+  <p class="empty" hidden>
+    No term matches. Missing one? Use the edit link at the bottom of this page.
+  </p>
+
+  {
+    [...letters].map(([letter, entries]) => (
+      <section class="letter" id={`letter-${letter}`}>
+        <h2>{letter}</h2>
+        <dl>
+          {entries.map((term) => (
+            <div class="term" data-search={searchText(term)}>
+              <dt>
+                <a href={termHref(term)}>{term.data.title}</a>
+                {term.data.term?.formerly.length ? (
+                  <span class="formerly">formerly {term.data.term.formerly.join(", ")}</span>
+                ) : null}
+              </dt>
+              <dd>{term.data.description}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+    ))
+  }
+</div>
+
+<script>
+  const input = document.querySelector<HTMLInputElement>("[data-glossary-filter]");
+  const terms = [...document.querySelectorAll<HTMLElement>(".glossary .term")];
+  const sections = [...document.querySelectorAll<HTMLElement>(".glossary .letter")];
+  const empty = document.querySelector<HTMLElement>(".glossary .empty");
+
+  input?.addEventListener("input", () => {
+    const query = input.value.trim().toLowerCase();
+
+    for (const term of terms) {
+      term.hidden = query !== "" && !term.dataset.search!.includes(query);
+    }
+
+    for (const section of sections) {
+      section.hidden = !section.querySelector(".term:not([hidden])");
+    }
+
+    if (empty) {
+      empty.hidden = terms.some((term) => !term.hidden);
+    }
+  });
+</script>
+
+<style>
+  /* The filter and the letters stay in view below the header of the site. */
+  .tools {
+    position: sticky;
+    top: var(--site-header-height);
+    z-index: 1;
+    display: grid;
+    gap: var(--ha-space-3);
+    margin: 0 0 var(--ha-space-6);
+    padding: var(--ha-space-3) 0;
+    background: var(--site-surface);
+  }
+
+  .filter input {
+    width: 100%;
+    padding: var(--ha-space-3) var(--ha-space-4);
+    border: 1px solid var(--site-border);
+    border-radius: var(--ha-border-radius-pill);
+    background: var(--site-surface);
+    color: var(--site-text);
+    font: inherit;
+  }
+
+  .letters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ha-space-1);
+  }
+
+  .letters a,
+  .letters span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--ha-border-radius-md);
+    font-size: 14px;
+    font-weight: 650;
+    text-decoration: none;
+  }
+
+  .letters a:hover {
+    background: var(--site-accent-quiet);
+  }
+
+  .letters span {
+    color: var(--site-text-muted);
+    opacity: 0.5;
+  }
+
+  /* A letter jumped to lands below the header and the sticky tools. */
+  .letter {
+    scroll-margin-top: calc(var(--site-header-height) + 120px);
+  }
+
+  .letter h2 {
+    margin: var(--ha-space-8) 0 var(--ha-space-3);
+  }
+
+  dl {
+    display: grid;
+    gap: var(--ha-space-4);
+    margin: 0;
+  }
+
+  dt {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--ha-space-2);
+    font-weight: 650;
+  }
+
+  .formerly {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--site-text-muted);
+  }
+
+  dd {
+    margin: var(--ha-space-1) 0 0;
+    color: var(--site-text-muted);
+  }
+
+  .empty {
+    color: var(--site-text-muted);
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+</style>

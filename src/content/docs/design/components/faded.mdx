@@ -1,0 +1,143 @@
+---
+title: Faded
+description: Faded content shows the start of a long text, and fades out the rest until people select it.
+sidebarGroup: Layout and content
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+import DoDont from "../../../../components/docs/DoDont.astro";
+
+<Demo layout="stack">
+  <ha-faded>
+    <div>
+      <p>This release brings a new energy dashboard, faster startup, and a long list of fixes. The automation editor now shows which triggers fired last, so you can see at a glance why an automation ran.</p>
+      <p>Several integrations got new entities, and some older options moved from YAML to the user interface. Check the backward-incompatible changes before you update, especially if you use custom templates for your dashboards.</p>
+      <p>Thanks to everyone who tested the beta, reported issues, and translated the new strings.</p>
+    </div>
+  </ha-faded>
+</Demo>
+
+## Overview
+
+Faded content shows the first lines of a long text, and fades the rest out at the bottom. Selecting anywhere on the text shows all of it. The first lines tell people whether they want to read on.
+
+## When to use
+
+Use faded content for:
+
+- Text that is optional reading, like release notes or a long description
+
+Don't use faded content for:
+
+- Anything people need, like a warning or an action. Keep it outside the fade.
+- Content that needs to be opened and closed by everyone, including keyboard users. Use an [expansion panel](/design/components/expansion-panel/).
+- A single line that is too long. Use [marquee text](/design/components/marquee-text/), or let it wrap.
+
+## Anatomy
+
+1. **Container**: cuts the content off at the faded height, and receives the selection that opens it
+2. **Content**: the elements in the default slot
+3. **Fade**: a mask over the container that goes from fully visible to transparent toward the bottom
+
+## Variants
+
+### Height
+
+By default, the content is cut off at 102 pixels. The height can be changed.
+
+<Demo layout="stack">
+  <ha-faded faded-height="48">
+    <div>
+      <p>The front door sensor reports open and closed, and the battery level. It updates within a second of the door moving, and checks in every hour when nothing happens.</p>
+      <p>Mount it on the door frame, with the magnet on the door itself, no more than a centimeter apart.</p>
+      <p>The battery lasts about two years, and its level shows up as a separate sensor.</p>
+    </div>
+  </ha-faded>
+</Demo>
+
+## Behavior
+
+- **Faded**: the content is cut off at the faded height, the bottom fades out, and the pointer turns into a hand.
+- **Open**: selecting anywhere on the content shows all of it. Once it is open, it stays open. There is no way to collapse it again.
+- **Short content**: when the content is at most 50 pixels taller than the faded height, it is shown in full right away. Hiding only a line or two would cost people a tap, and save almost no room.
+
+<Demo caption="Short content is shown in full.">
+  <ha-faded>
+    <div>This update only fixes a few small bugs.</div>
+  </ha-faded>
+</Demo>
+
+## Specs
+
+| Property | Value |
+| --- | --- |
+| Faded height | 102px by default |
+| Shown in full when content is at most | The faded height plus 50px |
+| Fade | Linear gradient from top to bottom: fully visible down to 25% of the height, then fading to transparent at the bottom |
+| Pointer while faded | `pointer` |
+| Pointer when open | `default` |
+
+The component sets no colors, spacing, or type of its own. The content keeps the styles of the page around it.
+
+## Guidelines
+
+<DoDont doText="Put optional reading behind the fade." dontText="Hide a warning or an action people need behind the fade.">
+  <ha-faded slot="do" faded-height="48">
+    <div>
+      <p>This release brings a new energy dashboard, faster startup, and a long list of fixes.</p>
+      <p>Several integrations got new entities, and some older options moved from YAML to the user interface.</p>
+      <p>Thanks to everyone who tested the beta, reported issues, and translated the new strings.</p>
+    </div>
+  </ha-faded>
+  <ha-faded slot="dont" faded-height="48">
+    <div>
+      <p>This release brings a new energy dashboard, faster startup, and a long list of fixes.</p>
+      <p>Several integrations got new entities, and some older options moved from YAML to the user interface.</p>
+      <p>Back up your configuration before you update. This update can't be undone.</p>
+    </div>
+  </ha-faded>
+</DoDont>
+
+## Accessibility
+
+### Keyboard
+
+Faded content has no keyboard interaction. It only opens with a pointer or touch, so keyboard users can't open it. That is one more reason to keep what people need out of the faded part.
+
+### Screen readers
+
+Screen readers can read the full text, even while it is faded. They don't hear that there is more, or that it can be opened.
+
+### In the code
+
+- The container has no role, is not focusable, and has no expanded or collapsed state.
+- The hidden part is only clipped and masked. It stays in the page.
+
+## Related
+
+- [Expansion panel](/design/components/expansion-panel/): content that everyone can open and close
+- [Marquee text](/design/components/marquee-text/): a single line that is too long to fit
+
+## In code
+
+The element is `<ha-faded>`.
+
+```html
+<ha-faded faded-height="80">
+  <div>A long text...</div>
+</ha-faded>
+```
+
+Wrap the content in an element. The height is measured from the elements in the slot, and plain text has no element to measure. Plain text directly in `<ha-faded>` always fades, even when it is short.
+
+The height is measured once, when the component first renders. For content that renders later, like markdown, `ha-markdown` fires a `content-resize` event when it is done, and the component measures again.
+
+### Attributes
+
+- `faded-height`: the height in pixels where the content is cut off. Defaults to `102`.
+
+### Slots
+
+- Default: the content.
+
+Source: [`src/components/ha-faded.ts`](https://github.com/home-assistant/frontend/blob/dev/src/components/ha-faded.ts)

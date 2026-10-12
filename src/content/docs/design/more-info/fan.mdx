@@ -1,0 +1,40 @@
+---
+title: Fan
+description: The more-info view of a fan, with a speed control and menus for presets, direction, and oscillation.
+sidebarGroup: Lights and climate
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+<Demo hass>
+  <ha-demo-more-info entity="fan.bedroom_fan"></ha-demo-more-info>
+</Demo>
+
+## What it shows
+
+The main control of a fan is its speed. What shape it takes depends on how many speeds the fan has:
+
+- **More than 5 speeds**: a tall vertical [control slider](/design/components/controls/) for the percentage, with a power button below it. The bedroom fan above moves in steps of 10%, so it gets the slider.
+- **5 speeds or fewer**: a vertical [control select](/design/components/controls/) with one button for off and one for each speed. Fans with up to 3 speeds get names and icons, like **Off**, **Low**, **Medium**, and **High**. Fans with 4 or 5 speeds get numbers.
+- **No speed control**: a big on and off switch, with a fan icon for on and a crossed out fan for off.
+
+When the fan is on and has a speed, the state at the top shows it, like **40%**. When it is off, it shows **Off**.
+
+Below the main control, a row of menus holds the secondary settings. Each one only shows when the fan supports it:
+
+- The preset mode, like auto or sleep.
+- The direction, **Forward** or **Reverse**.
+- Oscillation, on or off.
+
+## Design notes
+
+- The fan slider and the speed buttons take the color of the state, so a running fan is colored and a fan that is off is gray.
+- The slider snaps to the steps the fan supports, so it can't land on a speed the fan doesn't have.
+- The power button only shows next to the slider, and only when the fan can be turned on and off. With speed buttons, **Off** is one of the steps, so a separate button would say the same thing twice.
+- The oscillation menu uses two icons: arrows swinging back and forth for on, crossed out for off.
+
+## In code
+
+The view is `more-info-fan` in `src/dialogs/more-info/controls/more-info-fan.ts`. The speed control is `ha-state-control-fan-speed` in `src/state-control/fan/`, and the switch without speeds is `ha-state-control-toggle` in `src/state-control/`. The speed helpers, like `computeFanSpeedCount` and `FAN_SPEED_COUNT_MAX_FOR_BUTTONS`, and the `FanEntityFeature` enum live in `src/data/fan.ts`.
+
+Source: [`more-info-fan.ts`](https://github.com/home-assistant/frontend/blob/dev/src/dialogs/more-info/controls/more-info-fan.ts)

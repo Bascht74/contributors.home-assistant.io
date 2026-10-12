@@ -1,0 +1,37 @@
+---
+title: Color
+description: The color palettes of Home Assistant, and the semantic tokens built on top of them.
+order: 1
+---
+
+import ColorPalette from "../../../../components/docs/ColorPalette.astro";
+
+Home Assistant uses two layers of color tokens:
+
+1. **Core tokens** are the raw palettes below. Do not use them directly in components.
+2. **Semantic tokens** describe a purpose, like `--ha-color-text-primary` or `--ha-color-fill-primary-loud-resting`. They point to core tokens, and switch automatically in dark mode.
+
+> [!TIP]
+> Reach for a semantic token first. If none fits, that is a conversation for the design team, not a reason to use a core token.
+
+## Primary
+
+<ColorPalette palette="primary" />
+
+## Neutral
+
+<ColorPalette palette="neutral" />
+
+## Status colors
+
+### Green
+
+<ColorPalette palette="green" />
+
+### Orange
+
+<ColorPalette palette="orange" />
+
+### Red
+
+<ColorPalette palette="red" />

@@ -1,0 +1,95 @@
+---
+title: Tip
+description: A tip is a short, optional hint, like a keyboard shortcut or a pointer to more help, centered below the content it belongs to.
+sidebarGroup: Feedback and status
+---
+
+## Overview
+
+A tip is a single line of help that people can safely ignore. It starts with a lightbulb icon and the word **Tip!**, followed by the hint in a lighter color. You find tips at the bottom of the **Settings** page, at the bottom of the search dialog, and in the dialog to create a new automation, where a tip points to where you can find more blueprints.
+
+It needs the translations of Home Assistant to show its prefix, so there is no live demo here.
+
+## When to use
+
+Use a tip for:
+
+- A shortcut that makes something faster, like a keyboard shortcut
+- A pointer to more help or more content, like the community or the blueprint exchange
+
+Don't use a tip for:
+
+- Something people need to know to finish the task. Put it in the text, or use an [alert](/design/components/alert/).
+- A warning or an error. Use an [alert](/design/components/alert/).
+- A hint about one field. Use the helper text of the field.
+
+## Anatomy
+
+1. **Icon**: a lightbulb
+2. **Prefix**: the word **Tip!**, in a medium weight, translated
+3. **Text**: the hint, in the secondary text color. It can contain a link or a button.
+
+The whole tip is centered.
+
+## Variants
+
+There is one tip. What changes is the content: plain text, or text with a link or a button in it.
+
+On the **Settings** page, the frontend picks a random tip each time. Tips about keyboard shortcuts are left out on narrow screens.
+
+## Behavior
+
+A tip does nothing by itself. A link or a button inside it works as usual.
+
+## Specs
+
+| Property | Value | Token |
+| --- | --- | --- |
+| Alignment | Centered | None |
+| Prefix weight | 500 | `--ha-font-weight-medium` |
+| Text color | Secondary text color | `--secondary-text-color` |
+| Space between prefix and text | 2px | None |
+
+The icon has the default icon size of 24px (`--mdc-icon-size`). The text follows the size of the surrounding text.
+
+## Guidelines
+
+- Put it at the end of the content, where it doesn't get in the way. That is where the frontend puts its tips: below the cards on the **Settings** page, in the footer of the search dialog, and below the list of blueprints.
+
+## Accessibility
+
+### Keyboard
+
+A tip has no keyboard behavior of its own. A link or button inside it is in the tab order, like anywhere else.
+
+### Screen readers
+
+Screen readers read the prefix and the text, as regular text. The icon is decorative.
+
+### In the code
+
+The tip has no role. The icon is an `ha-svg-icon`. Write the text so it reads well after "Tip!".
+
+## Related
+
+- [Alert](/design/components/alert/): for information that people need
+- [Tooltip](/design/components/tooltip/): a short hint on hover or focus
+- [UI text](/design/ui-text/): how to write the hint
+
+## In code
+
+The element is `<ha-tip>`. Put the hint in its default slot:
+
+```html
+<ha-tip>
+  <a href="..." target="_blank" rel="noreferrer">Discover more blueprints</a>
+</ha-tip>
+```
+
+The prefix comes from the translation key `ui.panel.config.tips.tip`.
+
+### Slots
+
+- Default: the text of the tip.
+
+Source: [`src/components/ha-tip.ts`](https://github.com/home-assistant/frontend/blob/dev/src/components/ha-tip.ts)

@@ -1,0 +1,494 @@
+---
+title: Controls
+description: Big, touch-friendly controls for operating a device, like the toggles and sliders in the more-info dialogs.
+sidebarGroup: Showing values
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+<Demo>
+  <ha-control-switch vertical reversed checked label="Light" style="height: 280px; --control-switch-thickness: 110px; --control-switch-border-radius: var(--ha-border-radius-6xl); --control-switch-padding: 6px; --mdc-icon-size: 24px">
+    <ha-svg-icon slot="icon-on" path="M12,2A7,7 0 0,0 5,9C5,11.38 6.19,13.47 8,14.74V17A1,1 0 0,0 9,18H15A1,1 0 0,0 16,17V14.74C17.81,13.47 19,11.38 19,9A7,7 0 0,0 12,2M9,21A1,1 0 0,0 10,22H14A1,1 0 0,0 15,21V20H9V21Z"></ha-svg-icon>
+    <ha-svg-icon slot="icon-off" path="M12,2C9.76,2 7.78,3.05 6.5,4.68L16.31,14.5C17.94,13.21 19,11.24 19,9A7,7 0 0,0 12,2M3.28,4L2,5.27L5.04,8.3C5,8.53 5,8.76 5,9C5,11.38 6.19,13.47 8,14.74V17A1,1 0 0,0 9,18H14.73L18.73,22L20,20.72L3.28,4M9,20V21A1,1 0 0,0 10,22H14A1,1 0 0,0 15,21V20H9Z"></ha-svg-icon>
+  </ha-control-switch>
+  <ha-control-slider vertical value="60" unit="%" label="Brightness" style="height: 280px; --control-slider-thickness: 110px; --control-slider-border-radius: var(--ha-border-radius-6xl)"></ha-control-slider>
+  <ha-control-circular-slider value="21" current="19" min="10" max="30" step="0.5" label="Target temperature" style="width: 240px"></ha-control-circular-slider>
+</Demo>
+
+## Overview
+
+The control family is made for operating a device by hand, with a finger as much as with a mouse. The controls are large, have big hit areas, and react to dragging and swiping, not just tapping. You find them in two places:
+
+- In the **more-info dialogs**, where one big control takes center stage: the vertical brightness slider of a light, the round thermostat dial, the toggle of a switch.
+- In the **features of the tile card**, where a smaller, horizontal version sits below the entity, like a brightness slider or a row of mode buttons.
+
+## When to use
+
+Use a control for:
+
+- The main job of a screen being to change the state of a device
+- A feature of a tile card
+
+Don't use a control for:
+
+- Forms and settings. Use the regular form controls instead, like a [button](/design/components/button/), a [switch](/design/components/switch/), or a [slider](/design/components/slider/). A control from this family in a settings form looks out of place, and takes far more room than it needs.
+- Secondary settings of a device with many options. Use a [select menu](/design/components/select-menu/).
+
+## Anatomy
+
+All controls share the same look:
+
+1. **Track**: the rounded shape, with a light tint of the color
+2. **Active part**: the part in full color, like the fill of a slider, the knob of a switch, or the selected option
+3. **Content**: an icon, a value, or a label, depending on the control
+
+Their color can be set, so it matches the state of the entity, like the color of a light.
+
+## Variants
+
+### Control button
+
+A square button with an icon, for a single action like **Open**, **Stop**, or **Lock**. It is the building block for rows of actions, like the open, stop, and close buttons of a cover.
+
+<Demo>
+  <ha-control-button label="Open" style="width: 64px; height: 64px; --control-button-border-radius: var(--ha-border-radius-xl); --mdc-icon-size: 24px">
+    <ha-svg-icon path="M7,15L12,10L17,15H7Z"></ha-svg-icon>
+  </ha-control-button>
+  <ha-control-button label="Stop" style="width: 64px; height: 64px; --control-button-border-radius: var(--ha-border-radius-xl); --mdc-icon-size: 24px">
+    <ha-svg-icon path="M18,18H6V6H18V18Z"></ha-svg-icon>
+  </ha-control-button>
+  <ha-control-button label="Close" style="width: 64px; height: 64px; --control-button-border-radius: var(--ha-border-radius-xl); --mdc-icon-size: 24px">
+    <ha-svg-icon path="M7,10L12,15L17,10H7Z"></ha-svg-icon>
+  </ha-control-button>
+  <ha-control-button label="Disabled" disabled style="width: 64px; height: 64px; --control-button-border-radius: var(--ha-border-radius-xl); --mdc-icon-size: 24px">
+    <ha-svg-icon path="M18,18H6V6H18V18Z"></ha-svg-icon>
+  </ha-control-button>
+</Demo>
+
+The frontend has a separate group component to put control buttons in a row or a column. It is not available in these demos.
+
+### Control switch
+
+A big on and off switch. Use it for the main toggle of a device. In the more-info dialog it stands upright and is reversed, so on is at the top. In a tile card feature it lies flat.
+
+<Demo>
+  <ha-control-switch label="Power" style="width: 240px; height: 42px">
+    <ha-svg-icon slot="icon-on" path="M7,2V13H10V22L17,10H13L17,2H7Z"></ha-svg-icon>
+    <ha-svg-icon slot="icon-off" path="M17,10H13L17,2H7V4.18L15.46,12.64M3.27,3L2,4.27L7,9.27V13H10V22L13.58,15.86L17.73,20L19,18.73L3.27,3Z"></ha-svg-icon>
+  </ha-control-switch>
+  <ha-control-switch checked label="Power" style="width: 240px; height: 42px">
+    <ha-svg-icon slot="icon-on" path="M7,2V13H10V22L17,10H13L17,2H7Z"></ha-svg-icon>
+    <ha-svg-icon slot="icon-off" path="M17,10H13L17,2H7V4.18L15.46,12.64M3.27,3L2,4.27L7,9.27V13H10V22L13.58,15.86L17.73,20L19,18.73L3.27,3Z"></ha-svg-icon>
+  </ha-control-switch>
+</Demo>
+
+### Control slider
+
+A thick slider for a value in a range, like brightness, volume, or the position of a cover. While someone drags it, a tooltip shows the value.
+
+The mode sets how the value is drawn:
+
+- **Start** (default): fills from the start. Use it for an amount, like brightness.
+- **End**: fills from the end. The cover position slider uses it, so the bar comes down from the top, like the cover itself.
+- **Cursor**: shows only a marker, no fill. Use it when there is no "more" or "less", like a color temperature or a tilt position.
+
+<Demo>
+  <ha-control-slider vertical value="70" label="Start" style="height: 240px; --control-slider-thickness: 90px; --control-slider-border-radius: var(--ha-border-radius-6xl)"></ha-control-slider>
+  <ha-control-slider vertical mode="end" value="70" label="End" style="height: 240px; --control-slider-thickness: 90px; --control-slider-border-radius: var(--ha-border-radius-6xl)"></ha-control-slider>
+  <ha-control-slider vertical mode="cursor" value="70" label="Cursor" style="height: 240px; --control-slider-thickness: 90px; --control-slider-border-radius: var(--ha-border-radius-6xl)"></ha-control-slider>
+</Demo>
+
+The horizontal version is what tile card features use:
+
+<Demo layout="stack">
+  <ha-control-slider value="40" unit="%" label="Brightness" style="width: 320px; --control-slider-thickness: 42px"></ha-control-slider>
+</Demo>
+
+### Control circular slider
+
+A round dial, open at the bottom, for a target value like a temperature or humidity. It can also show the current value as a small dot on the track, so people see where they are and where they are going.
+
+The dial itself shows no text. In the more-info dialogs, the target and current value are printed in the middle of it by the surrounding component.
+
+The mode sets which part of the track is filled, just like the slider. The thermostat fills from the start when heating, from the end when cooling, and the whole track when the direction does not matter. In the dual version, the dial has two handles, a low and a high one, for a range like heating and cooling at once.
+
+<Demo>
+  <ha-control-circular-slider value="21" current="19" min="10" max="30" step="0.5" label="Heat to" style="width: 200px; --control-circular-slider-color: var(--state-climate-heat-color, #ff8100)"></ha-control-circular-slider>
+  <ha-control-circular-slider mode="end" value="23" current="26" min="10" max="30" step="0.5" label="Cool to" style="width: 200px; --control-circular-slider-color: var(--state-climate-cool-color, #2b9af9)"></ha-control-circular-slider>
+  <ha-control-circular-slider dual low="19" high="24" current="21" min="10" max="30" step="0.5" low-label="Heat to" high-label="Cool to" style="width: 200px; --control-circular-slider-low-color: var(--state-climate-heat-color, #ff8100); --control-circular-slider-high-color: var(--state-climate-cool-color, #2b9af9)"></ha-control-circular-slider>
+</Demo>
+
+### Control number buttons
+
+A value with a minus and a plus button, for small, precise steps. The target temperature feature of the tile card uses it. Use it when people adjust a value by a step or two, rather than jumping across the range.
+
+<Demo>
+  <ha-control-number-buttons value="21" min="10" max="30" step="0.5" unit="°C" label="Target temperature" style="width: 220px; height: 42px"></ha-control-number-buttons>
+  <ha-control-number-buttons value="21" min="10" max="30" step="0.5" unit="°C" label="Target temperature" disabled style="width: 220px; height: 42px"></ha-control-number-buttons>
+</Demo>
+
+### Control select
+
+A row, or a column, of options where one is selected, like the speed of a fan or the mode of an alarm panel. Each option shows an icon, a label, or both. The selected option is filled with the color.
+
+Use it for a handful of options that people switch between often. In the more-info dialog it stands upright, with one option per step. For secondary settings with more options, like the preset or swing mode of a thermostat, the more-info dialogs use a [select menu](/design/components/select-menu/) instead.
+
+The options can only be set from code, so there is no live demo here.
+
+## Behavior
+
+- **Hover**: the tint of the control switch track gets stronger, from 20% to 40%. An option of a control select gets a 20% tint of the color.
+- **Focus**: keyboard focus shows a 2px ring around the control. The control switch, slider, and select use their own color for the ring. The control button and number buttons use the secondary text color. The circular slider shows focus by making the focused arc thicker, from 24px to 28px.
+- **Pressed**: while someone drags a slider, the tooltip with the value shows. It hides when they let go. With the keyboard, it shows while a key is pressed, and hides half a second after the key is released.
+- **Swiping**: the control switch turns on or off with a swipe in its direction, and toggles with a tap.
+- **Disabled**: each control handles it in its own way:
+  - The control button turns its icon to the disabled text color, on a 20% tint of the disabled color.
+  - The control switch is dimmed to 50% opacity.
+  - The control select turns its text and selected option to the disabled color.
+  - The number buttons turn their text to the disabled color. The minus and plus buttons are dimmed to 40%.
+  - The circular slider only shows its track and the dot of the current value, without the colored arcs and the handles.
+  - The control slider ignores dragging and tapping, but has no separate look.
+- **Limits**: the minus and plus buttons disable themselves at the minimum and the maximum. When the number buttons get narrower than 100 pixels, the unit is hidden.
+- **Inactive**: for a device that is off, the circular slider can hide the colored arc.
+- **Read only**: a read only circular slider shows its value, but ignores dragging and tapping. The keyboard still changes the value.
+
+Most transitions take 180ms, ease-in-out. The arcs of the circular slider move in 300ms.
+
+## Specs
+
+### Default sizes
+
+All controls fill their container. The defaults below are what you get without setting a size.
+
+| Control | Default size | Corner radius | Token |
+| --- | --- | --- | --- |
+| Control button | 40px by 40px, 8px padding | 8px | `--ha-border-radius-md`, through `--control-button-border-radius` |
+| Control switch | 40px thick | 12px | `--ha-border-radius-lg`, through `--control-switch-border-radius` |
+| Control slider | 40px thick | 8px | `--ha-border-radius-md`, through `--control-slider-border-radius` |
+| Control circular slider | 320px wide | Round track ends | None |
+| Control number buttons | The height of a card feature, buttons 35px wide | 8px | `--ha-border-radius-md`, through `--control-number-buttons-border-radius` |
+| Control select | 40px thick, 4px padding | 10px | `--control-select-border-radius` |
+
+In the more-info dialogs, the vertical controls are 130 pixels thick, up to 320 pixels tall, with 36px corners (`--ha-border-radius-6xl`). In tile card features, the horizontal controls are 42 pixels thick. A feature inline next to the icon of a tile card keeps the height of the icon, 36 pixels, unless the card reserves a row for it.
+
+### Color
+
+| Part | Color | Token |
+| --- | --- | --- |
+| Track tint | The disabled color at 20% opacity (30% for the circular slider) | `--disabled-color` |
+| Active part | The primary color | `--primary-color`, through the color property of each control |
+| Icon of a control button | The primary text color | `--primary-text-color`, through `--control-button-icon-color` |
+| Knob icon of the control switch | White | None |
+| Text of the selected option of a control select | White | None |
+| Handle of the slider and the circular slider | White | None |
+| Current value dot of the circular slider | The primary text color at 50% opacity | `--primary-text-color` |
+| Slider tooltip | Clear background, primary text color, 12px corners | `--clear-background-color`, `--ha-border-radius-lg` |
+
+### Other parts
+
+| Property | Value | Token |
+| --- | --- | --- |
+| Icon size | 20px, 16px for the number buttons | `--mdc-icon-size` |
+| Switch knob | Half of the track, inset by 4px | `--control-switch-padding` |
+| Minimum touch area of the switch | 40px | `--control-switch-min-touch-size` |
+| Circular slider track | 24px wide, 270 degrees, open at the bottom | None |
+| Extra hit area around the circular slider | 12px | `--control-circular-slider-interaction-margin` |
+| Slider handle | 4px wide, with `show-handle` | None |
+
+## Guidelines
+
+Give every control a label. Most of them show only an icon or a value, and the label is what screen readers announce.
+
+## Accessibility
+
+### Keyboard
+
+| Control | Keys |
+| --- | --- |
+| Control button | <kbd>Tab</kbd> to focus, <kbd>Enter</kbd> or <kbd>Space</kbd> to select. It is a native button. |
+| Control switch | <kbd>Enter</kbd> or <kbd>Space</kbd> toggles. The arrow keys in its direction turn it on or off, following which way the switch is turned and the text direction. |
+| Control slider | Arrow keys move one step. <kbd>Page up</kbd> and <kbd>Page down</kbd> move 10% of the range. <kbd>Home</kbd> and <kbd>End</kbd> go to the minimum and the maximum. In a right to left language, left and right are swapped. |
+| Control circular slider | The same keys as the control slider, on each handle. |
+| Control number buttons | The same keys as the control slider. The minus and plus buttons are not in the tab order: the keyboard works on the value. |
+| Control select | <kbd>Tab</kbd> focuses the selected option, or the first one when none is selected. The arrow keys move focus between options, and <kbd>Enter</kbd> or <kbd>Space</kbd> selects the focused one. |
+
+Only the control slider swaps the left and right arrow keys in a right to left language. The circular slider and the number buttons do not.
+
+### Focus
+
+Keyboard focus shows a 2px ring around the control, or a thicker arc on the circular slider. See [behavior](#behavior) for the colors.
+
+A disabled control switch or number buttons leaves the tab order. A disabled control select keeps one option in the tab order, but ignores keys and selection. The control slider stays focusable when disabled, and keeps reacting to the keyboard.
+
+### Target size
+
+The control button, switch, slider, and select are 40px in their smallest direction by default. The control switch keeps a touch area of at least 40px by 40px. The circular slider adds 12px of hit area around its track.
+
+### Screen readers
+
+Every control is announced by its label, with its kind and its value: a button, a switch that is on or off, a slider with its formatted value, a spin button with the value and its unit, or a group of radio buttons with the selected option. The minus and plus buttons of the number buttons are announced in English, as "decrement" and "increment". On the dual circular slider, both handles are announced with the low label.
+
+### In the code
+
+| Control | Role | Name and state |
+| --- | --- | --- |
+| Control button | `button` | `label` as `aria-label`, and as a native tooltip |
+| Control switch | `switch` | `label` as `aria-label`, `aria-checked`. The knob and its icon are hidden from screen readers. |
+| Control slider | `slider` | `label` as `aria-label`, `aria-valuenow`, `aria-valuemin`, `aria-valuemax`, `aria-orientation`, and `aria-valuetext` with the formatted value |
+| Control circular slider | `slider` on each handle | `low-label`, or `label` when there is no `low-label`, as `aria-label` on both handles (`high-label` is not used), `aria-valuenow` from `value` (with `dual`, there is none), `aria-valuemin`, `aria-valuemax`, `aria-disabled`, and `aria-readonly` |
+| Control number buttons | `spinbutton` | `label` as `aria-label`, `aria-valuenow`, `aria-valuemin`, `aria-valuemax`, and `aria-valuetext` with the value and the unit. The minus and plus buttons are named "decrement" and "increment". |
+| Control select | `radiogroup`, with a `radio` per option | `label` names the group. Each option is named by its `ariaLabel` or `label`, and has `aria-checked`. |
+
+## Related
+
+- [Select menu](/design/components/select-menu/): the dropdown of the control family
+- [Control scrubber](/design/components/control-scrubber/): the member of the family for ranges that go round, like hue
+- [Slider](/design/components/slider/), [switch](/design/components/switch/), and [button](/design/components/button/): the regular form controls
+- [Tile card](/design/dashboards/tile-card/): where the smaller controls show up as features
+
+## In code
+
+All controls fill their container by default. Size them with CSS: set `height` and `width` on the element, and the thickness custom property where there is one. A vertical control gets its width from the thickness, and needs a height.
+
+In the more-info dialogs, the vertical controls are 130 pixels thick, up to 320 pixels tall, with `--ha-border-radius-6xl` corners. In tile card features, the horizontal controls are 42 pixels thick.
+
+### ha-control-button
+
+```html
+<ha-control-button label="Open">
+  <ha-svg-icon path="..."></ha-svg-icon>
+</ha-control-button>
+```
+
+Attributes:
+
+- `label`: the accessible name, also shown as a native tooltip.
+- `disabled`: disables the button.
+
+Slots:
+
+- Default: the content, usually an `ha-svg-icon`.
+
+Events: listen for the regular `click` event.
+
+Styling:
+
+- `--control-button-icon-color`: defaults to `var(--primary-text-color)`.
+- `--control-button-background-color`: defaults to `var(--disabled-color)`.
+- `--control-button-background-opacity`: defaults to `0.2`.
+- `--control-button-border-radius`: defaults to `var(--ha-border-radius-md)`.
+- `--control-button-focus-color`: the focus ring. Defaults to `var(--secondary-text-color)`.
+- `--control-button-padding`: defaults to `8px`.
+- `--control-button-font-weight`: for a text label. Defaults to `var(--ha-font-weight-medium)`.
+- `--mdc-icon-size`: the icon size. Defaults to `20px`.
+
+The default size is 40 by 40 pixels.
+
+### ha-control-switch
+
+```html
+<ha-control-switch vertical reversed checked label="Light">
+  <ha-svg-icon slot="icon-on" path="..."></ha-svg-icon>
+  <ha-svg-icon slot="icon-off" path="..."></ha-svg-icon>
+</ha-control-switch>
+```
+
+Attributes:
+
+- `checked`: the switch is on.
+- `label`: the accessible name.
+- `vertical`: stands the switch upright.
+- `reversed`: flips the direction. Upright and reversed puts on at the top.
+- `disabled`: disables the switch.
+- `touch-action`: the CSS `touch-action` for swiping. Defaults to `pan-y`, or `pan-x` when vertical.
+
+These can only be set as properties:
+
+- `pathOn` and `pathOff`: SVG path data for the icons. Use these, or the slots.
+
+Slots:
+
+- `icon-on`: the icon when on.
+- `icon-off`: the icon when off.
+
+Events:
+
+- `change`: the switch was toggled, by selecting, swiping, or the keyboard. Read the new state from `checked`.
+
+Styling:
+
+- `--control-switch-on-color`: defaults to `var(--primary-color)`.
+- `--control-switch-off-color`: defaults to `var(--disabled-color)`.
+- `--control-switch-background-opacity`: the tint of the track. Defaults to `0.2`.
+- `--control-switch-hover-background-opacity`: the tint on hover. Defaults to `0.4`.
+- `--control-switch-thickness`: defaults to `40px`.
+- `--control-switch-min-touch-size`: defaults to `40px`.
+- `--control-switch-border-radius`: defaults to `var(--ha-border-radius-lg)`.
+- `--control-switch-padding`: the space around the knob. Defaults to `4px`.
+- `--mdc-icon-size`: the icon size. Defaults to `20px`.
+
+### ha-control-slider
+
+```html
+<ha-control-slider vertical value="60" unit="%" label="Brightness"></ha-control-slider>
+```
+
+Attributes:
+
+- `value`: the current value.
+- `min`: defaults to `0`.
+- `max`: defaults to `100`.
+- `step`: defaults to `1`.
+- `label`: the accessible name.
+- `unit`: shown after the value in the tooltip.
+- `mode`: `start` (default), `end`, or `cursor`.
+- `vertical`: stands the slider upright.
+- `inverted`: flips the direction of the values.
+- `show-handle`: shows a handle at the end of the fill.
+- `tooltip-mode`: `interaction` (default) shows the value while dragging, `always` keeps it visible, `never` hides it.
+- `tooltip-position`: `top`, `bottom`, `left`, or `right`. Defaults to `top`, or `left` when vertical.
+- `round-value`: rounds the shown and announced value to a whole number, while the handle still snaps to `step`. Use it when `step` is fractional, but the value is a whole number in practice.
+- `touch-action`: the CSS `touch-action`. Defaults to `pan-y`, or `pan-x` when vertical.
+- `disabled`: disables the slider.
+
+The `locale` property, used to format the value, can only be set from code.
+
+Slots:
+
+- `background`: content drawn on the track, behind the fill. The color temperature slider uses it for its gradient.
+
+Events:
+
+- `value-changed`: the value was set, on release. `detail.value` is the new value.
+- `slider-moved`: the handle moves while dragging. `detail.value` is the value under the handle, and `undefined` on release.
+
+Styling:
+
+- `--control-slider-color`: the fill. Defaults to `var(--primary-color)`.
+- `--control-slider-background`: the track. Defaults to `var(--disabled-color)`.
+- `--control-slider-background-opacity`: defaults to `0.2`.
+- `--control-slider-thickness`: defaults to `40px`.
+- `--control-slider-border-radius`: defaults to `var(--ha-border-radius-md)`.
+- `--control-slider-inset-shadow`: defaults to `none`.
+- `--control-slider-tooltip-font-size`: defaults to `var(--ha-font-size-m)`.
+
+### ha-control-circular-slider
+
+```html
+<ha-control-circular-slider value="21" current="19" min="10" max="30" step="0.5" label="Target temperature"></ha-control-circular-slider>
+
+<ha-control-circular-slider dual low="19" high="24" min="10" max="30" low-label="Heat to" high-label="Cool to"></ha-control-circular-slider>
+```
+
+Attributes:
+
+- `value`: the target value, for a single handle.
+- `low` and `high`: the two values, with `dual`.
+- `current`: the current value, shown as a dot on the track.
+- `min`: defaults to `0`.
+- `max`: defaults to `100`.
+- `step`: defaults to `1`.
+- `mode`: `start`, `end`, or `full`. Sets which part of the track is filled.
+- `dual`: shows two handles, for `low` and `high`.
+- `label`: the accessible name of the handles.
+- `low-label`: when set, used as the accessible name of both handles instead of `label`.
+- `high-label`: accepted, but not used.
+- `inactive`: hides the colored arcs, for a device that is off.
+- `readonly`: shows the value, but people can't change it with a pointer. The keyboard still works.
+- `disabled`: disables the dial.
+- `prevent-interaction-on-scroll`: on touch screens, only the handle reacts, and only after a short press, so swiping past the dial scrolls the page instead of changing the value.
+
+Events, each with the new value in `detail.value`:
+
+- `value-changing` and `value-changed`: while dragging, and on release.
+- `low-changing` and `low-changed`: the same for the low handle.
+- `high-changing` and `high-changed`: the same for the high handle.
+
+Styling:
+
+- `--control-circular-slider-color`: the fill. Defaults to `var(--primary-color)`.
+- `--control-circular-slider-low-color` and `--control-circular-slider-high-color`: the two fills with `dual`. Default to the color above.
+- `--control-circular-slider-background`: the track. Defaults to `var(--disabled-color)`.
+- `--control-circular-slider-background-opacity`: defaults to `0.3`.
+- `--control-circular-slider-interaction-margin`: the extra hit area around the track. Defaults to `12px`.
+
+The default width is 320 pixels.
+
+### ha-control-number-buttons
+
+```html
+<ha-control-number-buttons value="21" min="10" max="30" step="0.5" unit="°C" label="Target temperature"></ha-control-number-buttons>
+```
+
+Attributes:
+
+- `value`: the current value.
+- `min` and `max`: the range. Both are optional.
+- `step`: defaults to `1`.
+- `unit`: shown after the value.
+- `label`: the accessible name.
+- `disabled`: disables the control.
+
+These can only be set as properties:
+
+- `locale`: the locale data used to format the value.
+- `formatOptions`: `Intl.NumberFormatOptions`, for example to always show one decimal.
+
+Events:
+
+- `value-changed`: the value changed, from a button or the keyboard. `detail.value` is the new value.
+
+Styling:
+
+- `--control-number-buttons-background-color`: defaults to `var(--disabled-color)`.
+- `--control-number-buttons-background-opacity`: defaults to `0.2`.
+- `--control-number-buttons-border-radius`: defaults to `var(--ha-border-radius-md)`.
+- `--control-number-buttons-focus-color`: the focus ring. Defaults to `var(--secondary-text-color)`.
+- `--mdc-icon-size`: the size of the minus and plus icons. Defaults to `16px`.
+
+The height comes from `--feature-height`, the height of a tile card feature. Outside a card feature, set a `height`.
+
+### ha-control-select
+
+```ts
+html`<ha-control-select
+  .options=${[
+    { value: "low", label: "Low", path: mdiFanSpeed1 },
+    { value: "high", label: "High", path: mdiFanSpeed3 },
+  ]}
+  .value=${"low"}
+  .label=${"Fan speed"}
+  @value-changed=${this._speedChanged}
+></ha-control-select>`
+```
+
+Attributes:
+
+- `value`: the `value` of the selected option.
+- `label`: the accessible name of the group.
+- `vertical`: shows the options in a column.
+- `hide-option-label`: shows only the icons. The labels are still used as accessible names.
+- `disabled`: disables the control.
+
+These can only be set as properties:
+
+- `options`: an array of options. Each has a `value`, and optionally a `label`, an `ariaLabel`, an icon as SVG `path`, or an `icon` template.
+
+Events:
+
+- `value-changed`: an option was selected. `detail.value` is its `value`.
+
+Styling:
+
+- `--control-select-color`: the selected option. Defaults to `var(--primary-color)`.
+- `--control-select-background`: the track. Defaults to `var(--disabled-color)`.
+- `--control-select-background-opacity`: defaults to `0.2`.
+- `--control-select-selected-opacity`: defaults to `1`.
+- `--control-select-focused-opacity`: defaults to `0.2`.
+- `--control-select-thickness`: defaults to `40px`.
+- `--control-select-border-radius`: defaults to `10px`.
+- `--control-select-padding`: the space around the options. Defaults to `4px`.
+- `--control-select-button-border-radius`: the corners of each option. Follows the border radius and padding.
+- `--mdc-icon-size`: defaults to `20px`.
+
+Sources: [`ha-control-button.ts`](https://github.com/home-assistant/frontend/blob/dev/src/components/ha-control-button.ts), [`ha-control-switch.ts`](https://github.com/home-assistant/frontend/blob/dev/src/components/ha-control-switch.ts), [`ha-control-slider.ts`](https://github.com/home-assistant/frontend/blob/dev/src/components/ha-control-slider.ts), [`ha-control-circular-slider.ts`](https://github.com/home-assistant/frontend/blob/dev/src/components/ha-control-circular-slider.ts), [`ha-control-number-buttons.ts`](https://github.com/home-assistant/frontend/blob/dev/src/components/ha-control-number-buttons.ts), and [`ha-control-select.ts`](https://github.com/home-assistant/frontend/blob/dev/src/components/ha-control-select.ts), all in `src/components/`.

@@ -1,0 +1,31 @@
+---
+title: Typography
+description: The type scale and font weights of the Home Assistant interface.
+order: 2
+---
+
+import TokenScale from "../../../../components/docs/TokenScale.astro";
+
+The interface uses Roboto. Text sizes come from a fixed scale, so text across the interface lines up and feels consistent.
+
+## Type scale
+
+Every size is a token. Use the token, not the pixel value: the scale can be adjusted as a whole, for example to make all text a little larger.
+
+<TokenScale scale="font-size" />
+
+## Weights
+
+- **Normal** (`--ha-font-weight-normal`, 400) for body text.
+- **Medium** (`--ha-font-weight-medium`, 500) for actions, like button labels.
+- **Bold** (`--ha-font-weight-bold`, 700) for headings.
+- **Light** (`--ha-font-weight-light`, 300) is available, but rarely the right choice in the interface.
+
+## Line height
+
+- **Condensed** (`--ha-line-height-condensed`, 1.2) for headings and single lines.
+- **Normal** (`--ha-line-height-normal`, 1.6) for running text.
+- **Expanded** (`--ha-line-height-expanded`, 2) for text that needs extra room.
+
+> [!NOTE]
+> The Home Assistant websites, like this one, use Figtree. The app itself uses Roboto.

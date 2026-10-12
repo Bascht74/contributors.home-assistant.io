@@ -1,0 +1,33 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended", "helpers:pinGitHubActionDigests"],
+
+  "baseBranchPatterns": ["main"],
+  "enabledManagers": ["github-actions", "nodenv", "npm"],
+
+  "minimumReleaseAge": "3 days",
+
+  "semanticCommits": "disabled",
+  "labels": ["dependencies"],
+
+  "lockFileMaintenance": {
+    "description": "Refresh the indirect dependencies in pnpm-lock.yaml in one weekly PR, instead of a PR per transitive bump",
+    "enabled": true,
+    "schedule": ["before 8am on monday"]
+  },
+
+  "packageRules": [
+    {
+      "description": "Astro and its integrations release together and depend on each other, so they move together",
+      "matchManagers": ["npm"],
+      "matchPackageNames": ["astro", "@astrojs/**"],
+      "groupName": "Astro"
+    },
+    {
+      "description": "Leave runner labels and action version inputs alone",
+      "matchManagers": ["github-actions"],
+      "matchDepTypes": ["github-runner", "uses-with"],
+      "enabled": false
+    }
+  ]
+}

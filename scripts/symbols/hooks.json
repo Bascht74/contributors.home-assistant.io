@@ -1,0 +1,259 @@
+{
+  "$comment": "The functions an integration implements, and core calls. Mentions of them link to the page on this site that explains them, with a card. Every signature is quoted from the file in its `quote`: `pnpm symbols` checks that it is still there. See \"Code symbols\" in README.md.",
+  "hooks": {
+    "async_setup": {
+      "page": "/core/integrations/create/#the-smallest-possible-integration",
+      "when": "Home Assistant calls it once when it loads your integration, before it sets up any config entry.",
+      "signatures": [
+        {
+          "file": "__init__.py",
+          "quote": "src/content/docs/core/integrations/create.md",
+          "signature": "async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:"
+        }
+      ]
+    },
+    "async_setup_entry": {
+      "page": "/core/integrations/config-entries/#set-up-a-config-entry",
+      "when": "Home Assistant calls it for every enabled config entry when it starts, and right away when a user adds an entry, and each platform you forward the entry to gets its own.",
+      "signatures": [
+        {
+          "file": "__init__.py",
+          "quote": "src/content/docs/core/integrations/config-entries.md",
+          "signature": "async def async_setup_entry(hass: HomeAssistant, entry: ExampleConfigEntry) -> bool:"
+        },
+        {
+          "file": "A platform, like sensor.py",
+          "quote": "src/content/docs/core/integrations/config-entries.md",
+          "signature": "async def async_setup_entry(hass: HomeAssistant, entry: ExampleConfigEntry, async_add_entities: AddConfigEntryEntitiesCallback) -> None:"
+        }
+      ]
+    },
+    "async_unload_entry": {
+      "page": "/core/integrations/config-entries/#unload-a-config-entry",
+      "when": "Home Assistant calls it when a user reloads, disables, or deletes a config entry.",
+      "signatures": [
+        {
+          "file": "__init__.py",
+          "quote": "src/content/docs/core/integrations/config-entries.md",
+          "signature": "async def async_unload_entry(hass: HomeAssistant, entry: ExampleConfigEntry) -> bool:"
+        }
+      ]
+    },
+    "async_remove_entry": {
+      "page": "/core/integrations/config-entries/#remove-a-config-entry",
+      "when": "Home Assistant calls it after a user deletes a config entry, when the entry is already gone.",
+      "signatures": [
+        {
+          "file": "__init__.py",
+          "quote": "src/content/docs/core/integrations/config-entries.md",
+          "signature": "async def async_remove_entry(hass: HomeAssistant, entry: ExampleConfigEntry) -> None:"
+        }
+      ]
+    },
+    "async_migrate_entry": {
+      "page": "/core/integrations/config-entries/#migrate-a-config-entry",
+      "when": "Home Assistant calls it before setup when the version of a stored config entry differs from the version of your config flow.",
+      "signatures": [
+        {
+          "file": "__init__.py",
+          "quote": "src/content/docs/core/integrations/config-entries.md",
+          "signature": "async def async_migrate_entry(hass: HomeAssistant, entry: ExampleConfigEntry) -> bool:"
+        }
+      ]
+    },
+    "async_remove_config_entry_device": {
+      "page": "/core/integrations/device-registry/#let-users-remove-devices",
+      "when": "Home Assistant calls it when a user deletes a device in the UI, and only removes the device when it returns True.",
+      "signatures": [
+        {
+          "file": "__init__.py",
+          "quote": "src/content/docs/core/integrations/device-registry.md",
+          "signature": "async def async_remove_config_entry_device(hass: HomeAssistant, entry: ExampleConfigEntry, device_entry: DeviceEntry) -> bool:"
+        }
+      ]
+    },
+    "async_setup_platform": {
+      "page": "/core/integrations/yaml/#platforms-in-yaml",
+      "when": "Home Assistant calls it to set up a platform from YAML, or one that an integration loads with async_load_platform.",
+      "signatures": [
+        {
+          "file": "A platform, like sensor.py",
+          "quote": "core:homeassistant/components/template/sensor.py",
+          "signature": "async def async_setup_platform(hass: HomeAssistant, config: ConfigType, async_add_entities: AddEntitiesCallback, discovery_info: DiscoveryInfoType | None = None) -> None:"
+        }
+      ]
+    },
+    "async_get_config_entry_diagnostics": {
+      "page": "/core/integrations/diagnostics/#add-diagnostics",
+      "when": "Home Assistant calls it when a user downloads the diagnostics of a config entry.",
+      "signatures": [
+        {
+          "file": "diagnostics.py",
+          "quote": "src/content/docs/core/integrations/diagnostics.md",
+          "signature": "async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ExampleConfigEntry) -> dict[str, Any]:"
+        }
+      ]
+    },
+    "async_get_device_diagnostics": {
+      "page": "/core/integrations/diagnostics/#add-diagnostics",
+      "when": "Home Assistant calls it when a user downloads the diagnostics of a device.",
+      "signatures": [
+        {
+          "file": "diagnostics.py",
+          "quote": "src/content/docs/core/integrations/diagnostics.md",
+          "signature": "async def async_get_device_diagnostics(hass: HomeAssistant, entry: ExampleConfigEntry, device: DeviceEntry) -> dict[str, Any]:"
+        }
+      ]
+    },
+    "async_step_user": {
+      "page": "/core/integrations/config-flow/#reserved-steps",
+      "when": "Home Assistant calls it when a user adds the integration from the UI.",
+      "notOn": ["/core/integrations/subentries/"],
+      "signatures": [
+        {
+          "file": "config_flow.py",
+          "quote": "src/content/docs/core/integrations/config-flow.md",
+          "signature": "async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:"
+        }
+      ]
+    },
+    "async_step_reconfigure": {
+      "page": "/core/integrations/config-flow/#reserved-steps",
+      "when": "Home Assistant calls it when a user reconfigures an existing config entry.",
+      "notOn": ["/core/integrations/subentries/"],
+      "signatures": [
+        {
+          "file": "config_flow.py",
+          "quote": "src/content/docs/core/integrations/reauth-reconfigure.md",
+          "signature": "async def async_step_reconfigure(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:"
+        }
+      ]
+    },
+    "async_step_reauth": {
+      "page": "/core/integrations/config-flow/#reserved-steps",
+      "when": "Home Assistant calls it when your integration reports that its credentials no longer work.",
+      "signatures": [
+        {
+          "file": "config_flow.py",
+          "quote": "src/content/docs/core/integrations/reauth-reconfigure.md",
+          "signature": "async def async_step_reauth(self, entry_data: Mapping[str, Any]) -> ConfigFlowResult:"
+        }
+      ]
+    },
+    "async_step_import": {
+      "page": "/core/integrations/config-flow/#reserved-steps",
+      "when": "Reserved for moving YAML configuration into a config entry: your async_setup starts a flow with the import source.",
+      "signatures": []
+    },
+    "async_step_bluetooth": {
+      "page": "/core/integrations/config-flow/#reserved-steps",
+      "when": "Home Assistant calls it when the Bluetooth matcher in your manifest found a device.",
+      "signatures": [
+        {
+          "file": "config_flow.py",
+          "quote": "core:homeassistant/config_entries.py",
+          "signature": "async def async_step_bluetooth(self, discovery_info: BluetoothServiceInfoBleak) -> ConfigFlowResult:"
+        }
+      ]
+    },
+    "async_step_dhcp": {
+      "page": "/core/integrations/config-flow/#reserved-steps",
+      "when": "Home Assistant calls it when the DHCP matcher in your manifest found a device.",
+      "signatures": [
+        {
+          "file": "config_flow.py",
+          "quote": "core:homeassistant/config_entries.py",
+          "signature": "async def async_step_dhcp(self, discovery_info: DhcpServiceInfo) -> ConfigFlowResult:"
+        }
+      ]
+    },
+    "async_step_homekit": {
+      "page": "/core/integrations/config-flow/#reserved-steps",
+      "when": "Home Assistant calls it when the HomeKit matcher in your manifest found a device.",
+      "signatures": [
+        {
+          "file": "config_flow.py",
+          "quote": "core:homeassistant/config_entries.py",
+          "signature": "async def async_step_homekit(self, discovery_info: ZeroconfServiceInfo) -> ConfigFlowResult:"
+        }
+      ]
+    },
+    "async_step_mqtt": {
+      "page": "/core/integrations/config-flow/#reserved-steps",
+      "when": "Home Assistant calls it when the MQTT matcher in your manifest found a device.",
+      "signatures": [
+        {
+          "file": "config_flow.py",
+          "quote": "core:homeassistant/config_entries.py",
+          "signature": "async def async_step_mqtt(self, discovery_info: MqttServiceInfo) -> ConfigFlowResult:"
+        }
+      ]
+    },
+    "async_step_ssdp": {
+      "page": "/core/integrations/config-flow/#reserved-steps",
+      "when": "Home Assistant calls it when the SSDP matcher in your manifest found a device.",
+      "signatures": [
+        {
+          "file": "config_flow.py",
+          "quote": "core:homeassistant/config_entries.py",
+          "signature": "async def async_step_ssdp(self, discovery_info: SsdpServiceInfo) -> ConfigFlowResult:"
+        }
+      ]
+    },
+    "async_step_usb": {
+      "page": "/core/integrations/config-flow/#reserved-steps",
+      "when": "Home Assistant calls it when the USB matcher in your manifest found a device.",
+      "signatures": [
+        {
+          "file": "config_flow.py",
+          "quote": "core:homeassistant/config_entries.py",
+          "signature": "async def async_step_usb(self, discovery_info: UsbServiceInfo) -> ConfigFlowResult:"
+        }
+      ]
+    },
+    "async_step_zeroconf": {
+      "page": "/core/integrations/config-flow/#reserved-steps",
+      "when": "Home Assistant calls it when the Zeroconf matcher in your manifest found a device.",
+      "signatures": [
+        {
+          "file": "config_flow.py",
+          "quote": "src/content/docs/core/integrations/config-flow.md",
+          "signature": "async def async_step_zeroconf(self, discovery_info: ZeroconfServiceInfo) -> ConfigFlowResult:"
+        }
+      ]
+    },
+    "async_step_hassio": {
+      "page": "/core/integrations/config-flow/#reserved-steps",
+      "when": "Home Assistant calls it when a Supervisor app announced itself to your integration.",
+      "signatures": [
+        {
+          "file": "config_flow.py",
+          "quote": "core:homeassistant/config_entries.py",
+          "signature": "async def async_step_hassio(self, discovery_info: HassioServiceInfo) -> ConfigFlowResult:"
+        }
+      ]
+    },
+    "async_step_integration_discovery": {
+      "page": "/core/integrations/config-flow/#reserved-steps",
+      "when": "Home Assistant calls it when another integration found a device for yours.",
+      "signatures": [
+        {
+          "file": "config_flow.py",
+          "quote": "core:homeassistant/config_entries.py",
+          "signature": "async def async_step_integration_discovery(self, discovery_info: DiscoveryInfoType) -> ConfigFlowResult:"
+        }
+      ]
+    },
+    "async_step_discovery": {
+      "page": "/core/integrations/config-flow/#reserved-steps",
+      "when": "Deprecated: Home Assistant calls it when the discovery step for a source is missing.",
+      "signatures": [
+        {
+          "file": "config_flow.py",
+          "quote": "core:homeassistant/config_entries.py",
+          "signature": "async def async_step_discovery(self, discovery_info: DiscoveryInfoType) -> ConfigFlowResult:"
+        }
+      ]
+    }
+  }
+}

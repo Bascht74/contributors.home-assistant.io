@@ -1,0 +1,277 @@
+---
+// The upcoming events of the contributor calendar, from src/lib/events.ts.
+// Used on the events page and, with a limit, on the homepage.
+//
+// The build writes every time in UTC. The script below rewrites them in the
+// time zone of the visitor, so the page is right wherever it is read, no
+// matter where it was built. All-day events are dates, and stay as they are.
+import { type CalendarEvent, getUpcomingEvents } from "../lib/events";
+
+interface Props {
+  // Show only the first few events, like on the homepage.
+  limit?: number;
+}
+
+const { limit } = Astro.props;
+
+// The short list on the homepage shows when, the full list also what and how
+// to join.
+const full = !limit;
+
+// In the short list, an event links to itself on the events page, where its
+// details are.
+const EVENTS_PAGE = "/community/reference/events/";
+const { loaded, events: allEvents } = await getUpcomingEvents();
+const events = limit ? allEvents.slice(0, limit) : allEvents;
+
+const inUtc = (options: Intl.DateTimeFormatOptions) =>
+  new Intl.DateTimeFormat("en-US", { timeZone: "UTC", ...options });
+const longDate = inUtc({ weekday: "long", month: "long", day: "numeric" });
+const shortMonth = inUtc({ month: "short" });
+const dayOfMonth = inUtc({ day: "numeric" });
+const timeOfDay = inUtc({ hour: "numeric", minute: "2-digit", hourCycle: "h23", timeZoneName: "short" });
+
+function when(event: CalendarEvent): string {
+  const date = longDate.format(event.start);
+  return event.allDay ? `${date}, all day` : `${date}, ${timeOfDay.format(event.start)}`;
+}
+
+// The datetime attribute: a date for all-day events, a moment for the rest.
+function datetime(event: CalendarEvent): string {
+  const iso = event.start.toISOString();
+  return event.allDay ? iso.slice(0, 10) : iso.replace(".000Z", "Z");
+}
+---
+
+{
+  !loaded ? (
+    <p class="events-note">The calendar couldn't be loaded when this page was built. Subscribe to it to see what's coming up.</p>
+  ) : events.length === 0 ? (
+    <p class="events-note">Nothing is planned in the next three months.</p>
+  ) : (
+    <div class="events-block">
+      <ul class="events">
+        {events.map((event) => (
+          <li class="event" id={full ? event.id : undefined} data-event-start={event.allDay ? undefined : datetime(event)}>
+            <span class="badge" aria-hidden="true">
+              <span class="badge-month" data-event-month>
+                {shortMonth.format(event.start)}
+              </span>
+              <span class="badge-day" data-event-day>
+                {dayOfMonth.format(event.start)}
+              </span>
+            </span>
+            <span class="details">
+              <span class="title">
+                {event.url ? (
+                  <a href={event.url}>{event.title}</a>
+                ) : full ? (
+                  event.title
+                ) : (
+                  <a href={`${EVENTS_PAGE}#${event.id}`}>{event.title}</a>
+                )}
+              </span>
+              <time class="when" datetime={datetime(event)} data-event-when>
+                {when(event)}
+              </time>
+              {full && event.place && <span class="place">{event.place}</span>}
+              {full && (event.joinUrl || event.notesUrl) && (
+                <span class="links">
+                  {event.joinUrl && <a href={event.joinUrl}>Join with Google Meet</a>}
+                  {event.notesUrl && <a href={event.notesUrl}>Agenda and notes</a>}
+                </span>
+              )}
+              {full && event.description.length > 0 && (
+                <details class="about">
+                  <summary>About this event</summary>
+                  {event.description.map((paragraph) => (
+                    <p>{paragraph}</p>
+                  ))}
+                  {event.meetups && (
+                    <ul class="meetups">
+                      {event.meetups.map((meetup) => (
+                        <li>
+                          {meetup.url ? <a href={meetup.url}>{meetup.title}</a> : meetup.title}
+                          {meetup.place && <span class="place">{meetup.place}</span>}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </details>
+              )}
+            </span>
+          </li>
+        ))}
+      </ul>
+      <p class="zone" data-event-zone>
+        Times are in UTC.
+      </p>
+    </div>
+  )
+}
+
+<script>
+  // Follow the visitor's own clock: 24 hours or AM and PM.
+  const hourCycle = new Intl.DateTimeFormat(undefined, { hour: "numeric" }).resolvedOptions().hourCycle;
+  const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  const longDate = new Intl.DateTimeFormat("en-US", { weekday: "long", month: "long", day: "numeric" });
+  const shortMonth = new Intl.DateTimeFormat("en-US", { month: "short" });
+  const dayOfMonth = new Intl.DateTimeFormat("en-US", { day: "numeric" });
+  const timeOfDay = new Intl.DateTimeFormat("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hourCycle,
+    timeZoneName: "short",
+  });
+
+  for (const event of document.querySelectorAll<HTMLElement>("[data-event-start]")) {
+    const start = new Date(event.dataset.eventStart ?? "");
+    if (Number.isNaN(start.getTime())) {
+      continue;
+    }
+
+    // The local date can differ from the UTC one, so the badge follows too.
+    event.querySelector("[data-event-month]")!.textContent = shortMonth.format(start);
+    event.querySelector("[data-event-day]")!.textContent = dayOfMonth.format(start);
+    event.querySelector("[data-event-when]")!.textContent = `${longDate.format(start)}, ${timeOfDay.format(start)}`;
+  }
+
+  for (const note of document.querySelectorAll("[data-event-zone]")) {
+    note.textContent = `Times are in your time zone, ${zone.replaceAll("_", " ")}.`;
+  }
+
+  // Arriving from a link to one event, like on the homepage: show its details.
+  // A hand-typed hash can be malformed, like "%E0", which decodeURIComponent
+  // throws on. That link points at no event, so there is nothing to open.
+  if (location.hash) {
+    let id: string | undefined;
+    try {
+      id = decodeURIComponent(location.hash.slice(1));
+    } catch {
+      id = undefined;
+    }
+
+    const target = id ? document.getElementById(id) : null;
+    target?.querySelector("details")?.setAttribute("open", "");
+  }
+</script>
+
+<style>
+  .events {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .event {
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr);
+    /* The badge stays next to the title when the details are open. */
+    align-items: start;
+    /* A link to one event lands below the sticky header. */
+    scroll-margin-top: calc(var(--site-header-height) + var(--ha-space-6));
+    gap: var(--ha-space-4);
+    margin: 0;
+    padding: var(--ha-space-3) 0;
+    border-top: 1px solid var(--site-border);
+  }
+
+  .event:first-child {
+    border-top: 0;
+  }
+
+  /* A small calendar leaf: month on top, the day big below it. */
+  .badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--ha-space-1) 0;
+    border-radius: var(--ha-border-radius-lg);
+    background: var(--site-accent-quiet);
+    color: var(--site-on-accent-quiet);
+    line-height: 1.1;
+  }
+
+  .badge-month {
+    font-size: 12px;
+    font-weight: 650;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .badge-day {
+    font-size: 22px;
+    font-weight: 700;
+  }
+
+  .details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .title {
+    font-weight: 650;
+    line-height: 1.3;
+  }
+
+  .when {
+    color: var(--site-text-muted);
+    font-size: 15px;
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ha-space-1) var(--ha-space-4);
+    margin-top: var(--ha-space-1);
+    font-size: 15px;
+  }
+
+  .place {
+    color: var(--site-text-muted);
+    font-size: 15px;
+  }
+
+  .meetups {
+    margin: var(--ha-space-2) 0 0;
+    padding-left: var(--ha-space-5);
+  }
+
+  .meetups li {
+    margin-top: var(--ha-space-2);
+  }
+
+  .meetups .place {
+    display: block;
+    font-size: 14px;
+  }
+
+  .about {
+    margin-top: var(--ha-space-1);
+    font-size: 15px;
+  }
+
+  .about summary {
+    width: fit-content;
+    color: var(--site-text-muted);
+    cursor: pointer;
+  }
+
+  .about p {
+    margin: var(--ha-space-2) 0 0;
+    line-height: 1.6;
+  }
+
+  .zone,
+  .events-note {
+    color: var(--site-text-muted);
+    font-size: 15px;
+  }
+
+  .zone {
+    margin: var(--ha-space-3) 0 0;
+  }
+</style>

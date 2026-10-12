@@ -1,0 +1,100 @@
+---
+// The box at the top of a glossary page: how the term goes by in code, in
+// the UI, and before. One term, one meaning: this is where readers see
+// that `ConfigEntry` in the code and an entry in the UI are the same thing.
+import type { DocsEntry } from "../../lib/docs";
+
+interface Props {
+  entry: DocsEntry;
+}
+
+const term = Astro.props.entry.data.term;
+const hasFacts =
+  term && (term.code.length > 0 || term.ui || term.aliases.length > 0 || term.formerly.length > 0);
+---
+
+{
+  term && hasFacts && (
+    <dl class="facts">
+      {term.code.length > 0 && (
+        <div>
+          <dt>In code</dt>
+          <dd class="code">
+            {term.code.map((name) => (
+              <code>{name}</code>
+            ))}
+          </dd>
+        </div>
+      )}
+      {term.ui && (
+        <div>
+          <dt>In the UI</dt>
+          <dd>{term.ui}</dd>
+        </div>
+      )}
+      {term.aliases.length > 0 && (
+        <div>
+          <dt>Also</dt>
+          <dd>{term.aliases.join(", ")}</dd>
+        </div>
+      )}
+      {term.formerly.length > 0 && (
+        <div>
+          <dt>Formerly</dt>
+          <dd>
+            {term.formerly.join(", ")}
+            <span class="hint">Old name: don't use it in new text.</span>
+          </dd>
+        </div>
+      )}
+    </dl>
+  )
+}
+
+<style>
+  .facts {
+    display: grid;
+    gap: var(--ha-space-3);
+    margin: 0 0 var(--ha-space-8);
+    padding: var(--ha-space-5) var(--ha-space-6);
+    border: 1px solid var(--site-border);
+    border-radius: var(--site-radius-tile);
+    background: var(--site-surface);
+  }
+
+  .facts div {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: var(--ha-space-4);
+    align-items: baseline;
+  }
+
+  @media (max-width: 560px) {
+    .facts div {
+      grid-template-columns: 1fr;
+      gap: var(--ha-space-1);
+    }
+  }
+
+  dt {
+    font-size: 14px;
+    font-weight: 650;
+    color: var(--site-text-muted);
+  }
+
+  dd {
+    margin: 0;
+  }
+
+  .code {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ha-space-2);
+  }
+
+  .hint {
+    display: block;
+    font-size: 14px;
+    color: var(--site-text-muted);
+  }
+</style>

@@ -1,0 +1,82 @@
+---
+title: Forms and validation
+description: How Home Assistant collects input, marks what is required, and shows what is wrong, so people can fix it.
+order: 1
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+import DoDont from "../../../../components/docs/DoDont.astro";
+
+Forms are everywhere in Home Assistant: setting up an integration, editing an automation, changing the settings of an entity. They all follow the same pattern, so people know where to look for the label, the hint, and the problem.
+
+## When to use
+
+Use this pattern whenever you ask people for one or more values. For a single setting that takes effect right away, like turning a feature on or off, a [switch](/design/components/switch/) on its own is enough.
+
+## How it works
+
+Most forms in the frontend are built with the [form](/design/components/form/) component. You describe the fields, and it picks the right control for each value through a [selector](/design/components/selector/): a text field for a name, a picker for an entity, a switch for a yes or no. Setup and options dialogs of integrations are rendered the same way. That is why they all look and behave alike.
+
+<Demo hass layout="stack">
+  <ha-form data-props='{"schema": [{"name": "Name", "required": true, "selector": {"text": {}}}, {"name": "Light", "selector": {"entity": {"filter": {"domain": "light"}}}}, {"name": "Notify me", "selector": {"boolean": {}}}], "data": {"Name": "Hallway"}}'></ha-form>
+</Demo>
+
+### Labels and helper text
+
+- Every field has a visible label. A placeholder is not a label: it disappears as soon as someone starts typing.
+- When a field needs explaining, add helper text. It sits below the field. In `ha-form`, it comes from `computeHelper`.
+- Use the established field layout and the shared components, not a raw input or a control you built yourself.
+
+<DoDont doText="A label that stays visible, with a hint below the field." dontText="Only a placeholder. It is gone as soon as someone types.">
+  <ha-input slot="do" label="Host" hint="The IP address or hostname of the device"></ha-input>
+  <ha-input slot="dont" placeholder="Host"></ha-input>
+</DoDont>
+
+### Required and optional
+
+- A required field shows a `*` after its label.
+- Make fields optional when that makes sense, and give them a sensible default. A good default helps, without getting in the way of people who want something else.
+
+### Validation
+
+A field is checked when the form is submitted. A [text input](/design/components/input/) with `auto-validate` is checked as soon as people leave the field instead.
+
+When a value is not valid:
+
+- The field is marked as invalid, and its validation message takes the place of the helper text.
+- In `ha-form`, an error about one field shows right above that field. An error about the whole form, like a failed connection, shows at the top.
+- Focus moves to the first field with a problem, so keyboard and screen reader users land right on it.
+
+<Demo hass layout="stack">
+  <ha-form data-props='{"schema": [{"name": "Host", "required": true, "selector": {"text": {}}}, {"name": "Port", "selector": {"number": {"min": 1, "max": 65535, "mode": "box"}}}], "data": {"Host": "192.168.1.200", "Port": 8080}, "error": {"base": "Could not connect to the device.", "Host": "No device answers on this address."}}'></ha-form>
+</Demo>
+
+Errors are shown as an [alert](/design/components/alert/), so they have an icon and text, not only a red color. For how to word them, see [Messages](/design/ui-text/messages/).
+
+### Forms in dialogs
+
+- The form gets focus when the dialog opens: give it the `autofocus` attribute.
+- The main action, like **Save**, sits at the bottom right, next to **Cancel**.
+- Once someone has changed something, the dialog does not close with Escape or by selecting outside of it. See [Confirmations and undo](/design/patterns/confirmations/).
+
+### Passwords
+
+Form markup should not make password managers mistake a field for something it is not.
+
+## Accessibility
+
+- The label of a field is its accessible name. Keep it, also when space is tight.
+- An invalid [text input](/design/components/input/) sets `aria-invalid`, and its validation message is announced.
+- See [Labels and accessible names](/design/foundations/accessibility/#labels-and-accessible-names) for the WCAG side.
+
+## Components
+
+- [Form](/design/components/form/) and [selector](/design/components/selector/)
+- [Text input](/design/components/input/) and [textarea](/design/components/textarea/)
+- [Switch](/design/components/switch/), [select box](/design/components/select-box/), and [select menu](/design/components/select-menu/)
+- [Entity picker](/design/components/entity-picker/), [device picker](/design/components/device-picker/), and [area picker](/design/components/area-picker/)
+- [Alert](/design/components/alert/), for errors and warnings
+
+## In code
+
+Use `ha-form` with a schema. `computeLabel`, `computeHelper`, and `computeError` turn names and error keys into translated text. Set `error` to an object keyed by field name, with `base` for the form as a whole. `warning` works the same way, without `base`. The [form](/design/components/form/) page has the details.

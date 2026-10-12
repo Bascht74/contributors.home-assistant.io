@@ -1,0 +1,173 @@
+---
+title: Control scrubber
+description: A horizontal control where the value sits under a fixed window, and you drag the strip behind it. Made for ranges that go round, like the hue of a light.
+sidebarGroup: Showing values
+---
+
+## Overview
+
+The control scrubber is a member of the [control](/design/components/controls/) family. In a regular slider, the handle moves along a fixed track. In a scrubber, it is the other way around: a window stays in the middle, and the strip behind it moves. Drag the strip to change the value, or tap a point on the strip to bring it under the window.
+
+The strip can be wider than the control, so only a part of the range is visible at a time. That makes each pixel of dragging change the value less, which helps with precise picks in a small space. The strip can also repeat, for ranges that go round, like hue.
+
+The **Light color** feature of the [tile card](/design/dashboards/tile-card/) uses it to pick the hue of a light.
+
+It is not yet part of the live components on this site, so there is no demo here.
+
+## When to use
+
+Use a control scrubber for:
+
+- A value in a range that goes round, like hue, where the end meets the start
+- A value with a wide range in a small space, where a regular control slider would be too coarse
+
+Don't use a control scrubber for:
+
+- An amount, like brightness or volume. Use a [control slider](/design/components/controls/#control-slider), where the fill shows how much.
+- Forms and settings. Use a regular [slider](/design/components/slider/).
+
+## Anatomy
+
+1. **Rail**: the background of the control, a light tint
+2. **Strip**: the background that moves, like a gradient of all hues
+3. **Window**: the frame in the middle that points at the current value. It is optional.
+
+## Variants
+
+### Wrapping
+
+With wrapping on, the strip repeats, and the value wraps around at the ends. Dragging past 360 degrees of hue lands on 0 again. Without wrapping, the value stops at the minimum and the maximum.
+
+### With and without a window
+
+Show the window when there is a current value to point at. Leave it off when there is none, like the color of a light that is off, or that has no color yet.
+
+### Strip width
+
+By default, the strip is as wide as the control. Make it wider to show only a part of the range at a time. The light color feature makes the hue strip at least three times as wide as the control is high.
+
+## Behavior
+
+- **Dragging**: dragging the strip changes the value. Dragging it to the left moves the strip along, so a higher value comes under the window. A drag starts after 10px of horizontal movement, so a vertical scroll of the page still works.
+- **Tapping**: tapping a point on the strip brings that point under the window.
+- **Stepping**: while someone drags, the value follows the finger. When they let go, it snaps to the nearest step.
+- **Cancel**: when the system cancels a drag, the value goes back to what it was.
+- **Motion**: the strip moves to a new value in 180ms, ease-in-out. While someone drags, it follows without delay.
+- **Disabled**: dragging, tapping, and the keyboard do nothing. The cursor shows that it is not allowed.
+
+## Specs
+
+| Property | Value | Token |
+| --- | --- | --- |
+| Height | 40px | `--control-scrubber-thickness` |
+| Corner radius | 8px | `--ha-border-radius-md`, through `--control-scrubber-border-radius` |
+| Rail | The disabled color at 20% opacity | `--disabled-color`, through `--control-scrubber-rail-color` and `--control-scrubber-rail-opacity` |
+| Strip | The disabled color, or the background you set | `--control-scrubber-background` |
+| Strip width | The width of the control | `--control-scrubber-track-width` |
+| Window | A 2px white frame, as wide as the height divided by 2.5 (16px by default), with a small shadow | None |
+| Focus ring | 2px, in the color of the control | `--control-scrubber-color`, defaults to `--primary-color` |
+| Animation | 180ms, ease-in-out | None |
+
+## Guidelines
+
+- Give it a label, and a unit when there is one, like degrees for hue. The value has no visible text, so the label and the unit are what screen readers announce.
+- Hide the window when there is no current value, rather than pointing at a value that isn't there.
+
+## Accessibility
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves focus to the scrubber |
+| <kbd>Right</kbd> or <kbd>Up</kbd> | Increases the value by one step |
+| <kbd>Left</kbd> or <kbd>Down</kbd> | Decreases the value by one step |
+| <kbd>Page up</kbd> and <kbd>Page down</kbd> | Move 10% of the range, or one step if that is more |
+| <kbd>Home</kbd> | Goes to the minimum |
+| <kbd>End</kbd> | Goes to the maximum. With wrapping, one step before it, because the maximum is the same as the minimum. |
+
+The value is sent when the key is released. The arrow keys do not swap in a right to left language.
+
+### Focus
+
+Keyboard focus shows a 2px ring around the control, in its color. The scrubber stays focusable when disabled.
+
+### Target size
+
+The whole control is the target, 40px high by default.
+
+### Screen readers
+
+The scrubber is announced as a slider, with its label and its value, formatted with the unit, like "200°".
+
+### In the code
+
+The scrubber has the role `slider`, with `aria-label` from `label`, `aria-valuenow`, `aria-valuemin`, `aria-valuemax`, `aria-valuetext` with the formatted value and unit, `aria-orientation="horizontal"`, and `aria-disabled`.
+
+## Related
+
+- [Controls](/design/components/controls/): the rest of the control family, like the control slider
+- [Color picker](/design/components/color-picker/): a color wheel for hue and saturation together
+- [Tile card](/design/dashboards/tile-card/): where the scrubber shows up, in the light color feature
+
+## In code
+
+The element is `<ha-control-scrubber>`. Set the background of the strip with a CSS custom property:
+
+```html
+<ha-control-scrubber
+  wrap
+  show-handle
+  min="0"
+  max="360"
+  unit="°"
+  label="Hue"
+  style="--control-scrubber-track-width: 200%"
+></ha-control-scrubber>
+```
+
+```css
+ha-control-scrubber {
+  --control-scrubber-background: linear-gradient(
+    to right,
+    hsl(0 100% 50%),
+    hsl(120 100% 50%),
+    hsl(240 100% 50%),
+    hsl(360 100% 50%)
+  );
+}
+```
+
+### Attributes
+
+- `value`: the current value.
+- `min` and `max`: the range. Default to `0` and `100`.
+- `step`: the step size. Defaults to `1`.
+- `wrap`: repeats the strip, and wraps the value around at the ends.
+- `show-handle`: shows the window.
+- `round-value`: rounds the value that screen readers announce.
+- `label`: the accessible name.
+- `unit`: the unit, used in the value that screen readers announce.
+- `disabled`: ignores dragging, tapping, and the keyboard.
+- `touch-action`: the touch action of the strip. Defaults to `pan-y`, so the page still scrolls vertically.
+
+### Properties
+
+- `locale`: the locale used to format the value.
+
+### Events
+
+- `value-changed`: the value was picked, after a drag, a tap, or when a key is released.
+- `slider-moved`: the value while someone drags or holds a key. When they let go, it fires with no value.
+
+### Styling
+
+- `--control-scrubber-color`: the focus ring. Defaults to `var(--primary-color)`.
+- `--control-scrubber-background`: the strip. Defaults to `var(--disabled-color)`.
+- `--control-scrubber-rail-color` and `--control-scrubber-rail-opacity`: the rail. Default to `var(--disabled-color)` and `0.2`.
+- `--control-scrubber-thickness`: the height. Defaults to `40px`.
+- `--control-scrubber-border-radius`: the corners. Defaults to `var(--ha-border-radius-md)`.
+- `--control-scrubber-track-width`: the width of the strip. Defaults to `100%`, and can't be less.
+- `--control-scrubber-inset-shadow`: an inner shadow. Defaults to `none`.
+
+Source: [`src/components/ha-control-scrubber.ts`](https://github.com/home-assistant/frontend/blob/dev/src/components/ha-control-scrubber.ts)

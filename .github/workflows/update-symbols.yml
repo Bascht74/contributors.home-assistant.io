@@ -1,0 +1,188 @@
+name: Update code symbols
+
+# Regenerates the indexes of code symbols the docs link to, from the dev
+# branches of core (src/data/symbols/core.json) and the frontend
+# (src/data/symbols/frontend.json), once a week, and opens a pull request
+# when they changed. The report of `pnpm symbols` goes in the pull request:
+# mentions in the docs that no longer match a symbol are the pages to check,
+# and the coverage (src/data/symbols/coverage.json) shows how much of what
+# the docs mention links, and which new mentions link to nothing. How it
+# works is in "Code symbols" in README.md.
+#
+# The same run updates the file paths the docs link to on GitHub
+# (src/data/source-paths.json). Its report lists the paths that no longer
+# exist: those pages need an update. How that works is in "Source paths" in
+# README.md.
+#
+# Nothing from core or the frontend is installed or run. The generators read
+# them with Git, and parse them with the parser of Python itself and the
+# TypeScript compiler of this repository, so one job is enough.
+
+on:
+  schedule:
+    # Mondays at 05:30 UTC.
+    - cron: "30 5 * * 1"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  update:
+    name: Update the code symbols
+    if: ${{ github.repository_owner == 'home-assistant' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      # Side by side, so the generator finds core at its default place,
+      # ../core.
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: site
+          persist-credentials: false
+
+      - name: Check out core
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: home-assistant/core
+          ref: dev
+          path: core
+          persist-credentials: false
+
+      - name: Check out the frontend
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: home-assistant/frontend
+          ref: dev
+          path: frontend
+          persist-credentials: false
+
+      # The parser has to know every syntax core uses, so this is the
+      # Python version of core.
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version-file: core/.python-version
+
+      # The version of pnpm comes from packageManager in package.json.
+      - name: Set up pnpm
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          package_json_file: site/package.json
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: site/.node-version
+          cache: pnpm
+          cache-dependency-path: site/pnpm-lock.yaml
+
+      - name: Install dependencies
+        working-directory: site
+        run: pnpm install --frozen-lockfile
+
+      # An explicit bash adds pipefail, so a failing generator fails the step
+      # instead of hiding behind tee.
+      - name: Generate the indexes
+        id: symbols
+        working-directory: site
+        shell: bash
+        run: |
+          pnpm --silent symbols --ref HEAD | tee "$RUNNER_TEMP/symbols.md"
+          core="$(jq -r '.commit' src/data/symbols/core.json)"
+          frontend="$(jq -r '.commit' src/data/symbols/frontend.json)"
+          echo "core=${core:0:10}" >> "$GITHUB_OUTPUT"
+          echo "frontend=${frontend:0:10}" >> "$GITHUB_OUTPUT"
+
+      # Reads the file lists of the repositories through the GitHub API.
+      - name: Generate the source paths
+        working-directory: site
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: pnpm --silent source-paths | tee "$RUNNER_TEMP/source-paths.md"
+
+      # An index records the commit it was read from, and the line of every
+      # symbol. The links point at that commit, so they stay right when only
+      # those moved: no pull request then, the old indexes stay, and so does
+      # the coverage that goes with them.
+      - name: Check for changes
+        id: changes
+        working-directory: site
+        run: |
+          symbols=false
+          for index in core frontend; do
+            file="src/data/symbols/$index.json"
+            if git diff -U0 -- "$file" | grep '^[-+] ' | grep -qvE '"(commit|line)":'; then
+              symbols=true
+            fi
+          done
+
+          if [ "$symbols" = "false" ]; then
+            git checkout -- src/data/symbols/
+            echo "Only the commits and line numbers of the symbols changed, or nothing did."
+          fi
+
+          # The source paths point at a branch, not a commit, so any change
+          # counts.
+          paths=false
+          if ! git diff --quiet -- src/data/source-paths.json; then
+            paths=true
+          fi
+
+          if [ "$symbols" = "true" ] || [ "$paths" = "true" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Write the pull request description
+        if: ${{ steps.changes.outputs.changed == 'true' }}
+        run: |
+          {
+            echo "The weekly update of the code symbols the docs link to, from the \`dev\` branches of core and the frontend. Every inline code span that names one gets a link to its source and a card with its signature."
+            echo
+            echo "Check \"No longer linked\" below, if it is there: those mentions matched a symbol before, and match nothing now. The symbol was renamed, moved, or removed, so the page probably needs an update. Changes to each index are listed after it."
+            echo
+            echo "\"Coverage\" shows, per area, how much of the inline code that looks like a symbol links. \"New unresolved\" lists mentions that link to nothing and are new since the last update: a typo, an outdated name, or a symbol outside what the indexes read."
+            echo
+            echo "A pull request opened by a workflow does not start the CI workflow. To run it, close and reopen this pull request."
+            echo
+            echo "Created by the [Update code symbols workflow](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})."
+            echo
+            # The report one heading level down, under the text above.
+            sed -e 's/^#/##/' -e 's/^## Code symbols$/## Report/' "$RUNNER_TEMP/symbols.md"
+            echo
+            echo "## Source paths"
+            echo
+            sed -e 's/^#/###/' "$RUNNER_TEMP/source-paths.md"
+          } > "$RUNNER_TEMP/full.md"
+          # GitHub takes 65536 characters at most in a description.
+          head -c 60000 "$RUNNER_TEMP/full.md" > "$RUNNER_TEMP/body.md"
+
+      # One branch, so a new run updates the open pull request instead of
+      # opening another one.
+      - name: Open or update the pull request
+        if: ${{ steps.changes.outputs.changed == 'true' }}
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        with:
+          path: site
+          branch: automation/update-symbols
+          delete-branch: true
+          add-paths: |
+            src/data/symbols/core.json
+            src/data/symbols/frontend.json
+            src/data/symbols/coverage.json
+            src/data/source-paths.json
+          commit-message: Update the code symbols to core@${{ steps.symbols.outputs.core }} and frontend@${{ steps.symbols.outputs.frontend }}
+          title: Update the code symbols to core@${{ steps.symbols.outputs.core }} and frontend@${{ steps.symbols.outputs.frontend }}
+          labels: |
+            area: core
+            area: frontend
+          body-path: ${{ runner.temp }}/body.md

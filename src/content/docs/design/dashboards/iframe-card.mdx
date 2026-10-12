@@ -1,0 +1,72 @@
+---
+title: Webpage card
+description: The webpage card embeds another web page in the dashboard, in an iframe.
+sidebarGroup: Media and pictures
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+<Demo hass>
+  <hui-card style="width: 100%" data-props='{"config": {"type": "iframe", "url": "https://www.home-assistant.io", "aspect_ratio": "50%"}}'></hui-card>
+</Demo>
+
+## Usage
+
+The webpage card shows another web page inside the dashboard. In the card picker it is called **Webpage**, and in YAML its type is `iframe`, because that is what it is: an iframe in a card.
+
+Use it for things Home Assistant has no card for, but that live on a web page: a local weather radar, a dashboard of another system on the network, or the status page of a device. Prefer a real card whenever there is one. A card follows the theme, the language, and the state of Home Assistant. An embedded page does none of that, and it scrolls on its own, inside the dashboard.
+
+The card has no padding and no title by default. The page fills it from edge to edge, with the rounded corners of the card.
+
+### Title
+
+With `title`, the card gets a header above the page. Use it when the page itself does not make clear what it is.
+
+<Demo hass>
+  <hui-card style="width: 420px" data-props='{"config": {"type": "iframe", "title": "Home Assistant", "url": "https://www.home-assistant.io", "aspect_ratio": "75%"}}'></hui-card>
+</Demo>
+
+### Aspect ratio
+
+Outside the sections view, the height of the card comes from `aspect_ratio`: the height as a percentage of the width, like `50%`, or a ratio, like `16:9`. Without it, the card is half as high as it is wide. In the sections view, the grid decides the size instead, and the aspect ratio is ignored.
+
+### Hide background
+
+With `hide_background`, the card has no background, border, or shadow. Use it for a page that has its own background, so it looks like part of the dashboard rather than a page in a box.
+
+### Things that can go wrong
+
+Not every page can be embedded. Many websites tell browsers not to show them in an iframe, and then the card stays empty. There is nothing the card can do about that.
+
+When Home Assistant is served over HTTPS, the page must use HTTPS as well. Browsers block the mix, so instead of an empty card, the card shows an error that explains why.
+
+### Content
+
+- Pick a page that works at the size of a card, ideally one made to be embedded.
+- Remember that the page runs inside Home Assistant. Only embed pages you trust.
+
+## Configuration
+
+- `url` (string, required): the address of the page to show.
+- `title` (string): a title above the page.
+- `aspect_ratio` (string): the height of the card, as a percentage of the width or as a ratio. Defaults to `50%`. Ignored in the sections view and the panel view.
+- `hide_background` (boolean): removes the background, border, and shadow of the card. Defaults to `false`.
+- `allow` (string): the permissions policy of the iframe, like `fullscreen; camera`. Defaults to `fullscreen`.
+- `allow_open_top_navigation` (boolean): lets a link in the page, selected by the user, open in the whole window. Defaults to `false`.
+- `disable_sandbox` (boolean): removes the sandbox of the iframe. Defaults to `false`.
+
+```yaml
+type: iframe
+url: "https://www.home-assistant.io"
+aspect_ratio: "75%"
+```
+
+## In code
+
+The card lives in `src/panels/lovelace/cards/hui-iframe-card.ts`, and the element is `<hui-iframe-card>`. It renders an `<iframe>` inside an `<ha-card>`. The aspect ratio becomes a `padding-top` on the wrapper, with the iframe positioned absolutely on top.
+
+The iframe is sandboxed by default, with the permissions in `IFRAME_SANDBOX` from `src/util/iframe.ts`: forms, pop-ups, scripts, and the same origin among them. The card throws `Invalid URL` for addresses that sanitize to `about:blank`, like `javascript:` URLs, because the sandbox keeps the same origin.
+
+In the sections view, the card takes the full width and 4 rows, and can shrink to 3 columns and 2 rows.
+
+[Source](https://github.com/home-assistant/frontend/blob/dev/src/panels/lovelace/cards/hui-iframe-card.ts)

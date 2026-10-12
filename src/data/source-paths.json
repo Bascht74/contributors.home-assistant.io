@@ -1,0 +1,1991 @@
+{
+  "paths": [
+    {
+      "path": ".github/renovate.json",
+      "repository": "hassio-addons/app-example",
+      "branch": "main",
+      "type": "file"
+    },
+    {
+      "path": ".github/workflows/ci.yaml",
+      "repository": "hassio-addons/app-example",
+      "branch": "main",
+      "type": "file"
+    },
+    {
+      "path": ".github/workflows/deploy.yaml",
+      "repository": "hassio-addons/app-example",
+      "branch": "main",
+      "type": "file"
+    },
+    {
+      "path": "example/config.yaml",
+      "repository": "hassio-addons/app-example",
+      "branch": "main",
+      "type": "file"
+    },
+    {
+      "path": "example/rootfs/etc/s6-overlay/",
+      "repository": "hassio-addons/app-example",
+      "branch": "main",
+      "type": "folder"
+    },
+    {
+      "path": ".agents/skills/",
+      "repository": "home-assistant/android",
+      "branch": "main",
+      "type": "folder"
+    },
+    {
+      "path": ".detekt/detekt.yml",
+      "repository": "home-assistant/android",
+      "branch": "main",
+      "type": "file"
+    },
+    {
+      "path": ".github/mock-google-services.json",
+      "repository": "home-assistant/android",
+      "branch": "main",
+      "type": "file"
+    },
+    {
+      "path": ".github/scripts/check_licenses.py",
+      "repository": "home-assistant/android",
+      "branch": "main",
+      "type": "file"
+    },
+    {
+      "path": ".github/scripts/merge_sarif.py",
+      "repository": "home-assistant/android",
+      "branch": "main",
+      "type": "file"
+    },
+    {
+      "path": "app/",
+      "repository": "home-assistant/android",
+      "branch": "main",
+      "type": "folder"
+    },
+    {
+      "path": "app/src/main/kotlin/io/homeassistant/companion/android/changelog/ChangelogContent.kt",
+      "repository": "home-assistant/android",
+      "branch": "main",
+      "type": "file"
+    },
+    {
+      "path": "automotive/",
+      "repository": "home-assistant/android",
+      "branch": "main",
+      "type": "folder"
+    },
+    {
+      "path": "build-logic/convention/src/main/kotlin/AndroidCommonConventionPlugin.kt",
+      "repository": "home-assistant/android",
+      "branch": "main",
+      "type": "file"
+    },
+    {
+      "path": "common/src/main/res/values/strings.xml",
+      "repository": "home-assistant/android",
+      "branch": "main",
+      "type": "file"
+    },
+    {
+      "path": "gradle/libs.versions.toml",
+      "repository": "home-assistant/android",
+      "branch": "main",
+      "type": "file"
+    },
+    {
+      "path": "wear/",
+      "repository": "home-assistant/android",
+      "branch": "main",
+      "type": "folder"
+    },
+    {
+      "path": ".github/workflows/build-app.yaml",
+      "repository": "home-assistant/apps-example",
+      "branch": "main",
+      "type": "file"
+    },
+    {
+      "path": ".vscode/tasks.json",
+      "repository": "home-assistant/apps-example",
+      "branch": "main",
+      "type": "file"
+    },
+    {
+      "path": "core_integrations/",
+      "repository": "home-assistant/brands",
+      "branch": "master",
+      "type": "folder"
+    },
+    {
+      "path": "core_integrations/hue/",
+      "repository": "home-assistant/brands",
+      "branch": "master",
+      "type": "folder"
+    },
+    {
+      "path": "actions/",
+      "repository": "home-assistant/builder",
+      "branch": "master",
+      "type": "folder"
+    },
+    {
+      "path": ".claude/skills/",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": ".claude/skills/ha-quality-scale-verify/SKILL.md",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "homeassistant/",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "homeassistant/__main__.py",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "homeassistant/auth/",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "homeassistant/auth/mfa_modules/",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "homeassistant/auth/providers/",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "homeassistant/brands/",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "homeassistant/components/",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "homeassistant/components/assist_satellite/intent.py",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "homeassistant/components/binary_sensor/const.py",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "homeassistant/components/climate/intent.py",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "homeassistant/components/cover/intent.py",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "homeassistant/components/fan/intent.py",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "homeassistant/components/hassio/",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "homeassistant/components/hue/",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "homeassistant/components/humidifier/intent.py",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "homeassistant/components/intent/__init__.py",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "homeassistant/components/intent/timers.py",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "homeassistant/components/lawn_mower/intent.py",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "homeassistant/components/light/condition.py",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "homeassistant/components/light/intent.py",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "homeassistant/components/light/trigger.py",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "homeassistant/components/media_player/intent.py",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "homeassistant/components/number/const.py",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "homeassistant/components/sensor/",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "homeassistant/components/sensor/const.py",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "homeassistant/components/shopping_list/intent.py",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "homeassistant/components/todo/intent.py",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "homeassistant/components/vacuum/intent.py",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "homeassistant/components/weather/intent.py",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "homeassistant/const.py",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "homeassistant/core_config.py",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "homeassistant/core.py",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "homeassistant/generated/",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "homeassistant/generated/config_flows.py",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "homeassistant/generated/labs.py",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "homeassistant/helpers/",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "homeassistant/helpers/condition/",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "homeassistant/helpers/intent.py",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "homeassistant/helpers/trigger/",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "homeassistant/strings.json",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "homeassistant/util/",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "pylint/plugins/",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "script/",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "script/hassfest/quality_scale.py",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "script/hassfest/translations.py",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "script/licenses.py",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "script/scaffold/templates/integration/integration/quality_scale.yaml",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "tests/",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "tests/common.py",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "tests/components/conftest.py",
+      "repository": "home-assistant/core",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": ".agents/skills/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": ".devcontainer/devcontainer.json",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "demo/src/configs/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "demo/src/configs/demo-configs.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "demo/src/stubs/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "gallery/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "gallery/sidebar.js",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "gallery/src/components/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "gallery/src/data/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/common/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/common/const.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/common/decorators/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/common/decorators/consume-context-entry.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/common/decorators/consume.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/common/dom/apply_themes_on_element.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/common/dom/fire_event.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/common/image/extract_color.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/common/keyboard/shortcuts.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/common/map/map-styles.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/common/navigate.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/common/url/sanitize-http-url.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/common/util/view-transition.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/common/util/xss.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/components/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/components/chart/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/components/ha-empty-state.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/components/ha-gauge.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/components/ha-markdown.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/components/map/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/components/skeleton/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/components/tile/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/data/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/data/alarm_control_panel.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/data/context/index.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/data/cover.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/data/fan.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/data/feature/climate_entity_feature.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/data/feature/cover_entity_feature.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/data/feature/media-player_entity_feature.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/data/feature/siren_entity_feature.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/data/humidifier.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/data/labs.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/data/lawn_mower.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/data/light.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/data/lock.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/data/media-player.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/data/number.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/data/service-info-controller.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/data/timer.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/data/todo.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/data/update.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/data/vacuum.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/data/valve.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/data/water_heater.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/data/weather.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/data/ws-templates.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/dialogs/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/dialogs/dialog-mixin.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/dialogs/generic/show-dialog-box.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/dialogs/more-info/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/dialogs/more-info/components/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/dialogs/more-info/components/covers/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/dialogs/more-info/components/lights/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/dialogs/more-info/components/siren/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/dialogs/more-info/components/timers/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/dialogs/more-info/components/update/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/dialogs/more-info/components/vacuum/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/dialogs/more-info/components/valves/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/dialogs/more-info/const.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/dialogs/more-info/controls/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/dialogs/more-info/controls/more-info-alarm_control_panel.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/dialogs/more-info/controls/more-info-climate.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/dialogs/more-info/controls/more-info-cover.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/dialogs/more-info/controls/more-info-fan.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/dialogs/more-info/controls/more-info-humidifier.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/dialogs/more-info/controls/more-info-lawn_mower.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/dialogs/more-info/controls/more-info-light.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/dialogs/more-info/controls/more-info-lock.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/dialogs/more-info/controls/more-info-media_player.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/dialogs/more-info/controls/more-info-person.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/dialogs/more-info/controls/more-info-sun.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/dialogs/more-info/controls/more-info-timer.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/dialogs/more-info/controls/more-info-update.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/dialogs/more-info/controls/more-info-vacuum.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/dialogs/more-info/controls/more-info-valve.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/dialogs/more-info/controls/more-info-water_heater.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/dialogs/more-info/controls/more-info-weather.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/dialogs/more-info/more-info-content.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/dialogs/more-info/state_more_info_control.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/entrypoints/app.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/entrypoints/core.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/external_app/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/fake_data/demo_services.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/layouts/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/layouts/hass-router-page.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/layouts/home-assistant-main.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/layouts/home-assistant.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/layouts/partial-panel-resolver.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/mixins/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/mixins/conditional-listener-mixin.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/mixins/subscribe-mixin.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/panels/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/panels/lovelace/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/panels/lovelace/card-features/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/panels/lovelace/card-features/hui-area-controls-card-feature.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/panels/lovelace/cards/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/panels/lovelace/cards/clock/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/panels/lovelace/cards/hui-alarm-panel-card.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/panels/lovelace/cards/hui-area-card.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/panels/lovelace/cards/hui-button-card.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/panels/lovelace/cards/hui-clock-card.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/panels/lovelace/cards/hui-conditional-card.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/panels/lovelace/cards/hui-entities-card.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/panels/lovelace/cards/hui-entity-card.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/panels/lovelace/cards/hui-entity-filter-card.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/panels/lovelace/cards/hui-gauge-card.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/panels/lovelace/cards/hui-glance-card.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/panels/lovelace/cards/hui-heading-card.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/panels/lovelace/cards/hui-history-graph-card.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/panels/lovelace/cards/hui-humidifier-card.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/panels/lovelace/cards/hui-iframe-card.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/panels/lovelace/cards/hui-light-card.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/panels/lovelace/cards/hui-map-card.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/panels/lovelace/cards/hui-markdown-card.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/panels/lovelace/cards/hui-media-control-card.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/panels/lovelace/cards/hui-picture-card.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/panels/lovelace/cards/hui-picture-elements-card.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/panels/lovelace/cards/hui-picture-entity-card.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/panels/lovelace/cards/hui-picture-glance-card.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/panels/lovelace/cards/hui-plant-status-card.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/panels/lovelace/cards/hui-sensor-card.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/panels/lovelace/cards/hui-thermostat-card.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/panels/lovelace/cards/hui-tile-card.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/panels/lovelace/cards/hui-todo-list-card.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/panels/lovelace/cards/hui-weather-forecast-card.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/panels/lovelace/cards/picture-elements/nearest-hit.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/panels/lovelace/common/evaluate-filter.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/panels/lovelace/common/validate-condition.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/panels/lovelace/components/hui-conditional-base.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/panels/lovelace/components/hui-image.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/panels/lovelace/create-element/create-row-element.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/panels/lovelace/elements/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/panels/lovelace/entity-rows/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/panels/lovelace/header-footer/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/panels/lovelace/header-footer/hui-graph-header-footer.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/panels/lovelace/heading-badges/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/panels/lovelace/special-rows/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/panels/todo/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/resources/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/resources/markdown-worker.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/resources/theme/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/resources/theme/color/color.globals.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/resources/theme/color/wa.globals.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/resources/theme/core.globals.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/state-control/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/state-control/alarm_control_panel/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/state-control/climate/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/state-control/cover/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/state-control/fan/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/state-control/ha-state-control-toggle.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/state-control/humidifier/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/state-control/lawn_mower/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/state-control/light/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/state-control/lock/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/state-control/vacuum/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/state-control/valve/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/state-control/water_heater/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/state-summary/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/state-summary/state-card-content.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/state-summary/state-card-input_number.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/state-summary/state-card-input_text.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/state-summary/state-card-number.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/state-summary/state-card-scene.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/state/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/translations/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "src/translations/en.json",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/types.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/util/iframe.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "src/util/toast.ts",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "test/",
+      "repository": "home-assistant/frontend",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "source/_actions/",
+      "repository": "home-assistant/home-assistant.io",
+      "branch": "current",
+      "type": "folder"
+    },
+    {
+      "path": "source/_conditions/",
+      "repository": "home-assistant/home-assistant.io",
+      "branch": "current",
+      "type": "folder"
+    },
+    {
+      "path": "source/_data/glossary.yml",
+      "repository": "home-assistant/home-assistant.io",
+      "branch": "current",
+      "type": "file"
+    },
+    {
+      "path": "source/_includes/integrations/",
+      "repository": "home-assistant/home-assistant.io",
+      "branch": "current",
+      "type": "folder"
+    },
+    {
+      "path": "source/_integrations/",
+      "repository": "home-assistant/home-assistant.io",
+      "branch": "current",
+      "type": "folder"
+    },
+    {
+      "path": "source/_integrations/date.markdown",
+      "repository": "home-assistant/home-assistant.io",
+      "branch": "current",
+      "type": "file"
+    },
+    {
+      "path": "source/_triggers/",
+      "repository": "home-assistant/home-assistant.io",
+      "branch": "current",
+      "type": "folder"
+    },
+    {
+      "path": "source/images/blog/",
+      "repository": "home-assistant/home-assistant.io",
+      "branch": "current",
+      "type": "folder"
+    },
+    {
+      "path": "source/images/dashboards/",
+      "repository": "home-assistant/home-assistant.io",
+      "branch": "current",
+      "type": "folder"
+    },
+    {
+      "path": "source/images/integrations/matter/",
+      "repository": "home-assistant/home-assistant.io",
+      "branch": "current",
+      "type": "folder"
+    },
+    {
+      "path": "source/images/integrations/matter/matter_device-info.png",
+      "repository": "home-assistant/home-assistant.io",
+      "branch": "current",
+      "type": "file"
+    },
+    {
+      "path": ".agents/skills/",
+      "repository": "home-assistant/iOS",
+      "branch": "main",
+      "type": "folder"
+    },
+    {
+      "path": "Configuration/Version.xcconfig",
+      "repository": "home-assistant/iOS",
+      "branch": "main",
+      "type": "file"
+    },
+    {
+      "path": "Sources/",
+      "repository": "home-assistant/iOS",
+      "branch": "main",
+      "type": "folder"
+    },
+    {
+      "path": "Sources/App/Accessibility/",
+      "repository": "home-assistant/iOS",
+      "branch": "main",
+      "type": "folder"
+    },
+    {
+      "path": "Sources/Shared/API/HAAPI.swift",
+      "repository": "home-assistant/iOS",
+      "branch": "main",
+      "type": "file"
+    },
+    {
+      "path": "Tests/UI/OnboardingE2ETests.swift",
+      "repository": "home-assistant/iOS",
+      "branch": "main",
+      "type": "file"
+    },
+    {
+      "path": "Tools/detect_unused_strings.py",
+      "repository": "home-assistant/iOS",
+      "branch": "main",
+      "type": "file"
+    },
+    {
+      "path": ".github/workflows/build.yaml",
+      "repository": "home-assistant/operating-system",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "buildroot-external/",
+      "repository": "home-assistant/operating-system",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "buildroot-external/board/",
+      "repository": "home-assistant/operating-system",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "buildroot-external/board/arm-uefi/",
+      "repository": "home-assistant/operating-system",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "buildroot-external/board/hardkernel/",
+      "repository": "home-assistant/operating-system",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "buildroot-external/board/pc/",
+      "repository": "home-assistant/operating-system",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "buildroot-external/board/pc/ova/",
+      "repository": "home-assistant/operating-system",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "buildroot-external/board/raspberrypi/",
+      "repository": "home-assistant/operating-system",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "buildroot-external/configs/",
+      "repository": "home-assistant/operating-system",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "buildroot-external/genimage/",
+      "repository": "home-assistant/operating-system",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "buildroot-external/kernel/",
+      "repository": "home-assistant/operating-system",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "buildroot-external/ota/",
+      "repository": "home-assistant/operating-system",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "buildroot-external/ota/manifest.raucm.gtpl",
+      "repository": "home-assistant/operating-system",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "buildroot-external/package/",
+      "repository": "home-assistant/operating-system",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "buildroot-external/rootfs-overlay/",
+      "repository": "home-assistant/operating-system",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "buildroot-external/scripts/hdd-image.sh",
+      "repository": "home-assistant/operating-system",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "buildroot/",
+      "repository": "home-assistant/operating-system",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "Documentation/kernel.md",
+      "repository": "home-assistant/operating-system",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "scripts/",
+      "repository": "home-assistant/operating-system",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": "scripts/enter.sh",
+      "repository": "home-assistant/operating-system",
+      "branch": "dev",
+      "type": "file"
+    },
+    {
+      "path": "tests/",
+      "repository": "home-assistant/operating-system",
+      "branch": "dev",
+      "type": "folder"
+    },
+    {
+      "path": ".github/copilot-instructions.md",
+      "repository": "home-assistant/supervisor",
+      "branch": "main",
+      "type": "file"
+    },
+    {
+      "path": ".vscode/launch.json",
+      "repository": "home-assistant/supervisor",
+      "branch": "main",
+      "type": "file"
+    },
+    {
+      "path": "supervisor/",
+      "repository": "home-assistant/supervisor",
+      "branch": "main",
+      "type": "folder"
+    },
+    {
+      "path": "supervisor/api/",
+      "repository": "home-assistant/supervisor",
+      "branch": "main",
+      "type": "folder"
+    },
+    {
+      "path": "supervisor/api/__init__.py",
+      "repository": "home-assistant/supervisor",
+      "branch": "main",
+      "type": "file"
+    },
+    {
+      "path": "supervisor/api/middleware/",
+      "repository": "home-assistant/supervisor",
+      "branch": "main",
+      "type": "folder"
+    },
+    {
+      "path": "supervisor/apps/",
+      "repository": "home-assistant/supervisor",
+      "branch": "main",
+      "type": "folder"
+    },
+    {
+      "path": "supervisor/backups/",
+      "repository": "home-assistant/supervisor",
+      "branch": "main",
+      "type": "folder"
+    },
+    {
+      "path": "supervisor/const.py",
+      "repository": "home-assistant/supervisor",
+      "branch": "main",
+      "type": "file"
+    },
+    {
+      "path": "supervisor/coresys.py",
+      "repository": "home-assistant/supervisor",
+      "branch": "main",
+      "type": "file"
+    },
+    {
+      "path": "supervisor/dbus/",
+      "repository": "home-assistant/supervisor",
+      "branch": "main",
+      "type": "folder"
+    },
+    {
+      "path": "supervisor/docker/",
+      "repository": "home-assistant/supervisor",
+      "branch": "main",
+      "type": "folder"
+    },
+    {
+      "path": "supervisor/exceptions.py",
+      "repository": "home-assistant/supervisor",
+      "branch": "main",
+      "type": "file"
+    },
+    {
+      "path": "supervisor/homeassistant/",
+      "repository": "home-assistant/supervisor",
+      "branch": "main",
+      "type": "folder"
+    },
+    {
+      "path": "supervisor/homeassistant/core.py",
+      "repository": "home-assistant/supervisor",
+      "branch": "main",
+      "type": "file"
+    },
+    {
+      "path": "supervisor/host/",
+      "repository": "home-assistant/supervisor",
+      "branch": "main",
+      "type": "folder"
+    },
+    {
+      "path": "supervisor/jobs/",
+      "repository": "home-assistant/supervisor",
+      "branch": "main",
+      "type": "folder"
+    },
+    {
+      "path": "supervisor/jobs/const.py",
+      "repository": "home-assistant/supervisor",
+      "branch": "main",
+      "type": "file"
+    },
+    {
+      "path": "supervisor/misc/tasks.py",
+      "repository": "home-assistant/supervisor",
+      "branch": "main",
+      "type": "file"
+    },
+    {
+      "path": "supervisor/os/",
+      "repository": "home-assistant/supervisor",
+      "branch": "main",
+      "type": "folder"
+    },
+    {
+      "path": "supervisor/plugins/",
+      "repository": "home-assistant/supervisor",
+      "branch": "main",
+      "type": "folder"
+    },
+    {
+      "path": "supervisor/resolution/",
+      "repository": "home-assistant/supervisor",
+      "branch": "main",
+      "type": "folder"
+    },
+    {
+      "path": "supervisor/resolution/checks/free_space.py",
+      "repository": "home-assistant/supervisor",
+      "branch": "main",
+      "type": "file"
+    },
+    {
+      "path": "supervisor/resolution/const.py",
+      "repository": "home-assistant/supervisor",
+      "branch": "main",
+      "type": "file"
+    },
+    {
+      "path": "supervisor/store/",
+      "repository": "home-assistant/supervisor",
+      "branch": "main",
+      "type": "folder"
+    },
+    {
+      "path": "supervisor/updater.py",
+      "repository": "home-assistant/supervisor",
+      "branch": "main",
+      "type": "file"
+    },
+    {
+      "path": "tests/",
+      "repository": "home-assistant/supervisor",
+      "branch": "main",
+      "type": "folder"
+    },
+    {
+      "path": "tests/conftest.py",
+      "repository": "home-assistant/supervisor",
+      "branch": "main",
+      "type": "file"
+    },
+    {
+      "path": "lists/",
+      "repository": "OHF-Voice/intents",
+      "branch": "main",
+      "type": "folder"
+    },
+    {
+      "path": "responses/",
+      "repository": "OHF-Voice/intents",
+      "branch": "main",
+      "type": "folder"
+    },
+    {
+      "path": "rules/",
+      "repository": "OHF-Voice/intents",
+      "branch": "main",
+      "type": "folder"
+    },
+    {
+      "path": "sentences/",
+      "repository": "OHF-Voice/intents",
+      "branch": "main",
+      "type": "folder"
+    },
+    {
+      "path": "sentences/nl/HassTurnOff/name_only.yaml",
+      "repository": "OHF-Voice/intents",
+      "branch": "main",
+      "type": "file"
+    },
+    {
+      "path": "sentences/nl/HassTurnOn/name_only.yaml",
+      "repository": "OHF-Voice/intents",
+      "branch": "main",
+      "type": "file"
+    },
+    {
+      "path": "tests/",
+      "repository": "OHF-Voice/intents",
+      "branch": "main",
+      "type": "folder"
+    },
+    {
+      "path": "tests/nl/HassTurnOff/name_only.yaml",
+      "repository": "OHF-Voice/intents",
+      "branch": "main",
+      "type": "file"
+    },
+    {
+      "path": "tests/nl/HassTurnOn/name_only.yaml",
+      "repository": "OHF-Voice/intents",
+      "branch": "main",
+      "type": "file"
+    }
+  ],
+  "missing": []
+}

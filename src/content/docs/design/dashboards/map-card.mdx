@@ -1,0 +1,94 @@
+---
+title: Map card
+description: The map card shows where people, devices, and zones are, on an interactive map, with an optional trail of where they have been.
+sidebarGroup: Information
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+<Demo hass>
+  <hui-card style="width: 420px" data-props='{"config": {"type": "map", "entities": ["person.alex", "person.sam", "zone.home", "zone.work"]}}'></hui-card>
+</Demo>
+
+## Usage
+
+The map card answers one question: where is everyone? It puts a marker on the map for every entity with a location, like a person, a device tracker, or a zone. Selecting a marker opens the more-info dialog of the entity. People can pan and zoom the map, and the buttons on the side reset the view and turn clustering on or off.
+
+Use it when the location itself matters. If people only want to know whether someone is home, a [tile card](/design/dashboards/tile-card/) or a [glance card](/design/dashboards/glance-card/) of the person entity says that in far less room. A map takes a lot of space for one piece of information, so give it a reason to be there.
+
+The map follows the theme of Home Assistant by default. In a light theme the map is light, in a dark theme it is dark.
+
+### Markers
+
+A person or a device tracker shows as a round marker with the initials of its name, or its picture when it has one. A zone shows as its icon. With `label_mode` on an entity, the marker shows the state, an attribute, or the icon instead of the name.
+
+Markers that are close together are combined into one bubble with a count, until you zoom in. Turn this off with `cluster: false` when you have only a few entities.
+
+### Path of previous locations
+
+With `hours_to_show`, the map draws a line through where each entity has been in that many hours. It is useful for something that moves, like a car or a lawn mower. Keep the number of hours low: a week of locations turns into a tangle that tells nobody anything.
+
+### Theme mode
+
+With `theme_mode`, the map is always `light` or always `dark`, whatever the theme. The default, `auto`, follows the theme. A dark map can work well on a wall tablet at night, but forcing a mode means it no longer matches the rest of the dashboard.
+
+<Demo hass>
+  <hui-card style="width: 420px" data-props='{"config": {"type": "map", "entities": ["person.alex", "person.sam"], "theme_mode": "dark"}}'></hui-card>
+</Demo>
+
+### Map style
+
+The map has a few built-in looks, picked with `map_style`: `default`, `colorful`, `natural`, `muted`, `gray`, and `toner`. Each has a light and a dark version, and the theme mode picks which one shows. The default style uses colors that fit the Home Assistant theme. In YAML, `map_style` can also be a mapping that starts from one of these styles and changes its colors.
+
+### Content
+
+- Add the entities that need to be on the map, and nothing more. Every extra marker makes the one people look for harder to find.
+- Add zones when they give the markers meaning, like the home and the office. A marker next to a zone reads at a glance.
+- Use `name` on an entity when its initials are ambiguous, like two people whose names start with the same letter.
+
+## Configuration
+
+- `entities` (list): the entities to show. Each is an entity ID, or a mapping with `entity` and the options below. Required, unless you use `show_all` or `geo_location_sources`.
+- `geo_location_sources` (list): the geolocation sources to show all entities of, like earthquakes or wildfires from a feed. Use `all` for every source.
+- `show_all` (boolean): shows every entity with a location. Can't be combined with `entities` or `geo_location_sources`. Defaults to `false`.
+- `title` (string): the title above the map.
+- `aspect_ratio` (string): the height of the map compared to its width, like `16:9` or `50%`.
+- `default_zoom` (number): the zoom level when the map opens. Defaults to `14`.
+- `theme_mode` (string): `auto`, `light`, or `dark`. Defaults to `auto`.
+- `map_style` (string or mapping): the look of the map. Defaults to `default`.
+- `hours_to_show` (number): how many hours of previous locations to draw. Defaults to `0`, no path.
+- `auto_fit` (boolean): moves and zooms the map whenever an entity moves, so all of them stay in view. Defaults to `false`.
+- `fit_zones` (boolean): keeps the zones in view as well when the map fits the entities. Defaults to `false`.
+- `show_zone_radius` (boolean): always draws the circle that shows the size of a zone. Defaults to `false`.
+- `cluster` (boolean): combines markers that are close together. Defaults to `true`.
+- `scale_ruler` (boolean): shows a ruler with the scale of the map. Defaults to `false`.
+- `conditions` (list): shows the entities only when all conditions are met.
+
+The options of an entity in `entities`:
+
+- `entity` (string, required): the entity to show.
+- `name` (string): the label on the marker.
+- `color` (string): the color of the marker and its path.
+- `label_mode` (string): what the marker shows: `name`, `state`, `attribute`, or `icon`. Defaults to `name`.
+- `attribute` (string): the attribute to show, with `label_mode: attribute`.
+- `unit` (string): the unit to show after the attribute.
+- `focus` (boolean): keeps this entity in view when the map fits. Defaults to `true`.
+
+```yaml
+type: map
+hours_to_show: 24
+entities:
+  - person.alex
+  - entity: person.sam
+    color: "#93c47d"
+  - zone.home
+  - zone.work
+```
+
+## In code
+
+The card lives in `src/panels/lovelace/cards/hui-map-card.ts`, and the element is `<hui-map-card>`. The map itself is `<ha-map>` in `src/components/map/`, which is also used by the more-info dialog of a person, and by the location editors in the settings. It draws a vector map with MapLibre, and falls back to Leaflet on devices that can't show a vector map. The styles live in `src/common/map/map-styles.ts`.
+
+In the sections view, the map takes the full width and 4 rows. It can shrink to 6 columns and 2 rows.
+
+[Source](https://github.com/home-assistant/frontend/blob/dev/src/panels/lovelace/cards/hui-map-card.ts)

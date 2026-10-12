@@ -1,0 +1,51 @@
+---
+// Wires the links next to section headings, which come from
+// src/lib/heading-anchors.mjs. Selecting one is a normal link to the
+// section, so the URL gets the #anchor. On top of that, the full URL goes
+// to the clipboard. Without a clipboard, it stays a normal link.
+---
+
+<div class="sr-only" role="status" aria-live="polite" data-heading-anchor-status></div>
+
+<script>
+  const FEEDBACK_MS = 2000;
+  const status = document.querySelector<HTMLElement>("[data-heading-anchor-status]");
+  let timer: number | undefined;
+  let copiedAnchor: HTMLElement | undefined;
+
+  document.addEventListener("click", async (event) => {
+    const anchor = (event.target as Element | null)?.closest?.<HTMLAnchorElement>(".heading-anchor");
+    if (!anchor || !navigator.clipboard?.writeText) {
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(anchor.href);
+    } catch {
+      // Refused, like without permission: the link still did its job.
+      return;
+    }
+
+    if (copiedAnchor) {
+      delete copiedAnchor.dataset.copied;
+    }
+    copiedAnchor = anchor;
+    anchor.dataset.copied = "";
+
+    // Emptied first, so selecting a second link announces it again.
+    if (status) {
+      status.textContent = "";
+      requestAnimationFrame(() => {
+        status.textContent = "Link copied";
+      });
+    }
+
+    clearTimeout(timer);
+    timer = window.setTimeout(() => {
+      delete anchor.dataset.copied;
+      if (status) {
+        status.textContent = "";
+      }
+    }, FEEDBACK_MS);
+  });
+</script>

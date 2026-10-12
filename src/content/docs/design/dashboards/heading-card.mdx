@@ -1,0 +1,90 @@
+---
+title: Heading card
+description: The heading card puts a title above a group of cards, with optional badges for the status of that group.
+sidebarGroup: Grouping and layout
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+<Demo hass layout="stack">
+  <hui-card style="width: 420px" data-props='{"config": {"type": "heading", "heading": "Living room", "icon": "mdi:sofa", "badges": [{"type": "entity", "entity": "sensor.living_room_temperature"}, {"type": "entity", "entity": "sensor.living_room_humidity"}]}}'></hui-card>
+  <hui-card style="width: 420px" data-props='{"config": {"type": "tile", "entity": "light.living_room_lamp"}}'></hui-card>
+</Demo>
+
+## Usage
+
+The heading card names a group of cards. In the sections view, a new section starts with a heading card, so most sections have one at the top. It has no background and no border: it reads as part of the page, not as a card.
+
+Use a heading to say what the cards below it have in common, like a room or a topic. Don't use it for a single card that already has a name of its own.
+
+### Title and subtitle
+
+The `title` style is the default, for the top of a section. The `subtitle` style is smaller and lighter, for a group inside a section. Use a subtitle to split a long section, like the lights and the climate of the same room.
+
+<Demo hass layout="stack">
+  <hui-card style="width: 420px" data-props='{"config": {"type": "heading", "heading": "Bedroom"}}'></hui-card>
+  <hui-card style="width: 420px" data-props='{"config": {"type": "heading", "heading": "Climate", "heading_style": "subtitle"}}'></hui-card>
+  <hui-card style="width: 420px" data-props='{"config": {"type": "tile", "entity": "climate.bedroom_air_conditioner"}}'></hui-card>
+</Demo>
+
+### Badges
+
+Badges sit on the other side of the heading and summarize the group at a glance, like the temperature of a room, or whether a door is open. An entity badge shows the icon and the state of an entity. It does nothing when selected, unless you give it an action. A button badge shows an icon or a short text, and runs an action.
+
+Keep it to a few badges. When they don't fit, they scroll sideways, and the ones out of view are easy to miss.
+
+<Demo hass>
+  <hui-card style="width: 420px" data-props='{"config": {"type": "heading", "heading": "Hallway", "heading_style": "subtitle", "badges": [{"type": "entity", "entity": "binary_sensor.front_door"}, {"type": "entity", "entity": "lock.front_door"}, {"type": "entity", "entity": "light.hallway", "show_state": false}]}}'></hui-card>
+</Demo>
+
+### Action
+
+By default, the heading does nothing when you select it. Give it a `tap_action`, like navigating to the dashboard of the room, and a chevron appears next to the title to show it leads somewhere.
+
+<Demo hass>
+  <hui-card style="width: 420px" data-props='{"config": {"type": "heading", "heading": "Garden", "icon": "mdi:flower", "tap_action": {"action": "navigate", "navigation_path": "/dashboard-garden"}}}'></hui-card>
+</Demo>
+
+### Content
+
+- Keep the heading to one or two words. The area or the topic is enough.
+- An icon is optional. Use it when it helps people find a section while scrolling, and use it on every heading of the view, or none.
+- Badges show status, they are not a second row of controls. For controls, use [tile cards](/design/dashboards/tile-card/) below the heading.
+
+## Configuration
+
+- `heading` (string): the text of the heading.
+- `heading_style` (string): `title` or `subtitle`. Defaults to `title`.
+- `icon` (string): an icon in front of the heading.
+- `tap_action`, `hold_action`, `double_tap_action` (action): what happens when you select the heading. Default to `none`.
+- `badges` (list): the badges to show. Each badge has a `type`: `entity` (the default) or `button`.
+
+An entity badge takes:
+
+- `entity` (string, required): the entity to show.
+- `name` (string): the name of the entity, used for the tooltip of the badge.
+- `icon` (string): the icon. Defaults to the icon of the entity.
+- `color` (string): the color of the icon. Use `state` for the color of the state. Without it, the icon has no color.
+- `show_state` (boolean): shows the state. Defaults to `true`.
+- `show_icon` (boolean): shows the icon. Defaults to `true`.
+- `state_content` (string or list): what to show as the state, like an attribute.
+- `tap_action`, `hold_action`, `double_tap_action` (action): what happens when you select the badge. Default to `none`.
+
+A button badge takes `text`, `icon`, `color`, and the same actions.
+
+```yaml
+type: heading
+heading: "Living room"
+icon: mdi:sofa
+badges:
+  - entity: sensor.living_room_temperature
+  - entity: sensor.living_room_humidity
+```
+
+## In code
+
+The card lives in `src/panels/lovelace/cards/hui-heading-card.ts`, and the element is `<hui-heading-card>`. The badges are `<hui-heading-badge>` elements, which create the badge for each type from `src/panels/lovelace/heading-badges/`.
+
+In the sections view, the heading always takes the full width of the section, and its height follows its content. The title and subtitle styles can be themed with the `--ha-heading-card-title-*` and `--ha-heading-card-subtitle-*` variables.
+
+[Source](https://github.com/home-assistant/frontend/blob/dev/src/panels/lovelace/cards/hui-heading-card.ts)

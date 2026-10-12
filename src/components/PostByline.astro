@@ -1,0 +1,106 @@
+---
+// Who wrote a post, when, and how long it takes to read: the avatars of the
+// authors next to their names, with the date and reading time below.
+import { authorAvatar } from "../data/authors";
+import { type BlogPost, formatDate, readingTime } from "../lib/blog";
+
+interface Props {
+  post: BlogPost;
+  // "large" for the header of a post, "small" for a post card.
+  size?: "small" | "large";
+}
+
+const { post, size = "small" } = Astro.props;
+const { authors, date } = post.data;
+---
+
+<span class:list={["byline", `byline--${size}`]}>
+  <span class="avatars" aria-hidden="true">
+    {
+      authors.map((name) => {
+        const avatar = authorAvatar(name);
+        return avatar ? (
+          <img class="avatar" src={avatar} alt="" width="48" height="48" loading="lazy" />
+        ) : (
+          <span class="avatar avatar--initial">{name.charAt(0)}</span>
+        );
+      })
+    }
+  </span>
+  <span class="text">
+    <span class="authors">{authors.join(" and ")}</span>
+    <span class="details">
+      <time datetime={date.toISOString()}>{formatDate(date)}</time>
+      <span aria-hidden="true">·</span>
+      <span>{readingTime(post)} min read</span>
+    </span>
+  </span>
+</span>
+
+<style>
+  .byline {
+    display: flex;
+    align-items: center;
+    gap: var(--ha-space-3);
+    --avatar-size: 36px;
+  }
+
+  .byline--large {
+    --avatar-size: 44px;
+  }
+
+  .avatars {
+    display: flex;
+    flex-shrink: 0;
+  }
+
+  /* More than one author: the avatars overlap a little, like a stack. */
+  .avatar + .avatar {
+    margin-left: calc(var(--avatar-size) / -3);
+  }
+
+  .avatar {
+    width: var(--avatar-size);
+    height: var(--avatar-size);
+    border-radius: var(--ha-border-radius-circle);
+    border: 2px solid var(--site-surface);
+    background: var(--site-accent-quiet);
+    object-fit: cover;
+  }
+
+  .avatar--initial {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--site-on-accent-quiet);
+    font-weight: 700;
+  }
+
+  .text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.35;
+  }
+
+  .authors {
+    font-weight: 650;
+    color: var(--site-text);
+  }
+
+  .details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ha-space-1);
+    font-size: 14px;
+    color: var(--site-text-muted);
+  }
+
+  .byline--large .authors {
+    font-size: 17px;
+  }
+
+  .byline--large .details {
+    font-size: 15px;
+  }
+</style>

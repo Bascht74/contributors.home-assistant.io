@@ -1,0 +1,164 @@
+---
+// Jumps between areas. Uses the native Popover API: no JavaScript, and the
+// browser handles focus, Escape, and light dismiss.
+import { AREA_GROUPS, groupLinks, type Area, type AreaGroup } from "../data/areas";
+import Icon from "./Icon.astro";
+
+interface Props {
+  current: Area;
+}
+
+const { current } = Astro.props;
+
+const groups = Object.entries(AREA_GROUPS).map(([groupId, label]) => ({
+  label,
+  areas: groupLinks(groupId as AreaGroup),
+}));
+---
+
+<button class="trigger" type="button" popovertarget="area-switcher">
+  {current.title}
+  <Icon name="chevron-down" size={16} />
+</button>
+
+<nav id="area-switcher" class="menu" popover aria-label="All areas">
+  {
+    groups.map((group) => (
+      <div class="group">
+        <p class="group-label">{group.label}</p>
+        <ul>
+          {group.areas.map((area) => (
+            <li>
+              <a
+                href={area.href}
+                aria-current={area.id === current.id ? "page" : undefined}
+              >
+                <Icon name={area.icon} size={18} />
+                {area.title}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))
+  }
+  <div class="menu-footer">
+    <a href="/">
+      <Icon name="home" size={18} />
+      Home
+    </a>
+    <a href="/blog/">
+      <Icon name="rss" size={18} />
+      Blog
+    </a>
+  </div>
+</nav>
+
+<style>
+  .menu-footer {
+    /* A row under all groups, whatever the number of columns. */
+    grid-column: 1 / -1;
+    column-span: all;
+    display: flex;
+    gap: var(--ha-space-1);
+    margin-top: var(--ha-space-2);
+    padding-top: var(--ha-space-2);
+    border-top: 1px solid var(--site-border);
+  }
+
+  .menu-footer a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--ha-space-2);
+    padding: var(--ha-space-2) var(--ha-space-3);
+    border-radius: var(--ha-border-radius-md);
+    color: var(--site-text);
+    font-weight: 550;
+    text-decoration: none;
+  }
+
+  .menu-footer a:hover {
+    background: var(--site-surface-hover);
+  }
+
+  .trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--ha-space-2);
+    height: 44px;
+    padding: 0 var(--ha-space-4);
+    border: 1px solid var(--site-border);
+    border-radius: var(--ha-border-radius-pill);
+    background: var(--site-surface);
+    color: var(--site-text);
+    font: inherit;
+    font-weight: 650;
+    cursor: pointer;
+    anchor-name: --area-switcher;
+  }
+
+  .menu {
+    /* Sits under the trigger where anchor positioning is supported, and
+       under the header on the left everywhere else. */
+    position: fixed;
+    inset: auto;
+    top: calc(var(--site-header-height) - var(--ha-space-1));
+    left: var(--ha-space-4);
+    position-anchor: --area-switcher;
+    top: anchor(bottom);
+    left: anchor(left);
+    margin: var(--ha-space-2) 0 0;
+    width: min(560px, calc(100vw - 2 * var(--ha-space-4)));
+    max-height: calc(100vh - var(--site-header-height) - var(--ha-space-8));
+    overflow-y: auto;
+    padding: var(--ha-space-4);
+    border: 1px solid var(--site-border);
+    border-radius: var(--site-radius-tile);
+    background: var(--site-surface);
+    color: var(--site-text);
+    box-shadow: var(--ha-box-shadow-l);
+    column-width: 220px;
+    column-gap: var(--ha-space-6);
+  }
+
+  .group {
+    break-inside: avoid;
+    margin-bottom: var(--ha-space-4);
+  }
+
+  .group-label {
+    margin: 0 0 var(--ha-space-1);
+    padding: 0 var(--ha-space-2);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--site-text-muted);
+  }
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  a {
+    display: flex;
+    align-items: center;
+    gap: var(--ha-space-2);
+    min-height: 40px;
+    padding: 0 var(--ha-space-2);
+    border-radius: var(--ha-border-radius-pill);
+    color: var(--site-text);
+    text-decoration: none;
+  }
+
+  a:hover {
+    background: var(--site-surface-hover);
+    color: var(--site-text);
+  }
+
+  a[aria-current="page"] {
+    background: var(--site-accent-quiet);
+    color: var(--site-on-accent-quiet);
+    font-weight: 650;
+  }
+</style>

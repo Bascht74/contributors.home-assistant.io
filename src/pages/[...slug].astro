@@ -1,0 +1,40 @@
+---
+import { getCollection, render } from "astro:content";
+import RelatedTerms from "../components/glossary/RelatedTerms.astro";
+import TermFacts from "../components/glossary/TermFacts.astro";
+import { getArea } from "../data/areas";
+import Docs from "../layouts/Docs.astro";
+import { areaOf, buildBreadcrumbs, buildSidebar, type DocsEntry, pathOf } from "../lib/docs";
+
+export async function getStaticPaths() {
+  const entries = await getCollection("docs");
+
+  return entries.map((entry) => ({
+    params: { slug: pathOf(entry) },
+    props: { entry },
+  }));
+}
+
+interface Props {
+  entry: DocsEntry;
+}
+
+const { entry } = Astro.props;
+
+const area = getArea(areaOf(entry));
+if (!area) {
+  throw new Error(
+    `${entry.filePath} is in "${areaOf(entry)}", which is not an area. Add it to src/data/areas.ts or move the page.`,
+  );
+}
+
+const sidebar = await buildSidebar(area.id, pathOf(entry));
+const breadcrumbs = await buildBreadcrumbs(entry, area.title);
+const { Content, headings } = await render(entry);
+---
+
+<Docs entry={entry} area={area} sidebar={sidebar} breadcrumbs={breadcrumbs} headings={headings}>
+  <TermFacts entry={entry} />
+  <Content />
+  <RelatedTerms entry={entry} />
+</Docs>

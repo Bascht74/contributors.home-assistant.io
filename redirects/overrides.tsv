@@ -1,0 +1,9 @@
+/docs/architecture/core	/architecture/core/
+/docs/intent_builtin	/core/internals/built-in-intents/
+/docs/dev_101_states	/core/internals/states/
+/docs/voice/overview	/core/internals/assist-pipelines/
+/docs/review-process	/start/pull-requests/
+/docs/dev_101_services	/core/integrations/actions/
+/docs/ai_policy	/start/ai-policy/
+/docs/misc	/start/
+/docs/core/entity	/core/entities/entity-class/

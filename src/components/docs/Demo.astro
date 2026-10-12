@@ -1,0 +1,55 @@
+---
+// Shows real Home Assistant frontend components, live, on the page.
+//
+// The components come from public/components/, built from
+// the frontend source by `pnpm components`. The frontend theme only applies
+// inside the demo (the .ha-demo class), so it never touches the rest of the
+// site. The script, and the Roboto of the app with it, only load on pages
+// that use a demo.
+//
+// In MDX:
+//   <Demo>
+//     <ha-button>Save</ha-button>
+//   </Demo>
+//
+// Components that need Home Assistant, like pickers and forms, go in a demo
+// with `hass`. They get a fake home: see demo-runtime/demo-home.ts.
+//   <Demo hass>
+//     <ha-entity-picker label="Entity"></ha-entity-picker>
+//   </Demo>
+//
+// Properties that can't be written as an attribute go in data-props:
+//   <ha-form data-props='{"schema": [...], "data": {}}'></ha-form>
+import DemoStage from "./DemoStage.astro";
+
+interface Props {
+  // "row" puts examples next to each other, "stack" below each other.
+  layout?: "row" | "stack";
+  // Wraps the examples in a fake Home Assistant.
+  hass?: boolean;
+  caption?: string;
+}
+
+const { layout = "row", hass = false, caption } = Astro.props;
+---
+
+<figure class="demo" data-pagefind-ignore>
+  <DemoStage layout={layout} hass={hass}>
+    <slot />
+  </DemoStage>
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>
+
+<script is:inline type="module" src="/components/loader.js"></script>
+
+<style>
+  .demo {
+    margin: var(--ha-space-6) 0;
+  }
+
+  figcaption {
+    margin-top: var(--ha-space-2);
+    font-size: 14px;
+    color: var(--site-text-muted);
+  }
+</style>

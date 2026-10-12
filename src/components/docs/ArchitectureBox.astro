@@ -1,0 +1,44 @@
+---
+// One box of the architecture map: a link to its page when it has one.
+interface Props {
+  title: string;
+  text: string;
+  href?: string;
+}
+
+const { title, text, href } = Astro.props;
+const Tag = href ? "a" : "div";
+---
+
+<Tag class="box" href={href}>
+  <strong>{title}</strong>
+  <span>{text}</span>
+</Tag>
+
+<style>
+  .box {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    height: 100%;
+    padding: var(--ha-space-3);
+    border: 1px solid var(--site-border);
+    border-radius: var(--ha-border-radius-md);
+    color: var(--site-text);
+    text-decoration: none;
+  }
+
+  a.box:hover {
+    border-color: var(--site-link);
+  }
+
+  strong {
+    font-size: 15px;
+  }
+
+  span {
+    font-size: 13px;
+    line-height: 1.35;
+    color: var(--site-text-muted);
+  }
+</style>

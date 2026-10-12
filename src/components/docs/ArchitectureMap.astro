@@ -1,0 +1,137 @@
+---
+// The big picture of Home Assistant, as layers: where people use it, Home
+// Assistant Core in the middle, what it connects to, and what runs it.
+// Built from HTML instead of an image, so it follows the theme of the site,
+// reads well on a phone, and every box can link to its page.
+import { APIS, CORE, INTEGRATIONS, NETWORK, OUTSIDE, PEOPLE, PLATFORM } from "../../data/architecture-map";
+import ArchitectureBox from "./ArchitectureBox.astro";
+---
+
+<figure class="map" data-pagefind-ignore>
+  <div class="layer layer--people">
+    <p class="label">{PEOPLE.label}</p>
+    <ul>
+      {PEOPLE.boxes.map((box) => <li><ArchitectureBox {...box} /></li>)}
+    </ul>
+  </div>
+
+  <p class="link">
+    <a href={APIS.href}>{APIS.label}</a>
+  </p>
+
+  <div class="layer layer--core">
+    <p class="label"><a href={CORE.href}>{CORE.label}</a></p>
+    <ul>
+      {CORE.boxes.map((box) => <li><ArchitectureBox {...box} /></li>)}
+    </ul>
+    <div class="integrations">
+      <a href={INTEGRATIONS.href}>{INTEGRATIONS.label}</a>
+      <span>{INTEGRATIONS.text}</span>
+    </div>
+  </div>
+
+  <p class="link">{NETWORK}</p>
+
+  <div class="layer layer--outside">
+    <p class="label">{OUTSIDE.label}</p>
+    <ul>
+      {OUTSIDE.boxes.map((box) => <li><ArchitectureBox {...box} /></li>)}
+    </ul>
+  </div>
+
+  <div class="layer layer--platform">
+    <p class="label">{PLATFORM.label}</p>
+    <ul>
+      {PLATFORM.boxes.map((box) => <li><ArchitectureBox {...box} /></li>)}
+    </ul>
+  </div>
+
+  <figcaption>Select a box to read more about it.</figcaption>
+</figure>
+
+<style>
+  .map {
+    display: grid;
+    gap: var(--ha-space-3);
+    margin: var(--ha-space-8) 0;
+  }
+
+  .layer {
+    padding: var(--ha-space-4);
+    border: 1px solid var(--site-border);
+    border-radius: var(--site-radius-tile);
+    background: var(--site-surface);
+  }
+
+  .layer--core {
+    border-color: var(--site-link);
+    border-width: 2px;
+  }
+
+  .layer--platform {
+    border-style: dashed;
+  }
+
+  .label {
+    margin: 0 0 var(--ha-space-3);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--site-text-muted);
+  }
+
+  .layer--core .label {
+    font-size: 17px;
+    color: var(--site-text);
+  }
+
+  ul {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: var(--ha-space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Wins over the spacing between list items in the text around it. */
+  .map li,
+  .map li + li {
+    margin: 0;
+  }
+
+  .integrations {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--ha-space-2);
+    margin-top: var(--ha-space-2);
+    padding: var(--ha-space-3) var(--ha-space-4);
+    border-radius: var(--ha-border-radius-md);
+    background: var(--site-accent-quiet);
+    color: var(--site-on-accent-quiet);
+    font-size: 15px;
+  }
+
+  .integrations a {
+    font-weight: 700;
+    color: inherit;
+  }
+
+  .link {
+    margin: 0;
+    text-align: center;
+    font-size: 14px;
+    color: var(--site-text-muted);
+  }
+
+  .link::before,
+  .link::after {
+    content: "↕";
+    margin: 0 var(--ha-space-2);
+  }
+
+  figcaption {
+    font-size: 14px;
+    color: var(--site-text-muted);
+  }
+</style>

@@ -1,0 +1,94 @@
+---
+title: Conditional card
+description: The conditional card shows another card only when its conditions are met, like a light being on, or the screen being wide enough.
+sidebarGroup: Grouping and layout
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+<Demo hass>
+  <hui-card style="width: 360px" data-props='{"config": {"type": "conditional", "conditions": [{"condition": "screen", "media_query": "(min-width: 768px)"}], "card": {"type": "tile", "entity": "media_player.living_room_speaker", "features": [{"type": "media-player-playback"}]}}}'></hui-card>
+  <hui-card style="width: 360px" data-props='{"config": {"type": "conditional", "conditions": [{"condition": "screen", "media_query": "(max-width: 767px)"}], "card": {"type": "tile", "entity": "media_player.living_room_speaker"}}}'></hui-card>
+</Demo>
+
+## Usage
+
+The conditional card wraps one other card, and shows it only when all its conditions are met. When they aren't, the card takes no room at all. Use it to keep a dashboard calm: show the card for the washing machine while it runs, or a warning only when a door is open.
+
+The demo above holds two conditional cards with a screen condition. On a wide screen you see the tile with playback controls, on a narrow one the plain tile. Make your browser narrower to see them swap.
+
+### Visibility on every card
+
+Every other card has a **Visibility** tab in its editor, with the same conditions. They are stored as `visibility` in the configuration of the card itself. That is the better choice for new dashboards: the card stays one card, and you don't have to wrap it. The conditional card is still there, and dashboards that use it keep working.
+
+```yaml
+type: tile
+entity: binary_sensor.kitchen_window
+visibility:
+  - condition: state
+    entity: binary_sensor.kitchen_window
+    state: "on"
+```
+
+### Conditions
+
+- `state`: the state of an entity is, or is not, one of the given states.
+- `numeric_state`: the state of an entity is above or below a number.
+- `screen`: the screen matches a media query, like a minimum width.
+- `user`: the person looking at the dashboard is one of the given users.
+- `time`: the current time is within a range, on the given weekdays.
+- `location`: the person looking at the dashboard is in one of the given zones.
+- `view_columns`: the sections view has a number of columns within a range.
+- `and`, `or`, and `not`: combine other conditions.
+
+The conditions about the screen, the user, the time, and the location are checked in the browser. The conditions about the state of an entity are checked by Home Assistant, which tells the frontend when the result changes. The demos on this site have no Home Assistant behind them to do that, so they only show conditions that run in the browser.
+
+```yaml
+type: conditional
+conditions:
+  - condition: state
+    entity: binary_sensor.front_door
+    state: "on"
+  - condition: numeric_state
+    entity: sensor.outdoor_temperature
+    below: 5
+card:
+  type: tile
+  entity: binary_sensor.front_door
+```
+
+### Edit mode
+
+While you edit the dashboard, the card always shows, whatever the conditions say. Otherwise you couldn't select a card that is hidden right now. To test the conditions, leave edit mode.
+
+### Content
+
+- Don't hide what people look for. A card that comes and goes is great for a temporary state, like an open door, but confusing for something people expect in a fixed spot.
+- When a hidden card leaves a gap that looks odd, rethink the layout instead of adding more conditions.
+
+## Configuration
+
+- `conditions` (list, required): the conditions to check. All of them must be met.
+- `card` (map, required): the card to show.
+
+```yaml
+type: conditional
+conditions:
+  - condition: screen
+    media_query: "(min-width: 768px)"
+card:
+  type: tile
+  entity: media_player.living_room_speaker
+  features:
+    - type: media-player-playback
+```
+
+## In code
+
+The card lives in `src/panels/lovelace/cards/hui-conditional-card.ts`, and the element is `<hui-conditional-card>`. It extends `HuiConditionalBase` in `src/panels/lovelace/components/hui-conditional-base.ts`, which the conditional row of the [entities card](/design/dashboards/entities-card/) uses too.
+
+The conditions are evaluated by the `ConditionalListenerMixin` in `src/mixins/conditional-listener-mixin.ts`, the same mixin `<hui-card>` uses for the `visibility` option. Conditions about states go to Home Assistant through a `subscribe_condition` subscription. The others are checked locally. The types of the conditions are in `src/panels/lovelace/common/validate-condition.ts`.
+
+When the card shows or hides, it fires a `card-visibility-changed` event, so the section or stack around it can update its layout.
+
+[Source](https://github.com/home-assistant/frontend/blob/dev/src/panels/lovelace/cards/hui-conditional-card.ts)

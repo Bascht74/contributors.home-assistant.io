@@ -1,0 +1,53 @@
+---
+title: Climate
+description: The more-info view of a thermostat or air conditioner, built around a round temperature dial.
+sidebarGroup: Lights and climate
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+<Demo hass>
+  <ha-demo-more-info entity="climate.thermostat"></ha-demo-more-info>
+  <ha-demo-more-info entity="climate.bedroom_air_conditioner"></ha-demo-more-info>
+</Demo>
+
+## What it shows
+
+The main control of a climate entity is the target temperature, on a round dial: the [control circular slider](/design/components/controls/). A dial reads like the thermostat on a wall, and it fits a range with a current value and a target in one shape. A small dot on the ring marks the current temperature.
+
+Inside the dial you find, from top to bottom:
+
+- What the device is doing right now, like heating or cooling, colored to match. When it reports no action, the label shows the mode instead.
+- The target temperature, in big numbers.
+- A minus and a plus button, to change the target one step at a time.
+
+Above the dial, the current temperature and, when the device reports it, the current humidity are shown as small labels. This view has no large state at the top: the dial already says it all.
+
+Below the dial, a row of menus holds the secondary settings. **Mode** is always there, with the HVAC modes of the device, like **Off**, **Heat**, and **Cool**, each with its own icon. The others only show when the device supports them:
+
+- The preset, like eco or away.
+- The fan mode.
+- The swing mode, and the horizontal swing mode.
+
+The thermostat is heating, so the ring is orange and the target is set. The air conditioner supports a fan mode and a swing mode, so it gets two extra menus. It is off, so the dial is gray and inactive.
+
+## Variants
+
+- **Target temperature range**: a device that keeps the temperature between a low and a high value gets a dial with two handles. Both values show in the center, and you select one to adjust it with the buttons. The low handle takes the heating color, the high one the cooling color.
+- **Target humidity**: a device that can also hold a humidity level gets two round buttons below the dial, for temperature and humidity. They swap the main control between the two dials.
+- **No target**: a device that only reports the temperature gets a read-only ring, with the current temperature and no buttons.
+
+## Design notes
+
+- The colors come from the state: heat is orange, cool is blue, and the ring goes gray when the device is off. The current action, like heating, tints the dial.
+- The ring fills to match the mode. In heat it fills from the start up to the target, in cool it fills from the target to the end, so you see which side of the target the device works on. A device that only heats or only cools keeps that fill in **Off** and **Auto** too.
+- The number of decimals follows the step of the device. A device with half-degree steps shows **21.0**, never **21**.
+- The **Mode** options are sorted in a fixed order, not the order the device reports them in, so every thermostat lists its modes the same way.
+- The dial sends the new target when you let go, not while you drag. The minus and plus buttons wait a second after the last tap, so tapping plus three times sends one change, not three.
+- With a range, the low target can never pass the high one, and the other way around.
+
+## In code
+
+The view is `more-info-climate` in `src/dialogs/more-info/controls/more-info-climate.ts`. The dials are `ha-state-control-climate-temperature` and `ha-state-control-climate-humidity` in `src/state-control/climate/`. The menus are [select menus](/design/components/select-menu/) in an `ha-more-info-control-select-container`. The features are in `src/data/feature/climate_entity_feature.ts`.
+
+Source: [`more-info-climate.ts`](https://github.com/home-assistant/frontend/blob/dev/src/dialogs/more-info/controls/more-info-climate.ts)

@@ -1,0 +1,99 @@
+---
+title: Errors and messages
+description: How Home Assistant tells people that something went wrong, or right. Alerts, toasts, and repairs, and when to use which.
+order: 4
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+Things go wrong in a smart home: a device is offline, a password changed, a value is out of range. How the interface says so makes the difference between a moment of confusion and a quick fix. The same goes for good news: people want to know that their change was saved.
+
+## When to use
+
+Pick the message by how long it needs to stay, and how close it needs to be to the problem:
+
+- **About one field**: an error at that field. See [Forms and validation](/design/patterns/forms/).
+- **About the page or dialog people are looking at**, and it stays until it is solved: an [alert](/design/components/alert/).
+- **A short confirmation that something happened**, like "Successfully saved": a toast at the bottom of the screen. It goes away by itself.
+- **Something that needs a decision before people can go on**: a [dialog](/design/components/dialog/). See [Confirmations and undo](/design/patterns/confirmations/).
+- **A problem in the setup that people need to fix, even when they are not looking at it**: a repair, raised by the integration. It shows up under **Settings** > **System** > **Repairs**.
+
+## How it works
+
+### Alerts
+
+An alert has one of four types. Each has its own color and icon, so the type is clear without color too.
+
+<Demo layout="stack">
+  <ha-alert alert-type="error">The device did not respond. Check that it is powered on.</ha-alert>
+  <ha-alert alert-type="warning">This integration will stop working in a future release.</ha-alert>
+  <ha-alert alert-type="info">Changes take effect after a restart.</ha-alert>
+  <ha-alert alert-type="success">The backup is complete.</ha-alert>
+</Demo>
+
+- An alert can have a title. Don't use a title without a description.
+- An alert can be dismissable, or have an action, like a button to fix the problem right away.
+
+<Demo layout="stack">
+  <ha-alert alert-type="warning">
+    The token of this account has expired.
+    <ha-button slot="action">Reauthenticate</ha-button>
+  </ha-alert>
+</Demo>
+
+### Toasts
+
+A toast is a short message at the bottom of the screen. It stays for at least four seconds, and can have an action, like **Undo**. Use it for feedback on something people just did, when they don't need to act on it.
+
+In the automation editor, for example, deleting a building block shows **Successfully deleted**, with an **Undo** button.
+
+A toast disappears. Never put something in a toast that people must read to fix a problem.
+
+### Repairs
+
+Integrations raise a [repair](/glossary/repair/) when there is a problem people can fix. A repair:
+
+- Says what the problem is, and why it matters
+- Gives the exact steps to fix it, as a numbered list when there are several
+- Says what to expect after following the steps
+- Is only raised for problems people can actually solve
+
+The text of a repair comes from the integration. The [Core](/core/) area covers how to raise one.
+
+### Errors from actions
+
+When an action fails, like turning on a light that does not answer, the integration raises an error, and its message is shown in the interface. Integrations can translate that message, like any other text.
+
+## Writing the message
+
+A good message says what happened, and what people can do about it. Every type of message in this pattern follows the same [UI text](/design/ui-text/messages/) guidelines.
+
+## Accessibility
+
+- An alert has `role="alert"`. Most screen readers announce it as soon as it appears. An alert that is already there when the page loads is usually not announced.
+- A toast has `role="status"`, and is announced without interrupting.
+- Color alone never says it is an error. The icon and the text do too.
+- An action in an alert must be reachable with the keyboard.
+
+## Components
+
+- [Alert](/design/components/alert/)
+- [Dialog](/design/components/dialog/)
+- [Form](/design/components/form/), for errors at a field
+- [Progress button](/design/components/progress-button/), for the result of a single action
+
+## In code
+
+```ts
+html`
+  <ha-alert alert-type="error">
+    ${this.hass.localize("ui.example.error")}
+  </ha-alert>
+`;
+
+showToast(this, {
+  message: this.hass.localize("ui.common.successfully_saved"),
+});
+```
+
+`showToast()` lives in `src/util/toast.ts`. Durations below four seconds are raised to four seconds. Pass an `action` with a `text` and an `action` callback to add a button like **Undo**.

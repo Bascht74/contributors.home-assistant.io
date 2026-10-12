@@ -1,0 +1,449 @@
+---
+// The blog, one year at a time: the newest posts on top (on the front page
+// of the blog), a timeline to pick a year, filters, and the posts of the year.
+// One page per year keeps every page light, instead of loading every post
+// since 2018 at once.
+//
+// The filters work on the posts of the year on the page. The timeline knows
+// every post, so it shows how many posts each year has that match the
+// filters, and keeps the filters when you go to another year.
+import AuthorFilter from "./AuthorFilter.astro";
+import Icon from "./Icon.astro";
+import PostCard from "./PostCard.astro";
+import { BLOG_TOPICS } from "../data/blog-topics";
+import Base from "../layouts/Base.astro";
+import { BLOG_DESCRIPTION, BLOG_TITLE, type BlogPost, getPosts } from "../lib/blog";
+import { ogImagePath } from "../lib/og";
+
+interface Props {
+  year: number;
+  // On the front page of the blog: the newest post big, and the two before
+  // it below, above everything else.
+  showLatest?: boolean;
+}
+
+const { year, showLatest = false } = Astro.props;
+
+const allPosts = await getPosts();
+const [latest, ...recent] = showLatest ? allPosts.slice(0, 3) : [];
+const onTop = [latest, ...recent];
+const yearOf = (post: BlogPost) => post.data.date.getUTCFullYear();
+const posts = allPosts.filter((post) => yearOf(post) === year && !onTop.includes(post));
+
+const years = [...new Set(allPosts.map(yearOf))];
+const postsPerYear = (y: number) => allPosts.filter((post) => yearOf(post) === y).length;
+const yearHref = (y: number) => (y === years[0] ? "/blog/" : `/blog/${y}/`);
+
+// The filters only offer topics and authors that have posts: topics in the
+// order of the site, authors by name.
+const topics = BLOG_TOPICS.filter((topic) =>
+  allPosts.some((post) => post.data.areas.includes(topic.id)),
+);
+const authors = [...new Set(allPosts.flatMap((post) => post.data.authors))]
+  .sort((a, b) => a.localeCompare(b))
+  .map((name) => ({
+    name,
+    posts: allPosts.filter((post) => post.data.authors.includes(name)).length,
+  }));
+
+// What the filter script reads from every post on the page.
+const filterData = (post: BlogPost) => ({
+  "data-areas": post.data.areas.join(" "),
+  "data-authors": post.data.authors.join("|"),
+});
+
+// Every post, in short, for the counts on the timeline.
+const timelineData = JSON.stringify(
+  allPosts.map((post) => ({
+    year: yearOf(post),
+    areas: post.data.areas,
+    authors: post.data.authors,
+  })),
+);
+
+const title = showLatest ? BLOG_TITLE : `Blog posts from ${year}`;
+---
+
+<Base title={title} description={BLOG_DESCRIPTION} image={ogImagePath("blog")}>
+  <main class="page" id="main-content" tabindex="-1">
+    <header>
+      <h1>{showLatest ? "Contributors blog" : year}</h1>
+      <p>
+        News for contributors. Every area has its own feed, or follow
+        <a href="/blog/rss.xml"><Icon name="rss" size={16} /> all posts</a>.
+      </p>
+    </header>
+
+    {
+      latest && (
+        <div class="latest">
+          <PostCard post={latest} headingLevel={2} featured />
+          <ul class="posts recent">
+            {recent.map((post) => (
+              <li>
+                <PostCard post={post} headingLevel={2} />
+              </li>
+            ))}
+          </ul>
+        </div>
+      )
+    }
+
+    <nav class="timeline" aria-label="Posts by year">
+      <ol>
+        {
+          years.map((y) => (
+            <li>
+              <a
+                href={yearHref(y)}
+                data-year={y}
+                aria-current={y === year ? "page" : undefined}
+              >
+                <span class="timeline-year">{y}</span>
+                <span class="timeline-count">{postsPerYear(y)}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </nav>
+
+    <div class="filters">
+      <div class="chips" role="group" aria-label="Filter by topic">
+        <button type="button" class="chip" data-area="" aria-pressed="true">All</button>
+        {
+          topics.map((topic) => (
+            <button type="button" class="chip" data-area={topic.id} aria-pressed="false">
+              {topic.title}
+            </button>
+          ))
+        }
+      </div>
+      <AuthorFilter authors={authors} total={allPosts.length} />
+    </div>
+
+    <section class="year">
+      <h2>
+        {showLatest ? `More from ${year}` : `Posts from ${year}`}{" "}
+        <span class="count"><span class="sr-only">, </span><span class="count-text">{posts.length} {posts.length === 1 ? "post" : "posts"}</span></span>
+      </h2>
+      <p class="empty" hidden>No posts in {year} match these filters. Pick another year on the timeline.</p>
+      <ul class="posts">
+        {
+          posts.map((post) => (
+            <li class="post" {...filterData(post)}>
+              <PostCard post={post} headingLevel={3} />
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+  </main>
+</Base>
+
+<script is:inline type="application/json" id="blog-timeline" set:html={timelineData} />
+
+<script>
+  // Filters the posts of the year on the page, by topic and by author. The
+  // choice goes in the URL, like /blog/2024/?area=frontend, so a filtered
+  // list can be shared, and the timeline keeps it when you pick a year.
+  interface TimelinePost {
+    year: number;
+    areas: string[];
+    authors: string[];
+  }
+
+  const chips = [...document.querySelectorAll<HTMLButtonElement>(".chip")];
+  const authorSelect = document.querySelector<HTMLSelectElement>("[data-author-filter]")!;
+  const posts = [...document.querySelectorAll<HTMLElement>(".post")];
+  const count = document.querySelector<HTMLElement>(".year .count-text")!;
+  const empty = document.querySelector<HTMLElement>(".empty")!;
+  const yearLinks = [...document.querySelectorAll<HTMLAnchorElement>(".timeline a")];
+  const timeline: TimelinePost[] = JSON.parse(
+    document.getElementById("blog-timeline")!.textContent!,
+  );
+
+  const matches = (areas: string[], authors: string[], area: string, author: string) =>
+    (!area || areas.includes(area)) && (!author || authors.includes(author));
+
+  const postsLabel = (total: number) => `${total} ${total === 1 ? "post" : "posts"}`;
+
+  function applyFilters(area: string, author: string) {
+    for (const chip of chips) {
+      chip.setAttribute("aria-pressed", String(chip.dataset.area === area));
+    }
+    authorSelect.value = author;
+    // The author filter shows the select in its own way, tell it to catch up.
+    authorSelect.dispatchEvent(new Event("sync"));
+
+    for (const post of posts) {
+      const areas = post.dataset.areas!.split(" ");
+      const authors = post.dataset.authors!.split("|");
+      post.hidden = !matches(areas, authors, area, author);
+    }
+
+    const visible = posts.filter((post) => !post.hidden).length;
+    count.textContent = postsLabel(visible);
+    empty.hidden = visible > 0;
+
+    const query = new URLSearchParams();
+    if (area) query.set("area", area);
+    if (author) query.set("author", author);
+    const search = query.size ? `?${query}` : "";
+
+    // Every year on the timeline: how many posts match, and a link that
+    // keeps the filters.
+    for (const link of yearLinks) {
+      const year = Number(link.dataset.year);
+      const total = timeline.filter(
+        (post) => post.year === year && matches(post.areas, post.authors, area, author),
+      ).length;
+      link.querySelector(".timeline-count")!.textContent = String(total);
+      link.classList.toggle("is-empty", total === 0);
+      link.search = search;
+    }
+
+    history.replaceState(null, "", `${location.pathname}${search}`);
+  }
+
+  const current = () => ({
+    area: chips.find((chip) => chip.getAttribute("aria-pressed") === "true")?.dataset.area ?? "",
+    author: authorSelect.value,
+  });
+
+  for (const chip of chips) {
+    chip.addEventListener("click", () => applyFilters(chip.dataset.area!, current().author));
+  }
+  authorSelect.addEventListener("change", () => applyFilters(current().area, authorSelect.value));
+
+  const params = new URLSearchParams(location.search);
+  if (params.has("area") || params.has("author")) {
+    applyFilters(params.get("area") ?? "", params.get("author") ?? "");
+  }
+
+  // On a small screen the timeline scrolls sideways: start with the year of
+  // the page in the middle, not at the newest year.
+  const timelineElement = document.querySelector<HTMLElement>(".timeline")!;
+  const currentYear = timelineElement.querySelector<HTMLElement>("[aria-current]");
+  if (currentYear) {
+    timelineElement.scrollLeft =
+      currentYear.offsetLeft - (timelineElement.clientWidth - currentYear.offsetWidth) / 2;
+  }
+</script>
+
+<style>
+  .page {
+    max-width: var(--site-page-width);
+    margin: 0 auto;
+    padding: var(--ha-space-16) var(--site-gutter) 0;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(48px, 7vw, 80px);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.035em;
+  }
+
+  header p {
+    max-width: 560px;
+    margin: var(--ha-space-5) 0 0;
+    font-size: 20px;
+    color: var(--site-text-muted);
+  }
+
+  header a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--ha-space-1);
+  }
+
+  .latest {
+    margin: var(--ha-space-10) 0 0;
+  }
+
+  .latest .recent {
+    margin-top: var(--ha-space-4);
+  }
+
+  /*
+   * The timeline: a line with a stop for every year, newest on the left. The
+   * year on the page is filled in.
+   */
+  .timeline {
+    margin: var(--ha-space-12) 0 0;
+    overflow-x: auto;
+  }
+
+  .timeline ol {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    gap: var(--ha-space-2);
+    min-width: max-content;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* The line, through the middle of the dots. */
+  .timeline ol::before {
+    content: "";
+    position: absolute;
+    top: 9px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--site-border);
+  }
+
+  .timeline a {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--ha-space-1);
+    min-width: 64px;
+    padding-top: 28px;
+    color: var(--site-text);
+    text-decoration: none;
+  }
+
+  /* The dot of a year. */
+  .timeline a::before {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 50%;
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--site-link);
+    border-radius: var(--ha-border-radius-circle);
+    background: var(--site-surface);
+    transform: translateX(-50%);
+    transition: transform 0.15s ease;
+  }
+
+  .timeline a:hover::before {
+    transform: translateX(-50%) scale(1.25);
+  }
+
+  .timeline a[aria-current="page"]::before {
+    background: var(--site-link);
+  }
+
+  .timeline-year {
+    font-size: 17px;
+    font-weight: 700;
+  }
+
+  .timeline a[aria-current="page"] .timeline-year {
+    color: var(--site-link);
+  }
+
+  .timeline-count {
+    font-size: 13px;
+    color: var(--site-text-muted);
+  }
+
+  /*
+   * A year without posts for the filters is still there, but quiet: a plain
+   * grey ring and a lighter year. Its count says 0. The text keeps full
+   * contrast, it is still a link you can follow.
+   */
+  .timeline a.is-empty:not([aria-current="page"])::before {
+    border-color: var(--site-border);
+  }
+
+  .timeline a.is-empty:not([aria-current="page"]) .timeline-year {
+    color: var(--site-text-muted);
+    font-weight: 500;
+  }
+
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--ha-space-3);
+    margin: var(--ha-space-10) 0 0;
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ha-space-2);
+  }
+
+  .chip {
+    padding: var(--ha-space-2) var(--ha-space-4);
+    border: 1px solid var(--site-border);
+    border-radius: var(--ha-border-radius-pill);
+    background: var(--site-surface);
+    color: var(--site-text);
+    font: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+      border-color 0.15s ease,
+      background-color 0.15s ease;
+  }
+
+  .chip:hover {
+    border-color: var(--site-link);
+  }
+
+  .chip[aria-pressed="true"] {
+    border-color: transparent;
+    background: var(--site-accent-quiet);
+    color: var(--site-on-accent-quiet);
+  }
+
+  .year {
+    margin: var(--ha-space-10) 0 0;
+  }
+
+  .year h2 {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--ha-space-3);
+    margin: 0;
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .count {
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0;
+    color: var(--site-text-muted);
+  }
+
+  .empty {
+    margin: var(--ha-space-6) 0 0;
+    font-size: 18px;
+    color: var(--site-text-muted);
+  }
+
+  .posts {
+    margin: var(--ha-space-6) 0 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    /* Two posts in a row at most: a card has room for its title and
+       description, and the list reads like a list, not a wall. */
+    grid-template-columns: repeat(
+      auto-fill,
+      minmax(min(100%, max(320px, calc(50% - var(--ha-space-4)))), 1fr)
+    );
+    gap: var(--ha-space-4);
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+</style>

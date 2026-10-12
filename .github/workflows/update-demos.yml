@@ -1,0 +1,181 @@
+name: Update demos
+
+# Rebuilds the live component demos from the dev branch of the frontend,
+# once a week, and opens a pull request when they changed. How the demos
+# are built is in "Live demos" in README.md.
+#
+# Two jobs, so the frontend's dependencies never run with a token that can
+# write. The build job installs and runs the frontend, with read access
+# only. The pull request job runs no code from the frontend: it takes the
+# built files, and pushes them to a branch.
+
+on:
+  schedule:
+    # Mondays at 04:00 UTC.
+    - cron: "0 4 * * 1"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build the demos
+    if: ${{ github.repository_owner == 'home-assistant' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      changed: ${{ steps.changes.outputs.changed }}
+      commit: ${{ steps.manifest.outputs.commit }}
+      short-commit: ${{ steps.manifest.outputs.short-commit }}
+      translations: ${{ steps.manifest.outputs.translations }}
+    env:
+      # The frontend build tasks need more memory than Node.js gives by
+      # default. The frontend's own CI sets the same.
+      NODE_OPTIONS: --max_old_space_size=6144
+    steps:
+      # Side by side, so scripts/build-components.mjs finds the frontend at
+      # its default place, ../frontend.
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: site
+          persist-credentials: false
+
+      - name: Check out the frontend
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: home-assistant/frontend
+          ref: dev
+          path: frontend
+          persist-credentials: false
+
+      # The frontend is installed the way its own CI does it: Node.js from
+      # its .nvmrc, pnpm from its packageManager through Corepack, and its
+      # lockfile as it is. Corepack also gives this site the pnpm version of
+      # its own packageManager.
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: frontend/.nvmrc
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install the frontend dependencies
+        working-directory: frontend
+        run: pnpm install --frozen-lockfile
+
+      - name: Install dependencies
+        working-directory: site
+        run: pnpm install --frozen-lockfile
+
+      # The translations of integrations come from an artifact of the
+      # frontend's nightly workflow. The frontend build task downloads it
+      # with this token, and fails the build when it can't, instead of
+      # quietly leaving the translations out.
+      - name: Build the demos
+        working-directory: site
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: pnpm components
+
+      - name: Build the site
+        working-directory: site
+        run: pnpm build
+
+      - name: Check links
+        working-directory: site
+        run: pnpm links
+
+      # The manifest has the date of every build. When nothing else changed,
+      # the old manifest stays, and there is no pull request.
+      - name: Check for changes
+        id: changes
+        working-directory: site
+        run: |
+          changes="$(git status --porcelain -- public/components public/static)"
+          if grep -v ' public/components/manifest.json$' <<< "$changes" | grep -q .; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            git checkout -- public/components/manifest.json
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "The demos did not change."
+          fi
+
+      - name: Read the manifest
+        id: manifest
+        working-directory: site
+        run: |
+          commit="$(jq -r '.frontend.commit' public/components/manifest.json)"
+          {
+            echo "commit=${commit}"
+            echo "short-commit=${commit:0:10}"
+            echo "translations=$(jq -r '.translations.artifactId // "none"' public/components/manifest.json)"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Upload the demos
+        if: ${{ steps.changes.outputs.changed == 'true' }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: demos
+          path: |
+            site/public/components
+            site/public/static
+          if-no-files-found: error
+          retention-days: 1
+
+  pull-request:
+    name: Open a pull request
+    needs: build
+    if: ${{ needs.build.outputs.changed == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      # The pull request action sets up its own credentials to push.
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # Replace the folders, so chunks the new build no longer has are
+      # deleted too.
+      - name: Remove the old demos
+        run: rm -rf public/components public/static
+
+      - name: Download the demos
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: demos
+          path: public
+
+      # One branch, so a new run updates the open pull request instead of
+      # opening another one.
+      - name: Open or update the pull request
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        with:
+          branch: automation/update-demos
+          delete-branch: true
+          add-paths: |
+            public/components
+            public/static
+          commit-message: Update the demos to home-assistant/frontend@${{ needs.build.outputs.short-commit }}
+          title: Update the demos to home-assistant/frontend@${{ needs.build.outputs.short-commit }}
+          labels: demos
+          body: |
+            The weekly rebuild of the live component demos, from the `dev` branch of the frontend.
+
+            - Frontend commit: home-assistant/frontend@${{ needs.build.outputs.commit }}
+            - Translations artifact: `${{ needs.build.outputs.translations }}`
+
+            The workflow built the site and checked its links with the new demos. Before you merge, follow step 4 of the [`update-demos` skill](https://github.com/${{ github.repository }}/blob/main/.github/skills/update-demos/SKILL.md): open the pages with demos, and check them in light and dark, at phone width, and with the keyboard.
+
+            A pull request opened by a workflow does not start the CI workflow. To run it, close and reopen this pull request.
+
+            Created by the [Update demos workflow](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}).

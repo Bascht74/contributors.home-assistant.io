@@ -1,0 +1,401 @@
+---
+// The small card that shows up when you point at, or tab to, two kinds of
+// links in the text of a page:
+//
+// - A link to a glossary term, like [entity](/glossary/entity/): the title
+//   and the short definition of the term. Writers only link the term (or
+//   src/lib/glossary-autolink.mjs does): the card comes with it.
+// - A code symbol, like `HomeAssistant` of core or `SubscribeMixin` of the
+//   frontend, linked to its source by src/lib/code-symbols.mjs: what it is,
+//   where it lives, its signature, and the first sentence of its
+//   documentation. An integration hook, like `async_setup_entry`, links to
+//   the page that explains it instead, with the same kind of card.
+//
+// The card is extra. The link itself goes where it says, so a reader who
+// never sees the card misses nothing: the term page, or the source on
+// GitHub. The card follows WCAG 1.4.13: it stays while you point at it, so
+// you can read and select its text, it stays while the link has focus, and
+// Escape closes it.
+//
+// The data loads the first time it is needed, from /glossary/terms.json and
+// /symbols/core.json or /symbols/frontend.json, so pages without such links
+// load nothing. The signatures in there are highlighted at build time (see
+// src/lib/symbol-cards.ts).
+---
+
+<div class="hover-card" role="tooltip" id="hover-card" hidden>
+  <div class="term" hidden>
+    <strong></strong>
+    <span></span>
+  </div>
+  <div class="symbol" hidden>
+    <div class="meta">
+      <span class="kind"></span>
+      <code class="module"></code>
+    </div>
+    <pre class="signature astro-code"><code></code></pre>
+    <p class="doc"></p>
+    <!-- The link in the text goes to the same place, so this one stays out
+         of the tab order and out of what a screen reader reads. -->
+    <a class="source" tabindex="-1" aria-hidden="true"></a>
+  </div>
+</div>
+
+<script>
+  type Terms = Record<string, { title: string; description: string }>;
+  type Symbols = {
+    styles: Record<string, string>;
+    symbols: Record<string, { kind: string; where: string; html: string; doc: string | null; source: string }>;
+  };
+
+  const card = document.getElementById("hover-card")!;
+  const termPart = card.querySelector<HTMLElement>(".term")!;
+  const symbolPart = card.querySelector<HTMLElement>(".symbol")!;
+  let terms: Promise<Terms> | undefined;
+  const symbols = new Map<string, Promise<Symbols>>();
+  let current: HTMLAnchorElement | undefined;
+
+  const HIDE_DELAY_MS = 300;
+
+  const KIND_LABELS: Record<string, string> = {
+    class: "Class",
+    context: "Context",
+    enum: "Enum",
+    exception: "Exception",
+    function: "Function",
+    hook: "Integration hook",
+    interface: "Interface",
+    method: "Method",
+    mixin: "Mixin",
+    module: "Module",
+    property: "Property",
+    type: "Type",
+  };
+
+  // Links in the text of a page that have a card. Glossary links not in
+  // lists that already show every definition, like the glossary overview
+  // and the related terms.
+  function cardLink(target: EventTarget | null): HTMLAnchorElement | undefined {
+    const link = (target as Element | null)?.closest?.<HTMLAnchorElement>(".prose a[href]");
+    if (!link) {
+      return undefined;
+    }
+
+    if (link.matches(".code-symbol[data-symbol]")) {
+      return link;
+    }
+
+    if (link.closest(".glossary, .related-terms")) {
+      return undefined;
+    }
+
+    const url = new URL(link.href, location.href);
+    const isTerm =
+      url.origin === location.origin && /^\/glossary\/[^/]+\/$/.test(url.pathname) && !url.hash;
+    return isTerm ? link : undefined;
+  }
+
+  // The colors of the highlighted signatures, sent once per index as short
+  // classes (see src/lib/symbol-cards.ts).
+  function addStyles(data: Symbols) {
+    const style = document.createElement("style");
+    style.textContent = Object.entries(data.styles)
+      .map(([name, rules]) => `#hover-card .signature .${name} { ${rules} }`)
+      .join("\n");
+    document.head.append(style);
+    return data;
+  }
+
+  // Fills the card for a link. False when there is nothing to show.
+  async function fill(link: HTMLAnchorElement): Promise<boolean> {
+    if (link.dataset.symbol) {
+      const index = link.dataset.symbolIndex ?? "core";
+      if (!symbols.has(index)) {
+        symbols.set(index, fetch(`/symbols/${index}.json`).then((response) => response.json()).then(addStyles));
+      }
+      const symbol = (await symbols.get(index)!).symbols[link.dataset.symbol];
+      if (!symbol || current !== link) {
+        return false;
+      }
+
+      const signature = symbolPart.querySelector<HTMLElement>(".signature")!;
+      const source = symbolPart.querySelector<HTMLAnchorElement>(".source")!;
+
+      symbolPart.querySelector(".kind")!.textContent = KIND_LABELS[symbol.kind] ?? symbol.kind;
+      symbolPart.querySelector(".module")!.textContent = symbol.where;
+      // Highlighted by Shiki when the site was built, from our own index.
+      signature.querySelector("code")!.innerHTML = symbol.html;
+      signature.hidden = !symbol.html;
+      signature.scrollTo(0, 0);
+      symbolPart.querySelector(".doc")!.textContent = symbol.doc ?? "";
+      source.href = symbol.source;
+      source.textContent = symbol.kind === "hook" ? "Read how it works" : "View source on GitHub";
+      symbolPart.hidden = false;
+      termPart.hidden = true;
+      card.classList.add("is-symbol");
+      return true;
+    }
+
+    terms ??= fetch("/glossary/terms.json").then((response) => response.json());
+    const term = (await terms)[new URL(link.href).pathname];
+    if (!term || current !== link) {
+      return false;
+    }
+
+    termPart.querySelector("strong")!.textContent = term.title;
+    termPart.querySelector("span")!.textContent = term.description;
+    termPart.hidden = false;
+    symbolPart.hidden = true;
+    card.classList.remove("is-symbol");
+    return true;
+  }
+
+  // A link may already be described by something else, so the card adds
+  // and removes only its own id, and leaves the other ids alone.
+  function describe(link: HTMLAnchorElement, on: boolean) {
+    const ids = (link.getAttribute("aria-describedby") ?? "").split(/\s+/).filter((id) => id && id !== card.id);
+    if (on) {
+      ids.push(card.id);
+    }
+
+    if (ids.length > 0) {
+      link.setAttribute("aria-describedby", ids.join(" "));
+    } else {
+      link.removeAttribute("aria-describedby");
+    }
+  }
+
+  async function show(link: HTMLAnchorElement) {
+    // Moving straight from one link to the next: the previous one no
+    // longer has the card.
+    if (current && current !== link) {
+      describe(current, false);
+    }
+
+    current = link;
+    if (!(await fill(link))) {
+      return;
+    }
+
+    describe(link, true);
+    card.hidden = false;
+
+    // Below the link, or above it when there is no room below. Kept inside
+    // the window horizontally.
+    const box = link.getBoundingClientRect();
+    const width = card.offsetWidth;
+    const height = card.offsetHeight;
+    const left = Math.min(Math.max(8, box.left), window.innerWidth - width - 8);
+    const below = box.bottom + 8 + height < window.innerHeight;
+    card.style.left = `${left + window.scrollX}px`;
+    card.style.top = `${(below ? box.bottom + 8 : box.top - height - 8) + window.scrollY}px`;
+  }
+
+  // Hides right away. Escape uses this directly.
+  function hide() {
+    window.clearTimeout(hideTimer);
+    if (current) {
+      describe(current, false);
+    }
+
+    current = undefined;
+    card.hidden = true;
+  }
+
+  // Hides after a short pause, so the pointer can cross the gap between the
+  // link and the card, and stay on the card to read it or select its text.
+  // It stays while the link has keyboard focus.
+  let hideTimer: number | undefined;
+  function hideSoon() {
+    window.clearTimeout(hideTimer);
+    hideTimer = window.setTimeout(() => {
+      const inUse =
+        card.matches(":hover") || current?.matches(":hover") || current === document.activeElement;
+      if (!inUse) {
+        hide();
+      }
+    }, HIDE_DELAY_MS);
+  }
+
+  // After Escape, pointing at the same link again should not bring the
+  // card straight back. Moving away from it resets this.
+  let dismissed: HTMLAnchorElement | undefined;
+
+  document.addEventListener("pointerover", (event) => {
+    if (card.contains(event.target as Node)) {
+      window.clearTimeout(hideTimer);
+      return;
+    }
+
+    const link = cardLink(event.target);
+    if (link && link === dismissed) {
+      return;
+    }
+
+    dismissed = undefined;
+
+    if (link) {
+      window.clearTimeout(hideTimer);
+      if (link !== current) {
+        show(link);
+      }
+    } else if (current) {
+      hideSoon();
+    }
+  });
+  document.addEventListener("focusin", (event) => {
+    const link = cardLink(event.target);
+    if (link) {
+      window.clearTimeout(hideTimer);
+      dismissed = undefined;
+      show(link);
+    }
+  });
+  document.addEventListener("focusout", (event) => {
+    if (event.target === current) {
+      hideSoon();
+    }
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && current) {
+      dismissed = current;
+      hide();
+    }
+  });
+</script>
+
+<style>
+  .hover-card {
+    position: absolute;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    max-width: min(360px, calc(100vw - 16px));
+    max-height: min(480px, calc(100vh - 16px));
+    overflow: hidden;
+    padding: var(--ha-space-3) var(--ha-space-4);
+    border: 1px solid var(--site-border);
+    border-radius: var(--site-radius-tile);
+    background: var(--site-surface);
+    box-shadow: var(--ha-box-shadow-m);
+    color: var(--site-text);
+    font-size: 15px;
+    line-height: 1.45;
+  }
+
+  /* Signatures are wider than a definition: room for a line of about 60
+     characters, the length the generators format them to. */
+  .hover-card.is-symbol {
+    max-width: min(560px, calc(100vw - 16px));
+  }
+
+  .hover-card[hidden],
+  .hover-card [hidden] {
+    display: none;
+  }
+
+  .term,
+  .symbol {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ha-space-1);
+    min-height: 0;
+  }
+
+  .term span,
+  .doc {
+    color: var(--site-text-muted);
+  }
+
+  .symbol {
+    gap: var(--ha-space-2);
+  }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--ha-space-2);
+    font-size: 12px;
+  }
+
+  .kind {
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: var(--site-accent-quiet);
+    color: var(--site-on-accent-quiet);
+    font-weight: 600;
+  }
+
+  .module {
+    color: var(--site-text-subtle);
+    font-family: var(--site-font-code);
+    overflow-wrap: anywhere;
+  }
+
+  .module:empty {
+    display: none;
+  }
+
+  /* The whole signature, never cut off. A long one scrolls inside the
+     card, which stays within the window. The colors come from Shiki, with
+     the dark theme picked in src/styles/global.css. */
+  .signature {
+    flex: 0 1 auto;
+    min-height: 3em;
+    margin: 0;
+    padding: var(--ha-space-2) var(--ha-space-3);
+    overflow: auto;
+    border: 1px solid var(--site-border);
+    border-radius: var(--ha-border-radius-sm);
+    background: var(--site-bg);
+    font-family: var(--site-font-code);
+    font-size: 13px;
+    line-height: 1.5;
+    white-space: pre;
+  }
+
+  .doc {
+    margin: 0;
+  }
+
+  .doc:empty {
+    display: none;
+  }
+
+  .source {
+    font-size: 14px;
+  }
+
+  /* A term linked by itself (see src/lib/glossary-autolink.mjs): it reads as
+     text, with a light dotted line to say there is more to know. */
+  :global(.prose a.glossary-term) {
+    color: inherit;
+    text-decoration-line: underline;
+    text-decoration-style: dotted;
+    text-decoration-color: var(--site-text-muted);
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 3px;
+  }
+
+  :global(.prose a.glossary-term:hover) {
+    color: var(--site-link);
+    text-decoration-color: currentColor;
+  }
+
+  /* A code symbol linked to its source (see src/lib/code-symbols.mjs): it
+     keeps the look of inline code, with the same dotted line. */
+  :global(.prose a.code-symbol) {
+    color: var(--site-on-accent-quiet);
+    text-decoration-line: underline;
+    text-decoration-style: dotted;
+    text-decoration-color: var(--site-text-muted);
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 4px;
+  }
+
+  :global(.prose a.code-symbol:hover) {
+    text-decoration-style: solid;
+    text-decoration-color: currentColor;
+  }
+</style>

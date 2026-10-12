@@ -1,0 +1,36 @@
+---
+title: Humidifier
+description: The more-info view of a humidifier or dehumidifier, with a round dial for the target humidity.
+sidebarGroup: Lights and climate
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+<Demo hass>
+  <ha-demo-more-info entity="humidifier.bedroom_humidifier"></ha-demo-more-info>
+</Demo>
+
+## What it shows
+
+The main control is the target humidity, on the same round dial as the [climate](/design/more-info/climate/) view: the [control circular slider](/design/components/controls/). Using one shape for every "keep the room at this value" device means people learn it once.
+
+Inside the dial you find what the device is doing right now, like humidifying or drying, the target in big numbers, and a minus and a plus button. A dot on the ring marks the current humidity, and the current humidity is also shown as a small label above the dial.
+
+Below the dial, a row of menus holds the secondary settings:
+
+- **State**, to turn the device on or off. It is always there.
+- **Mode**, like normal, eco, sleep, or boost. It only shows when the device supports modes.
+
+## Design notes
+
+- Like the climate view, the humidifier has no big on and off switch. Turning it on or off is a menu, so the dial keeps its place as the main control.
+- The dial takes the color of the state and the current action, and goes gray when the device is off.
+- A humidifier fills the ring from the start up to the target. A dehumidifier fills it from the target to the end, because it works to bring the humidity down.
+- When the device doesn't report a current humidity, the label above the dial and the dot on the ring are left out.
+- The mode menu lists the modes the device reports, each with its own icon.
+
+## In code
+
+The view is `more-info-humidifier` in `src/dialogs/more-info/controls/more-info-humidifier.ts`. The dial is `ha-state-control-humidifier-humidity` in `src/state-control/humidifier/`. The `HumidifierEntityFeature` enum is in `src/data/humidifier.ts`.
+
+Source: [`more-info-humidifier.ts`](https://github.com/home-assistant/frontend/blob/dev/src/dialogs/more-info/controls/more-info-humidifier.ts)

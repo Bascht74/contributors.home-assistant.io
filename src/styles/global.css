@@ -1,0 +1,735 @@
+/*
+ * Site styles on top of the Home Assistant design tokens (tokens.css).
+ *
+ * The frontend tokens give us spacing, radii, and the status palettes. The
+ * look itself follows the Home Assistant web brand, as used on
+ * works-with.home-assistant.io and creators.home-assistant.io: Figtree, navy
+ * text on a cool light grey, white cards, and Home Assistant blue.
+ *
+ * Components use the --site-* aliases below, not raw values, so there is one
+ * place to adjust colors and both color schemes stay in sync.
+ */
+
+@import "./tokens.css";
+
+/*
+ * A fallback for Figtree that takes up the same space. Until Figtree has
+ * loaded, text shows in a local font. Without this, that font runs wider and
+ * taller, and the page jumps when Figtree arrives: going back to a page then
+ * lands in the wrong spot. The overrides scale a local font to Figtree's
+ * metrics (units per em 1000, ascent 950, descent 250, average width 444,
+ * against Arial's 0.441 em), so the swap moves nothing. Liberation Sans and
+ * Arimo share Arial's metrics; Roboto is close enough for Android.
+ */
+@font-face {
+  font-family: "Figtree Fallback";
+  src: local("Arial"), local("ArialMT"), local("Liberation Sans"), local("Arimo"), local("Roboto");
+  size-adjust: 100.6%;
+  ascent-override: 94.4%;
+  descent-override: 24.9%;
+  line-gap-override: 0%;
+}
+
+:root {
+  /* The semantic tokens reference this legacy variable from the frontend. */
+  --white-color: var(--ha-color-white);
+
+  /* Brand palette */
+  --brand-navy: #002332;
+  --brand-navy-deep: #03161c;
+  --brand-blue: #18bcf2; /* Same as --ha-color-primary-50. */
+  --brand-mint: #16f3be;
+  --brand-mist: #f5f6fa;
+  --brand-slate: #4f606e;
+
+  --site-font: "Figtree Variable", "Figtree", "Figtree Fallback", system-ui, sans-serif;
+  --site-font-code: "Roboto Mono Variable", ui-monospace, monospace;
+
+  --site-bg: var(--brand-mist);
+  --site-surface: #ffffff;
+  --site-surface-hover: #eef1f6;
+  --site-border: #e1e6ee;
+  --site-text: var(--brand-navy);
+  --site-text-muted: var(--brand-slate);
+  /*
+   * A step quieter than muted, for small labels like the language of a
+   * code block. Still AA for small text: 4.79:1 on --site-bg (#f5f6fa) and
+   * 5.17:1 on --site-surface. In dark mode 5.44:1 on --site-bg (#03161c)
+   * and 4.69:1 on --site-surface. Muted text itself is 6.02:1 and 8.85:1.
+   */
+  --site-text-subtle: #606f7c;
+
+  /*
+   * The brand blue is light: navy text on it reads well (about 7:1), white
+   * text does not. Links on light surfaces use a darker blue for contrast.
+   */
+  --site-link: #006787;
+  --site-link-hover: var(--brand-navy);
+  --site-accent: var(--brand-blue);
+  --site-on-accent: var(--brand-navy);
+  --site-accent-quiet: #dff3fc;
+  --site-on-accent-quiet: #004156;
+  --site-focus: #006787;
+
+  /* Tile icon colors, one per area group, like domain colors in the app. */
+  --site-tile-everyone: #004156;
+  --site-tile-everyone-bg: #dff3fc;
+  --site-tile-build: #006787;
+  --site-tile-build-bg: #d4f1fd;
+  --site-tile-shape: #9d3800;
+  --site-tile-shape-bg: #ffe9d6;
+  --site-tile-run: #036730;
+  --site-tile-run-bg: #d8f5dc;
+
+  --site-radius-card: var(--ha-border-radius-3xl);
+  --site-radius-tile: var(--ha-border-radius-xl);
+  --site-content-width: 70ch;
+  --site-page-width: 1360px;
+  /*
+   * The header is one 72px row plus its border. Header.astro measures the
+   * real height into --site-header-height when it wraps to more rows. Use
+   * that one for anything that sticks or scrolls below the header.
+   */
+  --site-header-row: 72px;
+  --site-header-height: calc(var(--site-header-row) + 1px);
+  --site-gutter: clamp(16px, 4vw, 40px);
+
+  color-scheme: light;
+}
+
+/* Dark mode is navy, not grey: it is the same brand at night. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --site-bg: var(--brand-navy-deep);
+    --site-surface: #072531;
+    --site-surface-hover: #0c3140;
+    --site-border: #15394a;
+    --site-text: #f2f4f9;
+    --site-text-muted: #a3b6c4;
+    --site-text-subtle: #7b8e9a;
+    --site-link: #7bd4fb;
+    --site-link-hover: #dff3fc;
+    --site-accent-quiet: #0c3a4d;
+    --site-on-accent-quiet: #b9e6fc;
+    --site-focus: #7bd4fb;
+    --site-tile-everyone: #b9e6fc;
+    --site-tile-everyone-bg: #0c3a4d;
+    --site-tile-build: #7bd4fb;
+    --site-tile-build-bg: #0a3445;
+    --site-tile-shape: #ffbb89;
+    --site-tile-shape-bg: #3b1f0c;
+    --site-tile-run: #93da98;
+    --site-tile-run-bg: #0d3019;
+
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --site-bg: var(--brand-navy-deep);
+  --site-surface: #072531;
+  --site-surface-hover: #0c3140;
+  --site-border: #15394a;
+  --site-text: #f2f4f9;
+  --site-text-muted: #a3b6c4;
+  --site-text-subtle: #7b8e9a;
+  --site-link: #7bd4fb;
+  --site-link-hover: #dff3fc;
+  --site-accent-quiet: #0c3a4d;
+  --site-on-accent-quiet: #b9e6fc;
+  --site-focus: #7bd4fb;
+  --site-tile-everyone: #b9e6fc;
+  --site-tile-everyone-bg: #0c3a4d;
+  --site-tile-build: #7bd4fb;
+  --site-tile-build-bg: #0a3445;
+  --site-tile-shape: #ffbb89;
+  --site-tile-shape-bg: #3b1f0c;
+  --site-tile-run: #93da98;
+  --site-tile-run-bg: #0d3019;
+
+  color-scheme: dark;
+}
+
+/* Base */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/*
+ * The root font size is 14px, like in the app: the frontend tokens set it.
+ * Components in the demos size parts of themselves in rem, so with any other
+ * root size they would not look exactly like they do in Home Assistant.
+ *
+ * That is why the site itself never uses rem: its sizes are in px (on a
+ * 16px reading scale), so the site reads the same whatever the root is.
+ */
+:root {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--site-bg);
+  color: var(--site-text);
+  font-family: var(--site-font);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  text-wrap: balance;
+}
+
+a {
+  color: var(--site-link);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+a:hover {
+  color: var(--site-link-hover);
+}
+
+:focus-visible {
+  outline: 2px solid var(--site-focus);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/*
+ * Where "Skip to content" lands. It takes focus so the next Tab continues
+ * from there, but it is not a control, so it gets no focus ring.
+ */
+#main-content {
+  scroll-margin-top: var(--site-header-height);
+}
+
+#main-content:focus {
+  outline: none;
+}
+
+img,
+svg {
+  max-width: 100%;
+}
+
+/* Images carry their size as attributes, so the browser keeps room for
+   them while they load. When max-width makes one narrower, its height has
+   to follow, or it stretches. */
+img {
+  height: auto;
+}
+
+code,
+kbd,
+pre {
+  font-family: var(--site-font-code);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Pill buttons, as on the other Home Assistant sites. */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ha-space-2);
+  min-height: 48px;
+  padding: 0 var(--ha-space-6);
+  border: 1px solid transparent;
+  border-radius: var(--ha-border-radius-pill);
+  font-weight: 600;
+  font-size: 16px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.button-primary {
+  background: var(--brand-blue);
+  color: var(--brand-navy);
+}
+
+.button-primary:hover {
+  color: var(--brand-navy);
+  box-shadow: 0 4px 16px rgb(24 188 242 / 0.35);
+}
+
+.button-ghost {
+  border-color: rgb(255 255 255 / 0.35);
+  color: #ffffff;
+}
+
+.button-ghost:hover {
+  color: #ffffff;
+  background: rgb(255 255 255 / 0.08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Long form content rendered from Markdown */
+
+/* 18px, a little under creators.home-assistant.io's 20px: docs pages are long. */
+.prose {
+  max-width: var(--site-content-width);
+  font-size: 18px;
+  line-height: 1.7;
+}
+
+.prose > :first-child {
+  margin-top: 0;
+}
+
+.prose > * + * {
+  margin-top: 1em;
+}
+
+.prose p,
+.prose ul,
+.prose ol {
+  margin-bottom: 0;
+}
+
+/*
+ * A section heading sits in a wrapper, next to the link to itself (see
+ * src/lib/heading-anchors.mjs). The wrapper takes the size and spacing of
+ * the heading, and the heading flows inline in it, so the link icon follows
+ * the last word, also when a long heading wraps.
+ */
+.prose :is(h2, h3, h4, .heading-wrapper) {
+  margin-bottom: 0;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.prose :is(h2, h3, h4, h5, h6) {
+  scroll-margin-top: calc(var(--site-header-height) + var(--ha-space-4));
+}
+
+.prose :is(h2, .level-h2) {
+  margin-top: 2.2em;
+  font-size: 28px;
+  font-weight: 650;
+}
+
+.prose :is(h3, .level-h3) {
+  margin-top: 1.8em;
+  font-size: 21px;
+  font-weight: 650;
+}
+
+.prose :is(h4, .level-h4) {
+  margin-top: 1.5em;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.prose :is(.level-h5, .level-h6) {
+  margin-top: 1.5em;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.prose .heading-wrapper > :first-child {
+  display: inline;
+  margin: 0;
+  font: inherit;
+  letter-spacing: inherit;
+}
+
+/*
+ * The link to a section. It always takes its room, so showing it never
+ * moves the heading. With a mouse it shows when you point at the heading,
+ * with a keyboard when it has focus. On a touch screen there is nothing to
+ * point with, so it stays visible, but quiet.
+ */
+.prose .heading-anchor {
+  position: relative;
+  display: inline-block;
+  margin-left: 0.35em;
+  padding: 0 0.1em;
+  color: var(--site-text-subtle);
+  line-height: 1;
+  vertical-align: middle;
+  opacity: 0;
+  transition: opacity 0.15s ease, color 0.15s ease;
+}
+
+.prose .heading-anchor svg {
+  display: block;
+  width: 0.7em;
+  height: 0.7em;
+  min-width: 14px;
+  min-height: 14px;
+}
+
+.prose .heading-wrapper:hover .heading-anchor,
+.prose .heading-anchor:focus-visible,
+.prose .heading-anchor[data-copied] {
+  color: var(--site-text-muted);
+  opacity: 1;
+}
+
+.prose .heading-anchor:focus-visible {
+  outline-offset: 2px;
+}
+
+.prose .heading-wrapper .heading-anchor:is(:hover, :focus-visible) {
+  color: var(--site-link);
+}
+
+@media (hover: none) {
+  .prose .heading-anchor {
+    opacity: 1;
+  }
+}
+
+/* "Link copied", for a moment after the link is selected. */
+.prose .heading-anchor[data-copied]::after {
+  content: "Link copied";
+  position: absolute;
+  bottom: calc(100% + var(--ha-space-2));
+  left: 50%;
+  transform: translateX(-50%);
+  padding: var(--ha-space-1) var(--ha-space-2);
+  border-radius: var(--ha-border-radius-sm);
+  background: var(--site-text);
+  color: var(--site-bg);
+  font-family: var(--site-font);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: normal;
+  line-height: 1.4;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.prose :is(ul, ol) {
+  padding-left: 1.4em;
+}
+
+.prose li + li {
+  margin-top: 0.4em;
+}
+
+.prose li::marker {
+  color: var(--site-text-muted);
+}
+
+.prose strong {
+  font-weight: 650;
+}
+
+.prose :not(pre) > code {
+  padding: 0.12em 0.4em;
+  border-radius: 6px;
+  background: var(--site-accent-quiet);
+  color: var(--site-on-accent-quiet);
+  font-size: 0.88em;
+  /* Long paths and names would push the page sideways on a phone. */
+  overflow-wrap: anywhere;
+}
+
+/* Keys, like Ctrl + Shift + P: a small raised key cap. */
+.prose kbd {
+  display: inline-block;
+  min-width: 1.6em;
+  padding: 0.05em 0.45em;
+  border: 1px solid var(--site-border);
+  border-bottom-width: 2px;
+  border-radius: 6px;
+  background: var(--site-surface);
+  color: var(--site-text);
+  font-family: var(--site-font);
+  font-size: 0.8em;
+  font-weight: 600;
+  line-height: 1.5;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: 0.1em;
+}
+
+.prose a code {
+  color: inherit;
+}
+
+/*
+ * A repository path linked to its file on GitHub (see
+ * src/lib/source-paths.mjs): it keeps the look of inline code, with the same
+ * dotted line as a linked code symbol.
+ */
+.prose a.source-path {
+  color: var(--site-on-accent-quiet);
+  text-decoration-line: underline;
+  text-decoration-style: dotted;
+  text-decoration-color: var(--site-text-muted);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 4px;
+}
+
+.prose a.source-path:hover {
+  text-decoration-style: solid;
+  text-decoration-color: currentColor;
+}
+
+/*
+ * Shiki brings its own background: white in light mode, which disappears on
+ * the white page sheet, and grey in dark mode, which clashes with the navy.
+ * Code blocks use the page background in both color schemes instead.
+ */
+.prose pre {
+  background-color: var(--site-bg) !important;
+  border: 1px solid var(--site-border);
+  padding: var(--ha-space-5) var(--ha-space-6);
+  border-radius: var(--site-radius-tile);
+  overflow-x: auto;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+/*
+ * Highlighted code blocks sit in a figure (src/lib/code-blocks.mjs). Nothing
+ * takes room of its own: the language sits small in the bottom-right corner,
+ * the copy button floats in the top-right corner, and an optional file name
+ * sits on top, in the padding of the block. The figure draws the frame, the
+ * pre inside it only scrolls.
+ */
+.prose .code-block {
+  position: relative;
+  margin-inline: 0;
+  margin-bottom: 0;
+  overflow: hidden;
+  border: 1px solid var(--site-border);
+  border-radius: var(--site-radius-tile);
+  background: var(--site-bg);
+}
+
+.prose .code-block .code-link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 3px;
+}
+
+.prose .code-block .code-link:hover {
+  text-decoration-style: solid;
+}
+
+.prose .code-block pre {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+}
+
+/* Room for the file name above the code, when there is one. */
+.prose .code-block.has-title pre {
+  padding-top: 40px;
+}
+
+/* The header is only a layer for the corner items, it takes no space. */
+.prose .code-block-header {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  color: var(--site-text-muted);
+  font-family: var(--site-font);
+  line-height: 1.3;
+}
+
+.prose .code-block-title {
+  position: absolute;
+  top: 14px;
+  left: var(--ha-space-6);
+  right: 56px;
+  overflow: hidden;
+  color: var(--site-text);
+  font-family: var(--site-font-code);
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.prose .code-block-language {
+  position: absolute;
+  right: 10px;
+  bottom: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--site-text-subtle);
+}
+
+.prose .code-block-status {
+  position: absolute;
+  top: 12px;
+  right: 46px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.prose .code-block-copy {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ha-border-radius-md);
+  /* Readable when a long line scrolls under it. */
+  background: var(--site-bg);
+  color: var(--site-text-muted);
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.prose .code-block-copy:hover {
+  background: var(--site-surface-hover);
+  color: var(--site-text);
+}
+
+.prose .code-block-copy:focus-visible {
+  outline: 2px solid var(--site-focus);
+  outline-offset: -2px;
+}
+
+.prose .code-block-icon--check,
+.prose .code-block[data-copied] .code-block-icon--copy {
+  display: none;
+}
+
+.prose .code-block[data-copied] .code-block-icon--check {
+  display: block;
+}
+
+.prose .code-block[data-copied] .code-block-copy {
+  color: var(--site-tile-run);
+}
+
+.prose table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+.prose :is(th, td) {
+  padding: var(--ha-space-3) var(--ha-space-4);
+  border-bottom: 1px solid var(--site-border);
+  text-align: left;
+}
+
+/*
+ * Code in a table never breaks: a name like `async_turn_on` split over two
+ * lines is hard to read and to copy. The text around it still wraps, and a
+ * table that gets too wide scrolls on its own. This undoes the
+ * overflow-wrap that inline code gets elsewhere for phones.
+ */
+.prose :is(th, td) code {
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+
+.prose th {
+  font-weight: 650;
+}
+
+.prose blockquote {
+  margin-left: 0;
+  padding-left: var(--ha-space-5);
+  border-left: 3px solid var(--brand-blue);
+  color: var(--site-text-muted);
+}
+
+.prose hr {
+  border: 0;
+  border-top: 1px solid var(--site-border);
+  margin: 2.5em 0;
+}
+
+/* Code blocks: Shiki renders both themes, we pick one per color scheme. */
+
+/* In dark mode, take the colors of the dark theme, but keep our own navy
+   background instead of the theme's grey. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .astro-code,
+  :root:not([data-theme="light"]) .astro-code span {
+    color: var(--shiki-dark) !important;
+  }
+}
+
+:root[data-theme="dark"] .astro-code,
+:root[data-theme="dark"] .astro-code span {
+  color: var(--shiki-dark) !important;
+}
+
+/* Callouts: > [!NOTE], > [!TIP], > [!IMPORTANT], > [!WARNING], > [!CAUTION] */
+
+.prose .callout {
+  --callout-color: var(--site-tile-everyone);
+  --callout-fill: var(--site-tile-everyone-bg);
+
+  padding: var(--ha-space-4) var(--ha-space-5);
+  border-radius: var(--site-radius-tile);
+  background: var(--callout-fill);
+}
+
+.prose .callout[data-callout="tip"] {
+  --callout-color: var(--site-tile-run);
+  --callout-fill: var(--site-tile-run-bg);
+}
+
+.prose .callout:is([data-callout="warning"], [data-callout="caution"]) {
+  --callout-color: var(--site-tile-shape);
+  --callout-fill: var(--site-tile-shape-bg);
+}
+
+.prose .callout-title {
+  display: flex;
+  align-items: center;
+  gap: var(--ha-space-2);
+  font-weight: 700;
+  color: var(--callout-color);
+}
+
+.prose .callout-title-icon {
+  display: flex;
+}
+
+.prose .callout-title-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.prose .callout-content > :first-child {
+  margin-top: var(--ha-space-1);
+}
+
+.prose .callout-content > :last-child {
+  margin-bottom: 0;
+}

@@ -1,0 +1,86 @@
+---
+title: Glance card
+description: The glance card shows the state of several entities side by side, each as a name, an icon, and a state. It is an overview you read in one look.
+sidebarGroup: Entity cards
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+<Demo hass>
+  <hui-card style="width: 400px" data-props='{"config": {"type": "glance", "entities": ["binary_sensor.front_door", "lock.front_door", "binary_sensor.hallway_motion", "light.hallway"]}}'></hui-card>
+</Demo>
+
+## Usage
+
+The glance card puts a handful of entities in columns: the name on top, the icon in the middle, and the state below. It answers one question in one look, like "is the house closed?" or "who is home?".
+
+The glance card has no controls. Selecting an entity opens its more-info dialog, and so does holding it. When people need to operate the entities, use [tile cards](/design/dashboards/tile-card/) or the [entities card](/design/dashboards/entities-card/). For one value that matters, use the [entity card](/design/dashboards/entity-card/).
+
+### Columns
+
+The card fits up to five entities in a row, and wraps the rest to the next row. Set `columns` to pick the number yourself. Fewer columns give longer names more room.
+
+<Demo hass>
+  <hui-card style="width: 400px" data-props='{"config": {"type": "glance", "title": "Climate", "columns": 3, "entities": ["sensor.living_room_temperature", "sensor.living_room_humidity", "sensor.monstera_temperature", "sensor.outdoor_temperature", "sensor.outdoor_humidity"]}}'></hui-card>
+</Demo>
+
+### Showing less
+
+Use `show_name`, `show_icon`, and `show_state` to hide a part for all entities. A row of icons with their states, without names, works well when the icons say enough, like doors and windows.
+
+<Demo hass>
+  <hui-card style="width: 400px" data-props='{"config": {"type": "glance", "show_name": false, "entities": ["binary_sensor.front_door", "binary_sensor.kitchen_window", "cover.garage_door", "lock.front_door"]}}'></hui-card>
+</Demo>
+
+### Last changed
+
+With `show_last_changed: true` on an entity, it shows how long ago the state changed, instead of the state itself. Use it for things like a door, where "when" is often more interesting than "what".
+
+<Demo hass>
+  <hui-card style="width: 400px" data-props='{"config": {"type": "glance", "entities": [{"entity": "binary_sensor.front_door", "show_last_changed": true}, {"entity": "binary_sensor.hallway_motion", "show_last_changed": true}, "person.alex", "person.sam"]}}'></hui-card>
+</Demo>
+
+### Content
+
+- Keep names to a word or two. Each column is narrow, and a long name gets cut off.
+- Group entities that answer the same question. A card that mixes batteries, doors, and the weather is not something you read at a glance.
+- Use a `title` when the entities alone don't make the question clear.
+
+## Configuration
+
+- `entities` (list, required): the entities to show. Each is an entity ID, or a mapping with an `entity` and options.
+- `title` (string): the title in the header of the card.
+- `columns` (number): the number of columns. Defaults to the number of entities, up to five.
+- `show_name` (boolean): shows the names. Defaults to `true`.
+- `show_icon` (boolean): shows the icons. Defaults to `true`.
+- `show_state` (boolean): shows the states. Defaults to `true`.
+- `color` (string): how to color the icons. Defaults to `state`, the color of the state. Use `none` for the default icon color.
+- `theme` (string): the theme to use for this card.
+
+The options of an entity:
+
+- `entity` (string, required): the entity to show.
+- `name` (string): the name to show. Defaults to the name of the entity.
+- `icon` (string): the icon to show. Defaults to the icon of the entity.
+- `image` (string): a picture to show instead of the icon.
+- `show_state` (boolean): shows the state of this entity. Defaults to `true`.
+- `show_last_changed` (boolean): shows the time since the last change instead of the state. Defaults to `false`.
+- `color` (string): the color of the icon. Overrides the color of the card.
+- `tap_action`, `hold_action`, `double_tap_action` (action): what happens when you select, hold, or double tap the entity. Selecting and holding open the more-info dialog by default.
+
+```yaml
+type: glance
+title: "Climate"
+columns: 3
+entities:
+  - sensor.living_room_temperature
+  - sensor.living_room_humidity
+  - entity: sensor.outdoor_temperature
+    name: "Outside"
+```
+
+## In code
+
+The card lives in `src/panels/lovelace/cards/hui-glance-card.ts`, and the element is `<hui-glance-card>`. The width of a column is set with the `--glance-column-width` custom property, worked out from `columns`. The icon is a `<state-badge>`.
+
+[Source](https://github.com/home-assistant/frontend/blob/dev/src/panels/lovelace/cards/hui-glance-card.ts)

@@ -1,0 +1,160 @@
+---
+import type { Area } from "../data/areas";
+import AreaSwitcher from "./AreaSwitcher.astro";
+import Logo from "./Logo.astro";
+import Search from "./Search.astro";
+import ThemeToggle from "./ThemeToggle.astro";
+
+interface Props {
+  area?: Area;
+  wide?: boolean;
+}
+
+const { area, wide = false } = Astro.props;
+---
+
+<header data-pagefind-ignore data-site-header class:list={{ wide }}>
+  <div class="inner">
+    <a href="/" class="home" aria-label="Home Assistant Contributors, homepage">
+      <Logo />
+    </a>
+
+    {
+      area ? (
+        <>
+          <AreaSwitcher current={area} />
+          {/* The blog is not an area, so it gets its own link next to the
+              switcher. On a phone it lives in the switcher instead. */}
+          <nav aria-label="Main" class="nav--area">
+            <a href="/blog/">Blog</a>
+          </nav>
+        </>
+      ) : (
+        <nav aria-label="Main">
+          <a href="/start/">Get started</a>
+          <a href="/#areas">Areas</a>
+          <a href="/glossary/">Glossary</a>
+          <a href="/blog/">Blog</a>
+        </nav>
+      )
+    }
+
+    <div class="tools">
+      <div class="search"><Search area={area} /></div>
+      <ThemeToggle />
+    </div>
+  </div>
+</header>
+
+<script>
+  // The header wraps to more rows on narrow screens, and when the text is
+  // larger. Sticky parts of the page and scroll offsets use its real height,
+  // so nothing slides under it. Without JavaScript the default from
+  // global.css applies, which fits the header on one row.
+  const header = document.querySelector<HTMLElement>("[data-site-header]");
+
+  if (header) {
+    new ResizeObserver(() => {
+      document.documentElement.style.setProperty(
+        "--site-header-height",
+        `${Math.ceil(header.getBoundingClientRect().height)}px`,
+      );
+    }).observe(header);
+  }
+</script>
+
+<style>
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: color-mix(in srgb, var(--site-bg) 82%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--site-border);
+  }
+
+  .inner {
+    max-width: var(--site-page-width);
+    min-height: var(--site-header-row);
+    margin: 0 auto;
+    padding: var(--ha-space-3) var(--site-gutter);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--ha-space-3) var(--ha-space-8);
+  }
+
+  .wide .inner {
+    max-width: none;
+  }
+
+  .home {
+    color: var(--site-text);
+    font-size: 17px;
+    text-decoration: none;
+  }
+
+  .home:hover {
+    color: var(--site-text);
+  }
+
+  nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--ha-space-6);
+  }
+
+  nav a {
+    padding: var(--ha-space-2) 0;
+    color: var(--site-text);
+    font-weight: 550;
+    text-decoration: none;
+  }
+
+  nav a:hover {
+    color: var(--site-link);
+  }
+
+  .tools {
+    display: flex;
+    align-items: center;
+    gap: var(--ha-space-2);
+    flex: 1 1 260px;
+    justify-content: flex-end;
+  }
+
+  .search {
+    flex: 0 1 320px;
+    min-width: 0;
+  }
+
+  /* Logo and tools share the first row, the navigation gets the second. */
+  @media (max-width: 720px) {
+    .inner {
+      column-gap: var(--ha-space-2);
+    }
+
+    .home {
+      flex: 1 1 auto;
+    }
+
+    .tools {
+      flex: 0 0 auto;
+      gap: 0;
+    }
+
+    .search {
+      flex: 0 0 auto;
+    }
+
+    nav {
+      order: 3;
+      flex: 1 1 100%;
+    }
+
+    .nav--area {
+      display: none;
+    }
+  }
+</style>

@@ -1,0 +1,155 @@
+---
+title: Tooltip
+description: A tooltip shows a short hint about an element when you hover or focus it.
+sidebarGroup: Feedback and status
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+import DoDont from "../../../../components/docs/DoDont.astro";
+
+<Demo>
+  <ha-button id="tooltip-demo-restart" appearance="filled">Restart</ha-button>
+  <ha-tooltip for="tooltip-demo-restart">Restarts Home Assistant. This takes about a minute.</ha-tooltip>
+</Demo>
+
+## Overview
+
+A tooltip shows a short hint about an element when you hover over it or move keyboard focus to it. It is for extra information that is nice to have, but not needed to get the task done. The most common case: naming an icon button, or the full date behind a relative time like **5 minutes ago**.
+
+## When to use
+
+Use a tooltip for:
+
+- Naming an icon without a visible label
+- Extra detail behind a short value, like the full date behind a relative time
+
+Don't use a tooltip for:
+
+- Anything essential, like instructions or an error. Tooltips only show on hover and keyboard focus, and on a touch screen they are hard or impossible to reach. Put it on the screen itself, as text or an [alert](/design/components/alert/).
+- Links, buttons, or other interactive content. People can't reach them.
+
+## Anatomy
+
+1. **Target**: the element the tooltip is about, pointed to with `for`
+2. **Body**: the surface with the tooltip text. There is no arrow by default.
+
+## Variants
+
+### Placement
+
+The tooltip sits above its target by default. It can be placed on another side, like below or to the right. It flips to the other side, or shifts, when there is no room.
+
+<Demo>
+  <ha-svg-icon id="tooltip-demo-info" path="M11,9H13V7H11M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,17H13V11H11V17Z" tabindex="0"></ha-svg-icon>
+  <ha-tooltip for="tooltip-demo-info" placement="right">Measured every 30 seconds</ha-tooltip>
+</Demo>
+
+## Behavior
+
+- **Hover**: the tooltip shows 350ms after the pointer enters the target, and hides 150ms after it leaves. Moving the pointer from the target onto the tooltip keeps it open.
+- **Focus**: the tooltip shows when the target gets focus, and hides when it loses focus.
+- **Dismiss**: <kbd>Escape</kbd> hides an open tooltip. So does a press anywhere outside the target.
+- **Disabled**: a disabled tooltip doesn't show.
+- The tooltip appears and disappears without animation.
+- Text wraps at 30 characters wide.
+
+## Specs
+
+| Property | Value | Token |
+| --- | --- | --- |
+| Background | Default surface color | `--ha-color-surface-default`, through `--ha-tooltip-background-color` |
+| Text color | Primary text color | `--primary-text-color`, through `--ha-tooltip-text-color` |
+| Font size | 14px | `--ha-font-size-m`, through `--ha-tooltip-font-size` |
+| Font weight | 500 | `--ha-font-weight-medium`, through `--ha-tooltip-font-weight` |
+| Line height | 1.2 | `--ha-line-height-condensed`, through `--ha-tooltip-line-height` |
+| Padding | 0.25em top and bottom, 0.5em left and right | None |
+| Corner radius | 8px | `--ha-border-radius-md`, through `--ha-tooltip-border-radius` |
+| Shadow | Medium shadow | `--ha-box-shadow-m`, through `--ha-tooltip-box-shadow` |
+| Border | None, 0px | None |
+| Arrow | None, 0px | `--ha-tooltip-arrow-size` |
+| Distance to the target | 8px | None |
+| Maximum width | 30ch | None |
+| Stacking order | 1000 | None |
+| Show and hide delay | 350ms and 150ms | None |
+
+## Guidelines
+
+<DoDont doText="Use a tooltip to name an icon without a label." dontText="Repeat the visible label. It adds nothing.">
+  <Fragment slot="do">
+    <ha-svg-icon id="tooltip-do-info" path="M11,9H13V7H11M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,17H13V11H11V17Z" tabindex="0"></ha-svg-icon>
+    <ha-tooltip for="tooltip-do-info">Measured every 30 seconds</ha-tooltip>
+  </Fragment>
+  <Fragment slot="dont">
+    <ha-button id="tooltip-dont-save">Save</ha-button>
+    <ha-tooltip for="tooltip-dont-save">Save</ha-tooltip>
+  </Fragment>
+</DoDont>
+
+- Keep it to one short sentence, or a few words.
+- Never put anything essential in a tooltip, like instructions or an error.
+- No links, buttons, or other interactive content.
+
+## Accessibility
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Moving focus to the target shows the tooltip. Moving focus away hides it. |
+| <kbd>Escape</kbd> | Hides the open tooltip. |
+
+The target needs to be focusable for keyboard users to see the tooltip. An icon is not focusable on its own.
+
+### Screen readers
+
+The tooltip text becomes the name of its target. That works well for an icon without a label. On a target with a visible label, screen readers read the tooltip text instead of that label.
+
+### In the code
+
+- The demos on this page add `tabindex="0"` to an icon to make it focusable.
+- The tooltip adds its own `id` to the `aria-labelledby` of its target. That makes the tooltip text the accessible name of the target, which works well for an icon without a label. On a target with a visible label, screen readers read the tooltip text instead of that label.
+- The tooltip body has no role of its own.
+
+## Related
+
+- [Alert](/design/components/alert/): for information that people need
+- [Button](/design/components/button/): a common target of a tooltip
+
+## In code
+
+The element is `<ha-tooltip>`. It is based on the [Web Awesome tooltip](https://webawesome.com/docs/components/tooltip/). Give the target an `id`, and point the tooltip at it with `for`:
+
+```html
+<ha-svg-icon id="help-icon" path="..."></ha-svg-icon>
+<ha-tooltip for="help-icon">Measured every 30 seconds</ha-tooltip>
+```
+
+### Attributes
+
+- `for`: the `id` of the target element. The target must be in the same document or shadow root.
+- `placement`: `top` (default), `bottom`, `left`, `right`, or one of those with `-start` or `-end`, like `top-start`.
+- `distance`: the gap between the tooltip and the target, in pixels. Defaults to `8`.
+- `show-delay`: milliseconds before showing. Defaults to `350`.
+- `hide-delay`: milliseconds before hiding. Defaults to `150`.
+- `trigger`: what opens the tooltip. Defaults to `hover focus`. Also accepts `click` and `manual`.
+- `disabled`: stops the tooltip from showing.
+- `open`: shows the tooltip.
+
+### Slots
+
+- Default: the tooltip text.
+
+### Styling
+
+- `--ha-tooltip-background-color`: defaults to `var(--ha-color-surface-default)`.
+- `--ha-tooltip-text-color`: defaults to `var(--primary-text-color)`.
+- `--ha-tooltip-font-size`: defaults to `var(--ha-font-size-m)`.
+- `--ha-tooltip-line-height`: defaults to `var(--ha-line-height-condensed)`.
+- `--ha-tooltip-border-radius`: defaults to `var(--ha-border-radius-md)`.
+- `--ha-tooltip-arrow-size`: defaults to `0px`, so there is no arrow.
+- `--ha-tooltip-box-shadow`: defaults to `var(--ha-box-shadow-m)`.
+- `--ha-tooltip-animation-duration`: defaults to `0`, so it appears without animation.
+
+`ha-tooltip` also sets `--ha-tooltip-font-family`, `--ha-tooltip-font-weight`, and `--ha-tooltip-padding` on the Web Awesome tooltip. The Web Awesome version in use does not read the variables they feed, so they have no visible effect.
+
+Source: [`src/components/ha-tooltip.ts`](https://github.com/home-assistant/frontend/blob/dev/src/components/ha-tooltip.ts)

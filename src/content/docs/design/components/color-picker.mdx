@@ -1,0 +1,144 @@
+---
+title: Color picker
+description: The color wheel picks a hue and saturation, like the color of a light.
+sidebarGroup: Input
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+<Demo>
+  <ha-hs-color-picker value="[32, 0.6]" style="width: 240px; height: 240px"></ha-hs-color-picker>
+</Demo>
+
+## Overview
+
+The color picker is a round color wheel. The angle picks the hue, and the distance from the center picks the saturation: white in the middle, full color at the edge. People drag the marker around, or tap a spot on the wheel to jump there.
+
+You find it in the more-info dialog of a light that supports colors. There, it sits together with a few other controls:
+
+- A small eyedropper button that opens the native color picker of the browser or the operating system, for people who want to enter an exact color.
+- Sliders for the color brightness and the white channels, for lights that have them. The wheel follows those sliders, so it shows the color the light will actually make.
+
+## When to use
+
+Use the color wheel for:
+
+- Picking a color by eye, like the color of a light. It is fast and touch friendly.
+
+Don't use the color wheel for:
+
+- Entering an exact color on its own. The wheel is not precise. When an exact value matters, offer another way in next to it, like the more-info dialog does with the native color picker.
+- A color that must be reachable with the keyboard, without another input next to it. The wheel only reacts to a pointer.
+
+## Anatomy
+
+1. **Wheel**: the round canvas with all hues around it, from white in the center to full color at the edge
+2. **Marker**: a circle filled with the picked color, with a white outline and a shadow. It is hidden when there is no value.
+
+## Variants
+
+The wheel has no variants. What changes is how it is drawn.
+
+### Brightness and white channels
+
+The wheel draws its colors at full brightness. It can be darkened as a whole, so it matches the brightness people picked for the color.
+
+For lights with white channels, like one white channel, or a cold and a warm white, the wheel mixes the white into its colors, so it shows what the light will look like.
+
+<Demo caption="The same wheel at half brightness, and with a white channel mixed in.">
+  <ha-hs-color-picker value="[32, 0.6]" data-props='{"colorBrightness": 128}' style="width: 200px; height: 200px"></ha-hs-color-picker>
+  <ha-hs-color-picker value="[32, 0.6]" wv="160" style="width: 200px; height: 200px"></ha-hs-color-picker>
+</Demo>
+
+These only change how the wheel looks. The picked value stays a hue and a saturation.
+
+## Behavior
+
+- **Dragging**: while someone drags, the marker grows so it stays visible under the pointer. With a mouse or a pen it grows to 1.5 times its size. On a touch screen it grows to 2.5 times, and moves up a little, so it is not hidden under the finger.
+- **Tapping**: a tap on the wheel moves the marker to that spot and picks the color.
+- **Released**: when the drag ends, the marker animates back to its normal size, and the color is picked. When the browser cancels a drag, the marker goes back to where it was.
+- **Disabled**: a disabled wheel ignores dragging and tapping. It looks the same as an enabled one.
+- **No value**: without a value, the marker is hidden.
+
+The wheel has no hover or focus state.
+
+## Specs
+
+The wheel fills its container, and the marker scales with it. The marker sizes below are in the coordinates of the wheel, which is 400 units wide by default.
+
+| Property | Value | Token |
+| --- | --- | --- |
+| Wheel shape | Circle | `--ha-border-radius-circle` (50%) |
+| Marker radius | 16 units | None |
+| Marker outline | 2 units, white | None |
+| Marker shadow | Two drop shadows: 1 unit down with a 2 unit blur at 30% black, and 1 unit down with a 3 unit blur at 15% black | None |
+| Marker scale while dragging | 1.5 with a mouse or pen, 2.5 with touch | None |
+| Marker offset while dragging with touch | Up by 1/16 of the wheel size | None |
+| Marker animation | Size and color 100ms, position 200ms, ease-in-out. Off while dragging. | None |
+| Size in the more-info dialog | 45% of the screen height, between 200px and 320px | None |
+
+## Accessibility
+
+### Keyboard
+
+The wheel only reacts to a pointer: a mouse, a pen, or a finger. It does not take focus and has no keyboard interaction. Pair it with an input people can reach with a keyboard, like the native color picker the more-info dialog offers next to it.
+
+### Visibility
+
+The marker is the picked color with a white outline and a shadow, so it stays visible on light and dark parts of the wheel.
+
+### Screen readers
+
+Screen readers get nothing from the wheel. The input next to it is the way in.
+
+### In the code
+
+The wheel is a canvas with an SVG marker on top. It has no role, name, or value for assistive technology.
+
+## Related
+
+- [Slider](/design/components/slider/): for brightness and white channels next to the wheel
+- [Controls](/design/components/controls/): the other large controls of the more-info dialog
+- [Light](/design/more-info/light/): the more-info dialog that uses the wheel
+
+## In code
+
+The element is `<ha-hs-color-picker>`.
+
+```html
+<ha-hs-color-picker value="[32, 0.6]"></ha-hs-color-picker>
+```
+
+The wheel fills its container, so give it a size. In the more-info dialog it is 45% of the screen height, between 200 and 320 pixels.
+
+```css
+ha-hs-color-picker {
+  height: 45vh;
+  max-height: 320px;
+  min-height: 200px;
+}
+```
+
+### Attributes
+
+- `value`: the color, as an array of the hue in degrees (`0` to `359`) and the saturation (`0` to `1`). For example, `[32, 0.6]`. Without a value, the marker is hidden.
+- `wv`: the white channel of an RGBW light, from `0` to `255`.
+- `cw` and `ww`: the cold and warm white channels of an RGBWW light, from `0` to `255`.
+- `disabled`: ignores dragging and tapping.
+
+### Properties
+
+These can only be set as properties:
+
+- `colorBrightness`: the brightness the wheel is drawn at, from `0` to `255`. Defaults to `255`.
+- `minKelvin` and `maxKelvin`: the color temperature range of the light. Used to mix the cold and warm white into the colors.
+- `renderSize`: the resolution of the wheel, in pixels. Defaults to `400`. This is not the size on screen.
+
+### Events
+
+- `value-changed`: the color was picked, when someone lets go or taps. `detail.value` is the new `[hue, saturation]`.
+- `cursor-moved`: the marker moves while dragging. `detail.value` is the color under the marker, and `undefined` when the drag ends. Use it to preview the color while dragging, without sending every step to the light.
+
+The wheel moves its marker, but does not update its own `value` property. Read the new color from the event.
+
+Source: [`src/components/ha-hs-color-picker.ts`](https://github.com/home-assistant/frontend/blob/dev/src/components/ha-hs-color-picker.ts)

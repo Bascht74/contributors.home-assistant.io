@@ -1,0 +1,281 @@
+---
+title: Button
+description: Buttons start an action, like saving a form or opening a dialog.
+sidebarGroup: Actions
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+import DoDont from "../../../../components/docs/DoDont.astro";
+
+<Demo>
+  <ha-button>Save</ha-button>
+  <ha-button appearance="filled">Filled</ha-button>
+  <ha-button appearance="outlined">Outlined</ha-button>
+  <ha-button appearance="plain">Cancel</ha-button>
+</Demo>
+
+## Overview
+
+A button starts an action: something happens when you select it, like saving a form, opening a dialog, or deleting an item. Its appearance tells how important the action is, and its color tells what kind of action it is.
+
+## When to use
+
+Use a button for:
+
+- An action that changes something, like **Save**, **Delete**, or **Enable**
+- Confirming or dismissing a [dialog](/design/components/dialog/)
+- Opening a dialog or a menu
+
+Don't use a button for:
+
+- Going somewhere else. Use a link instead.
+- An action that takes a while and needs to show how it went. Use a [progress button](/design/components/progress-button/).
+- A list of actions. Put them in a [dropdown](/design/components/dropdown/).
+- Turning a setting on or off. Use a [switch](/design/components/switch/).
+
+## Anatomy
+
+1. **Container**: the background, border, and corner radius
+2. **Start**: optional content before the label, usually an icon
+3. **Label**: the text of the button
+4. **End**: optional content after the label, usually an icon
+5. **Spinner**: replaces the start, label, and end while the button is loading
+
+## Variants
+
+### Appearance
+
+A button has four appearances. They set how much attention it draws:
+
+- **Accent** is the default, with the loudest fill.
+- **Filled** has a softer fill. Use it when an action needs emphasis.
+- **Outlined** has no fill, only a border.
+- **Plain** has no fill and no border, and draws the least attention. Use it for cancel and dismiss actions.
+
+<Demo caption="Accent for the main action, plain for the way out.">
+  <ha-button appearance="plain">Cancel</ha-button>
+  <ha-button>Save</ha-button>
+</Demo>
+
+### Variant
+
+The variant sets the color, and with it the meaning:
+
+- **Brand** is the default, for most actions.
+- **Danger** is for destructive actions, like deleting something.
+- **Warning** and **success** are for actions that relate to a warning or a success state.
+- **Neutral** is for actions that should not carry any meaning through color.
+
+<Demo>
+  <ha-button>Brand</ha-button>
+  <ha-button variant="danger">Danger</ha-button>
+  <ha-button variant="warning">Warning</ha-button>
+  <ha-button variant="success">Success</ha-button>
+  <ha-button variant="neutral">Neutral</ha-button>
+</Demo>
+
+### Size
+
+Buttons come in four sizes: extra small, small, medium, and large. Medium is the default.
+
+<Demo>
+  <ha-button size="xs">Extra small</ha-button>
+  <ha-button size="s">Small</ha-button>
+  <ha-button size="m">Medium</ha-button>
+  <ha-button size="l">Large</ha-button>
+</Demo>
+
+## Behavior
+
+- **Enabled**: the resting state, with the colors of its appearance and variant.
+- **Hover**: on devices with a pointer that can hover, the background changes to the hover fill of the variant. The color change takes 150 ms.
+- **Focus**: keyboard focus shows a 2px solid focus ring, 2px outside the button.
+- **Pressed**: while pressed, the background changes to the active fill of the variant.
+- **Disabled**: the button uses the disabled colors, can't be selected, and is skipped when you move through the page with the keyboard.
+- **Loading**: a spinner replaces the label and icons. The button keeps its size, and selecting it does nothing.
+
+<Demo>
+  <ha-button loading>Saving</ha-button>
+  <ha-button disabled>Disabled</ha-button>
+  <ha-button appearance="outlined" disabled>Disabled</ha-button>
+</Demo>
+
+Long labels wrap to a new line. When a label can't wrap, it is cut off with an ellipsis.
+
+## Specs
+
+### Size
+
+| Size | Height | Padding left and right | Font size |
+| --- | --- | --- | --- |
+| Extra small | 24px | 8px (`--ha-space-2`) | 14px (`--ha-font-size-m`) |
+| Small | 32px | 12px (`--ha-space-3`) | 14px (`--ha-font-size-m`) |
+| Medium | 40px | 16px (`--ha-space-4`) | 14px (`--ha-font-size-m`) |
+| Large | 48px | 16px (`--ha-space-4`) | 16px (`--ha-font-size-l`) |
+
+The height can be changed with `--ha-button-height`. In code there is also an extra large size, but it has no style of its own and looks the same as medium.
+
+### Shape and content
+
+| Property | Value | Token |
+| --- | --- | --- |
+| Corner radius | 9999px, fully rounded | `--ha-border-radius-pill`, through `--ha-button-border-radius` |
+| Border width | 1px | `--ha-border-width-sm` |
+| Font weight | 500 | `--ha-font-weight-medium` |
+| Padding next to a start or end icon | 8px | `--ha-space-2` |
+| Gap between icon and label | 4px | `--ha-space-1` |
+| Label padding top and bottom | 4px | `--ha-space-1` |
+| Icon size in extra small | 16px | `--mdc-icon-size` |
+| Focus ring | 2px solid, 2px offset | `--ha-color-focus` |
+| Hover transition | 150ms, ease-out | `--ha-animation-duration-fast` |
+
+### Color
+
+The tokens below are for the brand variant. The other variants use the same tokens with `neutral`, `success`, `warning`, or `danger` in place of `primary`.
+
+| Appearance | State | Background | Text | Border |
+| --- | --- | --- | --- | --- |
+| Accent | Resting | `--ha-color-fill-primary-loud-resting` | `--ha-color-on-primary-loud` | Transparent |
+| Accent | Hover | `--ha-color-fill-primary-loud-hover` | `--ha-color-on-primary-loud` | Transparent |
+| Accent | Pressed | `--ha-color-fill-primary-loud-active` | `--ha-color-on-primary-loud` | Transparent |
+| Accent | Disabled | `--ha-color-fill-disabled-loud-resting` | `--ha-color-on-disabled-loud` | Transparent |
+| Filled | Resting | `--ha-color-fill-primary-normal-resting` | `--ha-color-on-primary-normal` | Transparent |
+| Filled | Hover | `--ha-color-fill-primary-normal-hover` | `--ha-color-on-primary-normal` | Transparent |
+| Filled | Pressed | `--ha-color-fill-primary-normal-active` | `--ha-color-on-primary-normal` | Transparent |
+| Filled | Disabled | `--ha-color-fill-disabled-normal-resting` | `--ha-color-on-disabled-normal` | Transparent |
+| Outlined | Resting | Transparent | `--ha-color-on-primary-quiet` | `--ha-color-border-primary-loud` |
+| Outlined | Hover | `--ha-color-fill-primary-quiet-hover` | `--ha-color-on-primary-quiet` | `--ha-color-border-primary-loud` |
+| Outlined | Disabled | Transparent | `--ha-color-on-disabled-quiet` | `--ha-color-on-disabled-quiet` |
+| Plain | Resting | Transparent | `--ha-color-on-primary-normal` | Transparent |
+| Plain | Hover | `--ha-color-fill-primary-quiet-hover` | `--ha-color-on-primary-normal` | Transparent |
+| Plain | Pressed | `--ha-color-fill-primary-quiet-active` | `--ha-color-on-primary-quiet` | Transparent |
+| Plain | Disabled | Transparent | `--ha-color-on-disabled-quiet` | Transparent |
+
+The neutral plain button is the one exception: pressed, it uses `--ha-color-fill-neutral-normal-active`. A disabled button made disabled through its attribute is also dimmed to 50% opacity as a whole, by the Web Awesome base style.
+
+## Guidelines
+
+### Emphasis
+
+<DoDont doText="Use a plain button to cancel or dismiss." dontText="Give the way out as much weight as the main action.">
+  <Fragment slot="do">
+    <ha-button appearance="plain">Cancel</ha-button>
+    <ha-button>Save</ha-button>
+  </Fragment>
+  <Fragment slot="dont">
+    <ha-button appearance="filled">Cancel</ha-button>
+    <ha-button>Save</ha-button>
+  </Fragment>
+</DoDont>
+
+<DoDont doText="Use the danger variant for destructive actions." dontText="Use the brand color for an action that deletes something.">
+  <Fragment slot="do">
+    <ha-button appearance="plain">Cancel</ha-button>
+    <ha-button variant="danger">Delete</ha-button>
+  </Fragment>
+  <Fragment slot="dont">
+    <ha-button appearance="plain">Cancel</ha-button>
+    <ha-button>Delete</ha-button>
+  </Fragment>
+</DoDont>
+
+### Labels
+
+<DoDont doText="Say what happens when you select the button." dontText="Use a label that could mean anything.">
+  <ha-button slot="do">Save</ha-button>
+  <Fragment slot="dont">
+    <ha-button>OK</ha-button>
+    <ha-button>Submit</ha-button>
+  </Fragment>
+</DoDont>
+
+<DoDont doText="Use sentence case." dontText="Capitalize every word.">
+  <ha-button slot="do">Create automation</ha-button>
+  <ha-button slot="dont">Create Automation</ha-button>
+</DoDont>
+
+<DoDont doText="Use remove for things you can add back, like a card on a dashboard." dontText="Use delete for something that isn't gone for good.">
+  <ha-button slot="do" appearance="filled">Remove from dashboard</ha-button>
+  <ha-button slot="dont" appearance="filled">Delete from dashboard</ha-button>
+</DoDont>
+
+See [UI text](/design/ui-text/) and [remove, delete, add, or create](/design/ui-text/remove-delete/) for more.
+
+### Icons
+
+Avoid icons in extra small buttons. At 24px the label carries the meaning on its own, and a 16px icon next to it adds noise without adding information. Use an icon only when the button needs to be recognized at a glance in a dense layout, and only a common one that people recognize by its shape alone, like close, add, or settings.
+
+<DoDont doText="Let the label speak in an extra small button." dontText="Add a detailed icon to an extra small button.">
+  <ha-button slot="do" size="xs">Delete</ha-button>
+  <ha-button slot="dont" size="xs"><ha-svg-icon slot="start" path="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"></ha-svg-icon>Delete</ha-button>
+</DoDont>
+
+## Accessibility
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves focus to the button, and away from it. A disabled button is skipped. |
+| <kbd>Enter</kbd> or <kbd>Space</kbd> | Selects the button. Does nothing while it is loading. |
+
+### Focus
+
+The focus ring only shows for keyboard focus, not when you select the button with a mouse or touch.
+
+### Target size
+
+The height is 24px for extra small, 32px for small, 40px for medium, and 48px for large. The width follows the label, plus the padding.
+
+### Screen readers
+
+A screen reader announces a button with its label. A button with only an icon has no text to announce, so it needs a name in code. While it loads, the button is announced as busy. A disabled button is announced as disabled.
+
+### In the code
+
+- Focus is delegated to the native `<button>` inside the component, so calling `focus()` on `<ha-button>` focuses the button. The focus ring uses `:focus-visible`.
+- The role is `button`. The accessible name is the label text. Set `aria-label` on `<ha-button>` to give it another name: it is passed on to the native button.
+- A button with only an icon and no text needs an `aria-label`.
+- While loading, the button has `aria-busy="true"`.
+- A disabled button is a native disabled `<button>`.
+
+## Related
+
+- [Progress button](/design/components/progress-button/): a button that shows the result of its action
+- [Dropdown](/design/components/dropdown/): a button that opens a menu of actions
+- [Dialog](/design/components/dialog/): where most button pairs live
+- [UI text](/design/ui-text/): how to write labels
+
+## In code
+
+The element is `<ha-button>`. It is based on the [Web Awesome button](https://webawesome.com/docs/components/button/).
+
+```html
+<ha-button>Save</ha-button>
+<ha-button appearance="plain">Cancel</ha-button>
+<ha-button variant="danger">Delete</ha-button>
+<ha-button size="s">Small</ha-button>
+```
+
+In a dialog, put the main action in the `primaryAction` slot and the secondary action in the `secondaryAction` slot of `ha-dialog-footer`.
+
+### Attributes
+
+- `appearance`: `accent` (default), `filled`, `outlined`, or `plain`.
+- `variant`: `brand` (default), `neutral`, `success`, `warning`, or `danger`.
+- `size`: `xs`, `s`, `m` (default), or `l`. The value `xl` is accepted as well, and looks the same as `m`.
+- `loading`: shows a loading indicator instead of the label, and blocks selecting the button.
+- `disabled`: disables the button.
+
+### Slots
+
+- Default: the label.
+- `start`: content before the label, usually an icon.
+- `end`: content after the label, usually an icon.
+
+### Styling
+
+- `--ha-button-height`: the height of the button.
+- `--ha-button-border-radius`: the corner radius. Defaults to `var(--ha-border-radius-pill)`.
+
+Source: [`src/components/ha-button.ts`](https://github.com/home-assistant/frontend/blob/dev/src/components/ha-button.ts)

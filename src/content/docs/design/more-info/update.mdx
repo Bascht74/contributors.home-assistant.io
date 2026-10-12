@@ -1,0 +1,41 @@
+---
+title: Update
+description: The more-info view of an update entity, with the versions, the release notes, and buttons to skip or install.
+sidebarGroup: Appliances
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+<Demo hass>
+  <ha-demo-more-info entity="update.home_assistant_core"></ha-demo-more-info>
+  <ha-demo-more-info entity="update.desk_plug_firmware"></ha-demo-more-info>
+</Demo>
+
+## What it shows
+
+An update is something to read before you act, so this view is a short page, not a control. It doesn't have the newer design with a large state. It starts with the state row, like **Update available** or **Up-to-date**, and the dialog uses the full height of the screen, to leave room for the release notes.
+
+From top to bottom:
+
+- **Title**: the name of what gets updated, like **Home Assistant Core**.
+- **Versions**: the installed version and the latest version.
+- **Release announcement**: a link, when the update has one.
+- **Release notes**: the full notes, when the integration can provide them. Otherwise, a short release summary, when there is one.
+- **Backup**: for updates that support it, an option to create a backup before updating.
+- **Actions**: **Skip** and **Update** at the bottom.
+
+The Home Assistant Core update has a new version, with release notes. The desk plug firmware is up to date, so **Skip** and **Update** are disabled.
+
+## Design notes
+
+- While an update installs, a progress bar shows above the title. It fills up when the integration reports the progress, and moves back and forth when it doesn't.
+- **Skip** turns into **Clear skipped** when you skipped a version and there is nothing else to install, so you can undo it.
+- **Update** shows a spinner while the update installs. It is disabled when there is nothing new, but stays available for a version you skipped, so you can still install it later.
+- The **Update** button only shows when the update can be installed from Home Assistant. Some updates can only be read about.
+- Release notes load after the dialog opens, with a spinner while they load.
+
+## In code
+
+The view is `more-info-update` in `src/dialogs/more-info/controls/more-info-update.ts`. The backup option is `ha-more-info-update-backup` in `src/dialogs/more-info/components/update/`. The state row at the top is `state-card-update` in `src/state-summary/`. The `UpdateEntityFeature` enum and helpers like `updateIsInstalling` are in `src/data/update.ts`.
+
+Source: [`more-info-update.ts`](https://github.com/home-assistant/frontend/blob/dev/src/dialogs/more-info/controls/more-info-update.ts)

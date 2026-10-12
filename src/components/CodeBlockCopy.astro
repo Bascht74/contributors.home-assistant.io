@@ -1,0 +1,68 @@
+---
+// Wires the copy buttons in the header of code blocks, which come from
+// src/lib/code-blocks.mjs. One listener on the document handles every button
+// on the page, so there is nothing to set up per block.
+---
+
+<script>
+  const FEEDBACK_MS = 2000;
+  const timers = new WeakMap<HTMLElement, number>();
+
+  // The clipboard API only exists on HTTPS and localhost. A dev server on
+  // another machine in the network is neither, so fall back to the old way.
+  async function copy(text: string) {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return;
+    }
+
+    const field = document.createElement("textarea");
+    field.value = text;
+    field.setAttribute("readonly", "");
+    field.style.position = "fixed";
+    field.style.opacity = "0";
+    document.body.append(field);
+    field.select();
+    const copied = document.execCommand("copy");
+    field.remove();
+
+    if (!copied) {
+      throw new Error("Copy was refused");
+    }
+  }
+
+  document.addEventListener("click", async (event) => {
+    const button = (event.target as Element | null)?.closest?.<HTMLButtonElement>("[data-copy-code]");
+    const block = button?.closest<HTMLElement>(".code-block");
+    const code = block?.querySelector("pre code");
+    if (!button || !block || !code) {
+      return;
+    }
+
+    const status = block.querySelector(".code-block-status");
+    let message = "Copied";
+
+    try {
+      // Only the code itself: the header is outside the `pre`.
+      await copy(code.textContent ?? "");
+      block.dataset.copied = "";
+    } catch {
+      message = "Copy failed";
+    }
+
+    if (status) {
+      status.textContent = message;
+    }
+
+    clearTimeout(timers.get(block));
+    timers.set(
+      block,
+      window.setTimeout(() => {
+        delete block.dataset.copied;
+        if (status) {
+          status.textContent = "";
+        }
+      }, FEEDBACK_MS),
+    );
+  });
+</script>

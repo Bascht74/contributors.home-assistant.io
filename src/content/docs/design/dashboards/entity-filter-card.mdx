@@ -1,0 +1,70 @@
+---
+title: Entity filter card
+description: The entity filter card shows only the entities from a list that match a filter, like the lights that are on. It wraps another card, the entities card by default.
+sidebarGroup: Entity cards
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+<Demo hass>
+  <hui-card style="width: 380px" data-props='{"config": {"type": "entity-filter", "entities": ["light.living_room_lamp", "light.hallway", "light.kitchen_ceiling"], "conditions": [{"condition": "state", "state": "on"}], "card": {"title": "Lights on"}}}'></hui-card>
+</Demo>
+
+## Usage
+
+The entity filter card takes a list of entities, and only shows the ones that match its filter. When the state changes, the list changes with it. Use it for questions with a changing answer: which lights are on, which doors are open, which rooms run dry.
+
+It does not show anything itself. It hands the matching entities to another card, an [entities card](/design/dashboards/entities-card/) unless you pick another one, like a [glance card](/design/dashboards/glance-card/). Anything you put in `card` goes to that card, like a `title`.
+
+<Demo hass>
+  <hui-card style="width: 400px" data-props='{"config": {"type": "entity-filter", "entities": ["sensor.living_room_humidity", "sensor.outdoor_humidity", "sensor.monstera_moisture"], "conditions": [{"condition": "numeric_state", "below": 50}], "card": {"type": "glance", "title": "Running dry"}}}'></hui-card>
+</Demo>
+
+To show or hide a whole card based on a state, use the [conditional card](/design/dashboards/conditional-card/), or the visibility options of the card itself in the sections view.
+
+### Conditions
+
+Each entity in the list is checked against `conditions`, and shows when all of them are met. The conditions are the same as the visibility conditions of cards, without the entity: the card fills it in for each entity. A `state` condition checks the state, a `numeric_state` condition checks a number with `above` and `below`.
+
+An entity can have its own `conditions`, which replace those of the card for that entity.
+
+The older `state_filter` option still works: a list of states, or of mappings with an `operator`, a `value`, and an optional `attribute`. An entity shows when it matches any of them. A card can't have both `conditions` and `state_filter`.
+
+### When nothing matches
+
+When no entity matches, the card shows the wrapped card without rows. Set `show_empty: false` to hide the card instead. That is often what you want: a "Lights on" card with nothing in it adds noise.
+
+### Content
+
+- Give the wrapped card a title that says what the filter means, like "Open windows". Without one, people see a list and have to guess why these entities are in it.
+- List every entity that could match. The card only filters; it does not find entities for you.
+
+## Configuration
+
+- `entities` (list, required): the entities to filter. Each is an entity ID, or a mapping with an `entity`, its own `conditions` or `state_filter`, and the options of the wrapped card for that entity, like `name`.
+- `conditions` (list): the conditions an entity must meet to show. Required, unless you use `state_filter`.
+- `state_filter` (list): the older way to filter, on state or attribute values.
+- `card` (mapping): the card that shows the matching entities. Defaults to an entities card.
+- `show_empty` (boolean): shows the card when no entity matches. Defaults to `true`.
+
+```yaml
+type: entity-filter
+show_empty: false
+entities:
+  - light.living_room_lamp
+  - light.hallway
+  - light.kitchen_ceiling
+conditions:
+  - condition: state
+    state: "on"
+card:
+  title: "Lights on"
+```
+
+## In code
+
+The card lives in `src/panels/lovelace/cards/hui-entity-filter-card.ts`, and the element is `<hui-entity-filter-card>`. It renders a `<hui-card>` with the wrapped card, and gives it a new `entities` list whenever the matching entities change. Conditions are checked with `checkConditionsMet`, and the older state filters with `evaluateStateFilter` in `src/panels/lovelace/common/evaluate-filter.ts`.
+
+When the card hides itself because nothing matches, it fires `card-visibility-changed`, so the section can close the gap.
+
+[Source](https://github.com/home-assistant/frontend/blob/dev/src/panels/lovelace/cards/hui-entity-filter-card.ts)

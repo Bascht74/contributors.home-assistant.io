@@ -1,0 +1,227 @@
+---
+title: State icon
+description: How Home Assistant picks the icon and the color for an entity, based on its state.
+sidebarGroup: Feedback and status
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+import DoDont from "../../../../components/docs/DoDont.astro";
+
+<Demo hass>
+  <state-badge data-props='{"stateObj": {"entity_id": "light.living_room_lamp", "state": "on", "attributes": {"friendly_name": "Floor lamp", "brightness": 120, "color_mode": "hs", "hs_color": [32, 60], "rgb_color": [255, 170, 102]}, "last_changed": "2026-01-01T00:00:00Z", "last_updated": "2026-01-01T00:00:00Z", "context": {"id": "1", "parent_id": null, "user_id": null}}}'></state-badge>
+  <state-badge data-props='{"stateObj": {"entity_id": "light.kitchen_ceiling", "state": "off", "attributes": {"friendly_name": "Kitchen ceiling"}, "last_changed": "2026-01-01T00:00:00Z", "last_updated": "2026-01-01T00:00:00Z", "context": {"id": "1", "parent_id": null, "user_id": null}}}'></state-badge>
+  <state-badge color="state" data-props='{"stateObj": {"entity_id": "climate.thermostat", "state": "heat", "attributes": {"friendly_name": "Thermostat", "hvac_action": "heating", "current_temperature": 20.5, "temperature": 21}, "last_changed": "2026-01-01T00:00:00Z", "last_updated": "2026-01-01T00:00:00Z", "context": {"id": "1", "parent_id": null, "user_id": null}}}'></state-badge>
+  <state-badge color="state" data-props='{"stateObj": {"entity_id": "binary_sensor.front_door", "state": "on", "attributes": {"friendly_name": "Front door", "device_class": "door"}, "last_changed": "2026-01-01T00:00:00Z", "last_updated": "2026-01-01T00:00:00Z", "context": {"id": "1", "parent_id": null, "user_id": null}}}'></state-badge>
+  <state-badge color="state" data-props='{"stateObj": {"entity_id": "cover.bedroom_blinds", "state": "open", "attributes": {"friendly_name": "Bedroom blinds", "current_position": 70, "device_class": "blind"}, "last_changed": "2026-01-01T00:00:00Z", "last_updated": "2026-01-01T00:00:00Z", "context": {"id": "1", "parent_id": null, "user_id": null}}}'></state-badge>
+  <state-badge color="state" data-props='{"stateObj": {"entity_id": "person.alex", "state": "home", "attributes": {"friendly_name": "Alex"}, "last_changed": "2026-01-01T00:00:00Z", "last_updated": "2026-01-01T00:00:00Z", "context": {"id": "1", "parent_id": null, "user_id": null}}}'></state-badge>
+  <state-badge color="state" data-props='{"stateObj": {"entity_id": "switch.desk_plug", "state": "unavailable", "attributes": {"friendly_name": "Desk plug"}, "last_changed": "2026-01-01T00:00:00Z", "last_updated": "2026-01-01T00:00:00Z", "context": {"id": "1", "parent_id": null, "user_id": null}}}'></state-badge>
+</Demo>
+
+## Overview
+
+Every entity in Home Assistant has an icon, and the icon follows its state. A door sensor shows an open door when the door is open, and a closed one when it is closed. A light that is on can show its color and brightness. People read the state of their home from these icons, often before they read any text.
+
+Two components do this work:
+
+- The **state icon** picks the icon for an entity in its state. It has no color of its own.
+- The **state badge** puts that icon in a 40px round badge, and adds the color. It is the icon at the start of an entity row, in the more info dialog header, in pickers, and in many other places.
+
+## When to use
+
+Use them for:
+
+- Every place where you show an entity with an icon
+
+Don't use them for:
+
+- An icon that is not about an entity. Use a plain icon.
+- A value with a label in a compact pill. Use a [badge](/design/components/badge/), with a state icon in its `icon` slot.
+
+## Anatomy
+
+1. **Badge**: the 40px container of the state badge, round by default. It shows the entity picture as its background when there is one.
+2. **Icon**: the state icon inside it, colored by the badge. It is hidden when a picture is shown.
+
+## Variants
+
+### Icon only or badge
+
+The state icon is just the icon, in the color of its surroundings. The state badge adds the 40px container, the state color, and pictures.
+
+### Color
+
+By default only lights are colored. With state colors on, other entities get state colors too. With a theme color or any other color, that color is used while the entity is active. With colors off, nothing is colored. See [how the color is picked](#how-the-color-is-picked).
+
+## Behavior
+
+### How the icon is picked
+
+The state icon goes through these steps, and uses the first icon it finds:
+
+1. The icon set on the component itself, for example from a card configuration.
+2. The icon people set for the entity in its settings.
+3. The icon attribute in the state of the entity.
+4. The icon the integration defines for this entity and state, in its icon translations.
+5. A built-in icon for a few domains whose icon depends on more than the state, like the sun, updates, and device trackers.
+6. The default icon of the domain, for this device class and state. For example, a binary sensor with the `door` device class has a different icon for open and closed.
+7. When nothing else matches, a fallback icon for the domain, or a bookmark icon for unknown domains.
+
+The icons in steps 4 and 6 come from Home Assistant, which loads them on demand. Until they are loaded, the component shows nothing.
+
+You can ask for the icon of a state the entity is not in. The cover toggle in the more info dialog does this for its open and closed buttons: it shows the icon of the blinds in the state the button would set.
+
+<Demo hass caption="One cover entity, shown as it is, as closed, and with an icon set on the component.">
+  <ha-state-icon data-props='{"stateObj": {"entity_id": "cover.bedroom_blinds", "state": "open", "attributes": {"friendly_name": "Bedroom blinds", "current_position": 70, "device_class": "blind"}, "last_changed": "2026-01-01T00:00:00Z", "last_updated": "2026-01-01T00:00:00Z", "context": {"id": "1", "parent_id": null, "user_id": null}}}'></ha-state-icon>
+  <ha-state-icon data-props='{"stateObj": {"entity_id": "cover.bedroom_blinds", "state": "open", "attributes": {"friendly_name": "Bedroom blinds", "current_position": 70, "device_class": "blind"}, "last_changed": "2026-01-01T00:00:00Z", "last_updated": "2026-01-01T00:00:00Z", "context": {"id": "1", "parent_id": null, "user_id": null}}, "stateValue": "closed"}'></ha-state-icon>
+  <ha-state-icon icon="mdi:sofa" data-props='{"stateObj": {"entity_id": "cover.bedroom_blinds", "state": "open", "attributes": {"friendly_name": "Bedroom blinds", "current_position": 70, "device_class": "blind"}, "last_changed": "2026-01-01T00:00:00Z", "last_updated": "2026-01-01T00:00:00Z", "context": {"id": "1", "parent_id": null, "user_id": null}}}'></ha-state-icon>
+</Demo>
+
+### How the color is picked
+
+By default, the state badge only colors lights. Every other entity gets the default icon color, whatever its state. Turn on state colors to color by state for other entities too. Where people configure a card or a row, they choose this with the **Show state color** option.
+
+<Demo hass caption="The same entities, without and with state colors.">
+  <state-badge data-props='{"stateObj": {"entity_id": "binary_sensor.front_door", "state": "on", "attributes": {"friendly_name": "Front door", "device_class": "door"}, "last_changed": "2026-01-01T00:00:00Z", "last_updated": "2026-01-01T00:00:00Z", "context": {"id": "1", "parent_id": null, "user_id": null}}}'></state-badge>
+  <state-badge data-props='{"stateObj": {"entity_id": "person.alex", "state": "home", "attributes": {"friendly_name": "Alex"}, "last_changed": "2026-01-01T00:00:00Z", "last_updated": "2026-01-01T00:00:00Z", "context": {"id": "1", "parent_id": null, "user_id": null}}}'></state-badge>
+  <state-badge data-props='{"stateObj": {"entity_id": "climate.thermostat", "state": "heat", "attributes": {"friendly_name": "Thermostat", "hvac_action": "heating", "current_temperature": 20.5, "temperature": 21}, "last_changed": "2026-01-01T00:00:00Z", "last_updated": "2026-01-01T00:00:00Z", "context": {"id": "1", "parent_id": null, "user_id": null}}}'></state-badge>
+  <state-badge color="state" data-props='{"stateObj": {"entity_id": "binary_sensor.front_door", "state": "on", "attributes": {"friendly_name": "Front door", "device_class": "door"}, "last_changed": "2026-01-01T00:00:00Z", "last_updated": "2026-01-01T00:00:00Z", "context": {"id": "1", "parent_id": null, "user_id": null}}}'></state-badge>
+  <state-badge color="state" data-props='{"stateObj": {"entity_id": "person.alex", "state": "home", "attributes": {"friendly_name": "Alex"}, "last_changed": "2026-01-01T00:00:00Z", "last_updated": "2026-01-01T00:00:00Z", "context": {"id": "1", "parent_id": null, "user_id": null}}}'></state-badge>
+  <state-badge color="state" data-props='{"stateObj": {"entity_id": "climate.thermostat", "state": "heat", "attributes": {"friendly_name": "Thermostat", "hvac_action": "heating", "current_temperature": 20.5, "temperature": 21}, "last_changed": "2026-01-01T00:00:00Z", "last_updated": "2026-01-01T00:00:00Z", "context": {"id": "1", "parent_id": null, "user_id": null}}}'></state-badge>
+</Demo>
+
+With state colors on, the color comes from the theme. For each entity, the badge looks for the most specific color the theme defines, in this order:
+
+1. `--state-<domain>-<device class>-<state>-color`, like `--state-binary_sensor-door-on-color`.
+2. `--state-<domain>-<state>-color`, like `--state-person-home-color`.
+3. `--state-<domain>-active-color` or `--state-<domain>-inactive-color`.
+4. `--state-active-color` or `--state-inactive-color`.
+
+Whether a state counts as active depends on the domain: on, open, home, and playing are active. Off, closed, not home, and locked are not. Inactive entities keep the default icon color in a badge. Only domains that have state colors get them; a sensor, for example, keeps the default color. Battery sensors are the exception: their color follows the battery level.
+
+On top of that:
+
+- A light with a color shows that color, and a dimmer light shows a darker icon.
+- A thermostat takes the color of what it is doing right now, like heating or cooling, not of the mode it is set to.
+- An unavailable entity is shown in the unavailable color, whatever its domain. With a custom color, or without state colors, it keeps the default color instead.
+
+<Demo hass caption="A light at full brightness, a dimmed light with a color, and a light that is off.">
+  <state-badge data-props='{"stateObj": {"entity_id": "light.living_room_lamp", "state": "on", "attributes": {"friendly_name": "Floor lamp", "brightness": 255, "color_mode": "brightness"}, "last_changed": "2026-01-01T00:00:00Z", "last_updated": "2026-01-01T00:00:00Z", "context": {"id": "1", "parent_id": null, "user_id": null}}}'></state-badge>
+  <state-badge data-props='{"stateObj": {"entity_id": "light.living_room_lamp", "state": "on", "attributes": {"friendly_name": "Floor lamp", "brightness": 120, "color_mode": "hs", "hs_color": [32, 60], "rgb_color": [255, 170, 102]}, "last_changed": "2026-01-01T00:00:00Z", "last_updated": "2026-01-01T00:00:00Z", "context": {"id": "1", "parent_id": null, "user_id": null}}}'></state-badge>
+  <state-badge data-props='{"stateObj": {"entity_id": "light.kitchen_ceiling", "state": "off", "attributes": {"friendly_name": "Kitchen ceiling"}, "last_changed": "2026-01-01T00:00:00Z", "last_updated": "2026-01-01T00:00:00Z", "context": {"id": "1", "parent_id": null, "user_id": null}}}'></state-badge>
+</Demo>
+
+Instead of state colors, the badge can use one color, like a theme color such as red or primary, or any CSS color. That color is used while the entity is active, and the default color while it is not. Colors can also be turned off completely, also for lights.
+
+<Demo hass caption="A switch with a custom color, on and off.">
+  <state-badge color="red" data-props='{"stateObj": {"entity_id": "switch.desk_plug", "state": "on", "attributes": {"friendly_name": "Desk plug"}, "last_changed": "2026-01-01T00:00:00Z", "last_updated": "2026-01-01T00:00:00Z", "context": {"id": "1", "parent_id": null, "user_id": null}}}'></state-badge>
+  <state-badge color="red" data-props='{"stateObj": {"entity_id": "switch.desk_plug", "state": "off", "attributes": {"friendly_name": "Desk plug"}, "last_changed": "2026-01-01T00:00:00Z", "last_updated": "2026-01-01T00:00:00Z", "context": {"id": "1", "parent_id": null, "user_id": null}}}'></state-badge>
+</Demo>
+
+### Pictures
+
+When an entity has a picture, like a person with a profile picture or a media player with album art, the state badge shows the picture instead of the icon. Media players and cameras get slightly rounded corners, other pictures a circle. Update entities get square corners. An icon set on the badge wins over the picture.
+
+## Specs
+
+| Property | Value | Token |
+| --- | --- | --- |
+| Badge size | 40px by 40px | None |
+| Badge corner radius | 50%, a circle | `--state-badge-border-radius` |
+| Corner radius with an entity picture | 50% | `--state-badge-with-image-border-radius` |
+| Corner radius for a media player or camera | 8% | `--state-badge-with-media-image-border-radius` |
+| Corner radius for an update entity | 0 | `--ha-border-radius-square` |
+| Icon size | 24px | `--mdc-icon-size` |
+| Default icon color | Set by the theme | `--state-icon-color` |
+| Color and brightness change | 0.3s, ease-in-out | None |
+| Icon when the badge has nothing to show | Alert icon in `#fce588` | None |
+
+## Guidelines
+
+<DoDont hass doText="Let the state badge pick the icon, so it follows the state." dontText="Pick an icon yourself based on the domain or state.">
+  <state-badge slot="do" color="state" data-props='{"stateObj": {"entity_id": "binary_sensor.front_door", "state": "on", "attributes": {"friendly_name": "Front door", "device_class": "door"}, "last_changed": "2026-01-01T00:00:00Z", "last_updated": "2026-01-01T00:00:00Z", "context": {"id": "1", "parent_id": null, "user_id": null}}}'></state-badge>
+  <ha-svg-icon slot="dont" path="M8,3C6.89,3 6,3.89 6,5V21H18V5C18,3.89 17.11,3 16,3H8M8,5H16V19H8V5M13,11V13H15V11H13Z"></ha-svg-icon>
+</DoDont>
+
+- Use these components whenever you show an entity. When you pick an icon yourself, you skip the icon that people or integrations set, and the icon does not change with the state.
+- Where people configure a card or a row, let them choose state colors with the **Show state color** option.
+
+## Accessibility
+
+### Focus
+
+The state badge is not focusable on its own. When the page around it makes it focusable, it shows a 2px border in the divider color, or a divider color background when it shows an icon.
+
+### Screen readers
+
+The icon adds nothing to what a screen reader reads, so the state must be in text nearby, like the state in an entity row. The state icon can show the formatted state as a native tooltip on hover.
+
+### In the code
+
+- The SVG inside the icon is hidden from screen readers.
+- With `state-title`, `ha-state-icon` gets the formatted state as its `title`.
+- `state-badge` has no role.
+
+## Related
+
+- [Badge](/design/components/badge/): the dashboard badge, which shows a state icon
+- [Entity picker](/design/components/entity-picker/): shows state icons for its entities
+- [Color](/design/foundations/color/): the theme colors behind state colors
+
+## In code
+
+### state-badge
+
+The element is `<state-badge>`.
+
+```ts
+html`<state-badge .stateObj=${stateObj} color="state"></state-badge>`
+```
+
+Attributes:
+
+- `color`: `state` to color by state, `none` for no color, or a theme color or CSS color to use while the entity is active. Without it, only lights are colored.
+
+These can only be set as properties:
+
+- `stateObj`: the state object of the entity.
+- `overrideIcon`: an icon name, like `mdi:sofa`, to use instead of the icon of the entity.
+- `overrideImage`: a picture URL to use instead of the icon or the entity picture.
+- `stateColor`: the older way to set the color, as `true` or `false`. `color` takes precedence over it.
+
+Without a `stateObj`, `overrideIcon`, or `overrideImage`, the badge shows a yellow alert icon.
+
+Styling:
+
+- `--state-icon-color`: the default icon color. The theme sets it.
+- `--state-badge-border-radius`: defaults to `50%`.
+- `--state-badge-with-image-border-radius`: for an entity picture. Defaults to `50%`.
+- `--state-badge-with-media-image-border-radius`: for a media player or camera picture. Defaults to `8%`.
+
+The badge is 40 by 40 pixels. Set `width` and `height` to change that.
+
+Source: [`src/components/entity/state-badge.ts`](https://github.com/home-assistant/frontend/blob/dev/src/components/entity/state-badge.ts)
+
+### ha-state-icon
+
+The element is `<ha-state-icon>`. It takes the color of its surroundings, like any icon.
+
+```ts
+html`<ha-state-icon .stateObj=${stateObj}></ha-state-icon>`
+html`<ha-state-icon .stateObj=${stateObj} .stateValue=${"closed"}></ha-state-icon>`
+```
+
+Attributes:
+
+- `icon`: an icon name, like `mdi:sofa`, to use instead of the icon of the entity.
+- `state-title`: sets the title of the icon to the formatted state, so it shows as a native tooltip.
+
+These can only be set as properties:
+
+- `stateObj`: the state object of the entity.
+- `stateValue`: a state to show the icon for, instead of the current state of the entity.
+
+Styling:
+
+- `--mdc-icon-size`: the icon size. Defaults to `24px`.
+
+Source: [`src/components/ha-state-icon.ts`](https://github.com/home-assistant/frontend/blob/dev/src/components/ha-state-icon.ts)

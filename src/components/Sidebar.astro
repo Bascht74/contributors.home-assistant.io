@@ -1,0 +1,140 @@
+---
+// The sidebar of an area, like GitHub Docs: groups open and close, and only
+// the groups on the way to the current page start open. Groups are native
+// <details> elements, so this works without JavaScript.
+import type { NavNode } from "../lib/docs";
+import Icon from "./Icon.astro";
+
+interface Props {
+  items: NavNode[];
+  label?: string;
+  // Nesting depth, for indentation. Set by the component itself.
+  depth?: number;
+}
+
+const { items, label, depth = 0 } = Astro.props;
+const Self = Astro.self;
+
+// A collapsed folder is one link to its overview. It is the page itself on
+// the overview, and the section you are in on any other page of the folder.
+function collapsedCurrent(item: NavNode): "page" | "true" | undefined {
+  if (!item.current) {
+    return undefined;
+  }
+
+  return item.children[0]?.current ? "page" : "true";
+}
+---
+
+{
+  depth === 0 ? (
+    <nav aria-label={label} class="sidebar">
+      <Self items={items} depth={1} />
+    </nav>
+  ) : (
+    <ul class:list={["list", `list--depth-${depth}`]}>
+      {items.map((item) => (
+        <li>
+          {item.collapsed ? (
+            <a href={item.href} aria-current={collapsedCurrent(item)}>
+              {item.label}
+            </a>
+          ) : item.children.length > 0 ? (
+            <details open={item.open}>
+              <summary>
+                <Icon name="chevron-right" size={16} />
+                <span>{item.label}</span>
+              </summary>
+              <Self items={item.children} depth={depth + 1} />
+            </details>
+          ) : (
+            <a href={item.href} aria-current={item.current ? "page" : undefined}>
+              {item.label}
+            </a>
+          )}
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+<style>
+  .list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 1px;
+  }
+
+  /* Each level is indented a step, so the tree is easy to follow. */
+  .list :global(.list) {
+    margin: 1px 0 var(--ha-space-2) var(--ha-space-4);
+  }
+
+  a,
+  summary {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--ha-space-2);
+    min-height: 36px;
+    padding: var(--ha-space-1) var(--ha-space-3);
+    border-radius: var(--ha-border-radius-md);
+    color: var(--site-text);
+    font-size: 15px;
+    line-height: 1.35;
+    text-decoration: none;
+  }
+
+  a:hover,
+  summary:hover {
+    background: var(--site-surface-hover);
+    color: var(--site-text);
+  }
+
+  summary {
+    cursor: pointer;
+    list-style: none;
+    font-weight: 600;
+    padding-left: var(--ha-space-1);
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  summary :global(svg) {
+    flex: 0 0 auto;
+    color: var(--site-text-muted);
+    transition: rotate 0.15s ease;
+  }
+
+  details[open] > summary :global(svg) {
+    rotate: 90deg;
+  }
+
+  /* Pages line up with the labels of groups, past the chevron. */
+  .list--depth-1 > li > a {
+    padding-left: calc(var(--ha-space-1) + 16px + var(--ha-space-2));
+  }
+
+  a[aria-current] {
+    background: var(--site-accent-quiet);
+    color: var(--site-on-accent-quiet);
+    font-weight: 650;
+  }
+
+  /* The marker in front of the current page, like GitHub Docs. A collapsed
+     folder gets it too, when the current page is one of its pages. */
+  a[aria-current]::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 6px;
+    bottom: 6px;
+    width: 3px;
+    border-radius: 3px;
+    background: var(--site-link);
+  }
+</style>

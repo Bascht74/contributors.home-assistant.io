@@ -1,0 +1,92 @@
+---
+import type { Crumb } from "../lib/docs";
+
+interface Props {
+  crumbs: Crumb[];
+}
+
+const { crumbs } = Astro.props;
+---
+
+<nav aria-label="Breadcrumb" class="breadcrumbs">
+  <ol>
+    {
+      crumbs.map((crumb, index) => {
+        const last = index === crumbs.length - 1;
+        return (
+          <li>
+            {crumb.href && !last ? (
+              <a href={crumb.href}>{crumb.label}</a>
+            ) : (
+              <span aria-current={last ? "page" : undefined}>{crumb.label}</span>
+            )}
+          </li>
+        );
+      })
+    }
+  </ol>
+</nav>
+
+<style>
+  ol {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 15px;
+  }
+
+  li {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+  }
+
+  /* On small screens the trail stays on one line, and scrolls if needed. */
+  @media (max-width: 860px) {
+    .breadcrumbs {
+      min-width: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    ol {
+      flex-wrap: nowrap;
+    }
+  }
+
+  li + li::before {
+    content: "/";
+    margin: 0 var(--ha-space-2);
+    color: var(--site-border);
+  }
+
+  a {
+    color: var(--site-text-muted);
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: var(--site-link);
+    text-decoration: underline;
+  }
+
+  span {
+    color: var(--site-text-muted);
+  }
+
+  span[aria-current="page"] {
+    color: var(--site-text);
+    font-weight: 600;
+  }
+</style>
+
+<script>
+  // When the trail is wider than the screen, show its end: the current page
+  // matters more than the start, which is always the same.
+  for (const trail of document.querySelectorAll<HTMLElement>(".breadcrumbs")) {
+    trail.scrollLeft = trail.scrollWidth;
+  }
+</script>

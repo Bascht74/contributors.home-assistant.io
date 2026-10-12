@@ -1,0 +1,128 @@
+# The labels the workflows and templates in .github/ use. Nothing creates
+# them automatically: whoever sets up the repository creates these once,
+# and adds a new "area: <id>" label with every new area.
+#
+# The format is the one of crazy-max/ghaction-github-labeler and
+# EndBug/label-sync, so one of those can take over later.
+#
+# Used by:
+# - feedback: the page feedback issue form (.github/ISSUE_TEMPLATE/feedback.yml)
+# - area: <id>: the labeler, and the "Give feedback" link on every page
+# - area: design: also the component docs drift workflow, on its issue
+# - blog, site code, demos, redirects, dependencies: the labeler
+# - demos: also the update demos workflow, on its pull request
+# - dependencies: Renovate (.github/renovate.json)
+# - stale, no-stale, help-wanted: the stale workflow
+# - auto-closed: the restrict task creation workflow
+
+- name: "feedback"
+  color: "d4c5f9"
+  description: "Feedback on a page, from the page feedback form"
+
+- name: "area: start"
+  color: "18bcf2"
+  description: "The Get started area"
+
+- name: "area: core"
+  color: "18bcf2"
+  description: "The Core and integrations area"
+
+- name: "area: frontend"
+  color: "18bcf2"
+  description: "The Frontend area"
+
+- name: "area: apps"
+  color: "18bcf2"
+  description: "The Apps area"
+
+- name: "area: marketplace"
+  color: "18bcf2"
+  description: "The Marketplace area"
+
+- name: "area: companion"
+  color: "18bcf2"
+  description: "The Companion apps area"
+
+- name: "area: os"
+  color: "18bcf2"
+  description: "The OS and Supervisor area"
+
+- name: "area: design"
+  color: "18bcf2"
+  description: "The Design area"
+
+- name: "area: brand"
+  color: "18bcf2"
+  description: "The Brand area"
+
+- name: "area: writing"
+  color: "18bcf2"
+  description: "The Writing docs area"
+
+- name: "area: translate"
+  color: "18bcf2"
+  description: "The Translations area"
+
+- name: "area: community"
+  color: "18bcf2"
+  description: "The Community area"
+
+- name: "area: releases"
+  color: "18bcf2"
+  description: "The Releases area"
+
+- name: "area: roadmap"
+  color: "18bcf2"
+  description: "The Roadmap area"
+
+- name: "area: architecture"
+  color: "18bcf2"
+  description: "The Architecture area"
+
+- name: "area: security"
+  color: "18bcf2"
+  description: "The Security area"
+
+- name: "area: data"
+  color: "18bcf2"
+  description: "The Data area"
+
+- name: "area: glossary"
+  color: "18bcf2"
+  description: "The Glossary area"
+
+- name: "blog"
+  color: "ffe9d6"
+  description: "A blog post"
+
+- name: "site code"
+  color: "002332"
+  description: "Components, layouts, styles, scripts, or configuration of the site"
+
+- name: "demos"
+  color: "16f3be"
+  description: "The live demos and the fake Home Assistant behind them"
+
+- name: "redirects"
+  color: "fbca04"
+  description: "Redirects of old URLs or heading anchors"
+
+- name: "dependencies"
+  color: "0366d6"
+  description: "Updates a dependency"
+
+- name: "stale"
+  color: "ededed"
+  description: "No activity for a while, closes soon"
+
+- name: "no-stale"
+  color: "ededed"
+  description: "Never marked as stale"
+
+- name: "help-wanted"
+  color: "008672"
+  description: "Up for grabs, help is welcome"
+
+- name: "auto-closed"
+  color: "ededed"
+  description: "Closed automatically by a workflow"

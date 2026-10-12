@@ -1,0 +1,110 @@
+---
+// Cycles between following the system, light, and dark. The choice is
+// stored per browser; the inline script in the Base layout applies it
+// before the first paint, so there is no flash.
+import Icon from "./Icon.astro";
+---
+
+<theme-toggle>
+  <button type="button" aria-label="Color scheme: system">
+    <span data-icon="system"><Icon name="monitor" size={20} /></span>
+    <span data-icon="light" hidden><Icon name="sun" size={20} /></span>
+    <span data-icon="dark" hidden><Icon name="moon" size={20} /></span>
+  </button>
+</theme-toggle>
+
+<script>
+  type Theme = "system" | "light" | "dark";
+
+  const NEXT: Record<Theme, Theme> = {
+    system: "light",
+    light: "dark",
+    dark: "system",
+  };
+
+  function readTheme(): Theme {
+    try {
+      const stored = localStorage.getItem("theme");
+      return stored === "light" || stored === "dark" ? stored : "system";
+    } catch {
+      return "system";
+    }
+  }
+
+  function storeTheme(theme: Theme) {
+    try {
+      if (theme === "system") {
+        localStorage.removeItem("theme");
+      } else {
+        localStorage.setItem("theme", theme);
+      }
+    } catch {
+      // Storage can be blocked. The choice then lasts for this page only.
+    }
+  }
+
+  class ThemeToggle extends HTMLElement {
+    // Read from storage once and kept here, so cycling works even when
+    // storage is blocked and nothing can be saved.
+    private theme: Theme = "system";
+
+    connectedCallback() {
+      const button = this.querySelector("button")!;
+      this.theme = readTheme();
+      this.render(this.theme);
+
+      button.addEventListener("click", () => {
+        const theme = NEXT[this.theme];
+        this.theme = theme;
+        storeTheme(theme);
+
+        if (theme === "system") {
+          delete document.documentElement.dataset.theme;
+        } else {
+          document.documentElement.dataset.theme = theme;
+        }
+
+        this.render(theme);
+      });
+    }
+
+    render(theme: Theme) {
+      this.querySelector("button")!.setAttribute(
+        "aria-label",
+        `Color scheme: ${theme}`,
+      );
+      for (const icon of this.querySelectorAll<HTMLElement>("[data-icon]")) {
+        icon.hidden = icon.dataset.icon !== theme;
+      }
+    }
+  }
+
+  customElements.define("theme-toggle", ThemeToggle);
+</script>
+
+<style>
+  button {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--site-text-muted);
+    cursor: pointer;
+  }
+
+  button:hover {
+    background: var(--site-surface-hover);
+    color: var(--site-text);
+  }
+
+  span {
+    display: flex;
+  }
+
+  span[hidden] {
+    display: none;
+  }
+</style>

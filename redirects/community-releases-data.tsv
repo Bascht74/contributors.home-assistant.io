@@ -1,0 +1,14 @@
+data.home-assistant.io/	/data/
+data.home-assistant.io/docs	/data/
+data.home-assistant.io/docs/data	/data/reference/data-model/
+data.home-assistant.io/docs/events	/data/reference/data-model/
+data.home-assistant.io/docs/states	/data/reference/data-model/
+data.home-assistant.io/docs/statistics	/data/reference/statistics/
+data.home-assistant.io/docs/services	/data/reference/data-model/
+data.home-assistant.io/docs/context	/data/reference/data-model/
+data.home-assistant.io/docs/recorder	/data/reference/database-schema/
+data.home-assistant.io/docs/quick-start	/data/guides/explore-your-data/
+data.home-assistant.io/docs/quick-start-core	/data/guides/explore-your-data/
+data.home-assistant.io/docs/quick-start-non-hassio	/data/guides/explore-your-data/
+data.home-assistant.io/docs/tutorials	/data/guides/explore-your-data/
+data.home-assistant.io/docs/en/*	/data/

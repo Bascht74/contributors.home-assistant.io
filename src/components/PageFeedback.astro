@@ -1,0 +1,261 @@
+---
+// "Was this page helpful?" at the end of every docs page, with links to
+// give feedback and to see the feedback others gave on this page.
+//
+// A vote goes to Plausible as a custom event, the same events
+// home-assistant.io sends, and is remembered per page in this browser so
+// the question does not come back after you answered it. Without analytics
+// (PLAUSIBLE.script empty) the vote is only remembered.
+//
+// The feedback link opens the "Page feedback" issue form
+// (.github/ISSUE_TEMPLATE/feedback.yml) with the page URL filled in. The
+// labels in the link only stick for people with triage access on the
+// repository; the form adds "feedback" for everyone else.
+import { SITE } from "../data/site";
+import Icon from "./Icon.astro";
+
+interface Props {
+  // The area of the page, for the "area: <id>" label of the issue.
+  area: string;
+}
+
+const { area } = Astro.props;
+const path = Astro.url.pathname;
+const pageUrl = new URL(path, Astro.site).href;
+
+const feedbackUrl = new URL(`${SITE.repository}/issues/new`);
+feedbackUrl.searchParams.set("template", "feedback.yml");
+feedbackUrl.searchParams.set("url", pageUrl);
+feedbackUrl.searchParams.set("labels", `feedback,area: ${area}`);
+
+// Open issues with the full URL of this page in their body: the same URL
+// that "Give feedback" fills in. GitHub search ignores the punctuation in
+// the quoted URL and matches its words as a phrase, so the results can also
+// include issues about pages below this one, like /core/development/ for
+// /core/.
+const viewUrl = new URL(`${SITE.repository}/issues`);
+viewUrl.searchParams.set("q", `is:issue is:open "${pageUrl}" in:body`);
+---
+
+<page-feedback class="page-feedback" data-pagefind-ignore="all">
+  <div class="vote">
+    <div class="ask" role="group" aria-labelledby="page-feedback-question" data-ask>
+      <span id="page-feedback-question" class="question">Was this page helpful?</span>
+      <span class="buttons">
+        <button type="button" data-vote="helpful">
+          <Icon name="thumbs-up" size={16} />
+          Yes
+        </button>
+        <button type="button" data-vote="not-helpful">
+          <Icon name="thumbs-down" size={16} />
+          No
+        </button>
+      </span>
+    </div>
+    <p class="thanks" role="status" tabindex="-1" data-thanks></p>
+  </div>
+
+  <ul class="links" aria-label="Feedback on this page">
+    <li>
+      <a href={feedbackUrl.href} target="_blank" rel="noopener" data-give-feedback>
+        Give feedback
+        <Icon name="external-link" size={14} />
+        <span class="sr-only">(opens in a new tab)</span>
+      </a>
+    </li>
+    <li>
+      <a href={viewUrl.href} target="_blank" rel="noopener">
+        View feedback
+        <Icon name="external-link" size={14} />
+        <span class="sr-only">(opens in a new tab)</span>
+      </a>
+    </li>
+  </ul>
+</page-feedback>
+
+<script>
+  type Vote = "helpful" | "not-helpful";
+
+  const MESSAGES: Record<Vote, string> = {
+    helpful: "Thanks for letting us know!",
+    "not-helpful": "Thanks. Tell us what was missing or unclear with Give feedback, and we'll improve the page.",
+  };
+
+  // The event names are shared with home-assistant.io, so both sites read
+  // the same way on the dashboard.
+  const EVENTS: Record<Vote, string> = {
+    helpful: "Page helpful",
+    "not-helpful": "Page not helpful",
+  };
+
+  function isVote(value: unknown): value is Vote {
+    return value === "helpful" || value === "not-helpful";
+  }
+
+  class PageFeedback extends HTMLElement {
+    connectedCallback() {
+      const storageKey = `page-feedback:${location.pathname}`;
+
+      let previous: string | null = null;
+      try {
+        previous = localStorage.getItem(storageKey);
+      } catch {
+        // Storage can be blocked. Then the question simply shows again.
+      }
+
+      if (isVote(previous)) {
+        this.showThanks(previous);
+        return;
+      }
+
+      this.querySelector("[data-ask]")?.addEventListener("click", (event) => {
+        const button = (event.target as Element).closest<HTMLButtonElement>("[data-vote]");
+        const vote = button?.dataset.vote;
+        if (!isVote(vote)) {
+          return;
+        }
+
+        // Plausible queues the event until its script loaded, see
+        // PlausibleAnalytics.astro. Without analytics there is no function.
+        const plausible = (window as unknown as { plausible?: (event: string) => void }).plausible;
+        if (typeof plausible === "function") {
+          plausible(EVENTS[vote]);
+        }
+
+        try {
+          localStorage.setItem(storageKey, vote);
+        } catch {
+          // Not remembering the vote is fine. It was still counted.
+        }
+
+        this.showThanks(vote);
+      });
+    }
+
+    showThanks(vote: Vote) {
+      const ask = this.querySelector<HTMLElement>("[data-ask]");
+      const thanks = this.querySelector<HTMLElement>("[data-thanks]");
+      if (!ask || !thanks) {
+        return;
+      }
+
+      // Focus was on the button that just disappeared. Move it to the
+      // thank you, or after a "No" to the feedback link, the next step.
+      const hadFocus = ask.contains(document.activeElement);
+      ask.hidden = true;
+      thanks.textContent = MESSAGES[vote];
+      this.dataset.voted = vote;
+
+      if (hadFocus) {
+        const next = vote === "not-helpful" ? this.querySelector<HTMLElement>("[data-give-feedback]") : thanks;
+        next?.focus();
+      }
+    }
+  }
+
+  customElements.define("page-feedback", PageFeedback);
+</script>
+
+<style>
+  .page-feedback {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--ha-space-3) var(--ha-space-6);
+    padding: var(--ha-space-3) var(--ha-space-4) var(--ha-space-3) var(--ha-space-5);
+    border: 1px solid var(--site-border);
+    border-radius: var(--site-radius-tile);
+    font-size: 15px;
+  }
+
+  .vote {
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+  }
+
+  .ask {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--ha-space-2) var(--ha-space-4);
+  }
+
+  .ask[hidden] {
+    display: none;
+  }
+
+  .question {
+    font-weight: 600;
+  }
+
+  .buttons {
+    display: flex;
+    gap: var(--ha-space-2);
+  }
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--ha-space-2);
+    min-height: 36px;
+    padding: 0 var(--ha-space-4);
+    border: 1px solid var(--site-border);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--site-text);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  button:hover {
+    border-color: var(--site-link);
+    background: var(--site-surface-hover);
+  }
+
+  /* The live region stays in the page while it is empty, without
+     display: none, so screen readers know it and announce the thank you. */
+  .thanks {
+    margin: 0;
+    color: var(--site-text-muted);
+  }
+
+  /* It takes focus after a vote, but it is not a control. */
+  .thanks:focus {
+    outline: none;
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ha-space-2) var(--ha-space-5);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .links a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--ha-space-1);
+    min-height: 36px;
+    font-weight: 600;
+  }
+
+  .links :global(svg) {
+    color: var(--site-text-subtle);
+  }
+
+  /* After a "No", the feedback link is the next step, so it stands out. */
+  .page-feedback[data-voted="not-helpful"] {
+    border-color: var(--site-link);
+  }
+
+  @media (max-width: 600px) {
+    .page-feedback {
+      padding: var(--ha-space-3) var(--ha-space-4);
+    }
+  }
+</style>

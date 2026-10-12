@@ -1,0 +1,72 @@
+name: Page feedback
+description: Something on a page of contributors.home-assistant.io is wrong, missing, or unclear.
+labels:
+  - feedback
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping us improve the contributor documentation.
+
+        **This form is for the pages of contributors.home-assistant.io only.** Found a bug in Home Assistant itself? [Report a bug](https://contributors.home-assistant.io/start/report-a-bug/) explains which repository to report it in. Feedback on the user documentation on home-assistant.io goes to [its own issue tracker](https://github.com/home-assistant/home-assistant.io/issues/new?template=feedback.yml).
+  - type: dropdown
+    id: issue-type
+    attributes:
+      label: Type of issue
+      description: >-
+        If more than one type applies, choose the most relevant one.
+      options:
+        - Typo or style
+        - Outdated or incorrect information
+        - Missing information
+        - Unclear or confusing information
+        - Broken link, demo, or search
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: problem-description
+    attributes:
+      label: Problem description
+      description: >-
+        Describe what is wrong, missing, or unclear on the page.
+    validations:
+      required: true
+  - type: textarea
+    id: suggested-fix
+    attributes:
+      label: Suggested fix
+      description: >-
+        If you know the fix, write it down as concretely as you can. For
+        example: "step 3 should say Y, not Z".
+  - type: markdown
+    attributes:
+      value: |
+        ## Details
+  - type: input
+    id: url
+    attributes:
+      label: Page URL
+      placeholder: "https://contributors.home-assistant.io/..."
+      description: >-
+        The page you are giving feedback on. Filled in for you when you
+        came here through "Give feedback" on the page.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: How do you know the fix is correct?
+      description: >-
+        Link a source that backs up the fix, so whoever picks this up can
+        verify it without redoing your research. For example, the relevant
+        source code, a merged pull request that changed the behavior, or an
+        architecture decision record (ADR).
+      placeholder: "For example: changed in home-assistant/core#12345"
+  - type: textarea
+    id: additional-information
+    attributes:
+      label: Additional information
+      description: >-
+        Anything else we should know. You can attach screenshots or screen
+        recordings by dragging and dropping them into this field.

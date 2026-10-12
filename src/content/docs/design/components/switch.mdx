@@ -1,0 +1,192 @@
+---
+title: Switch
+description: Switches turn a single setting on or off.
+sidebarGroup: Input
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+<Demo>
+  <ha-switch checked></ha-switch>
+  <ha-switch></ha-switch>
+  <ha-switch checked disabled></ha-switch>
+  <ha-switch disabled></ha-switch>
+</Demo>
+
+## Overview
+
+A switch turns a single setting on or off, like starting an app on boot, or enabling automatic updates. People should be able to read the state from the switch alone, so the setting needs to make sense as on or off.
+
+## When to use
+
+Use a switch for:
+
+- A setting with two states: on and off
+- A setting that applies right away, which is how most switches in Home Assistant work
+
+Don't use a switch for:
+
+- A choice between two or more options that are not on and off. Use a [select box](/design/components/select-box/) or another selection component.
+- Picking several items from a list. Use a checkbox.
+- Running an action, like restarting something. Use a [button](/design/components/button/).
+- Controlling a device on a dashboard or in the more info dialog. The frontend has the larger `<ha-control-switch>` for that, see [controls](/design/components/controls/).
+
+## Anatomy
+
+1. **Track**: the rounded background that shows whether the switch is on
+2. **Thumb**: the circle that moves to the end when the switch is on, and back to the start when it is off
+3. **Label**: optional text next to the switch
+4. **Hint**: optional help text below the switch
+
+## Variants
+
+The switch has no variants. It can carry its own label, or sit in a settings row that does the labeling.
+
+### Without a label
+
+In the frontend, most switches sit at the end of a settings row, with the name of the setting and a short description on the left. The row does the labeling, so the switch itself has no text.
+
+### With a label
+
+You can also put the label in the switch itself, as its content. Then selecting the label toggles the switch too.
+
+<Demo layout="stack">
+  <ha-switch checked>Start on boot</ha-switch>
+  <ha-switch>Automatic updates</ha-switch>
+</Demo>
+
+## Behavior
+
+- **Off**: the thumb sits at the start of the track, and the track uses the quiet neutral fill.
+- **On**: the thumb sits at the end of the track, and the track uses the primary color.
+- **Hover**: the track and thumb change to their hover colors. Keyboard focus uses the same colors.
+- **Focus**: keyboard focus shows a 2px solid focus ring around the track, 2px outside it.
+- **Disabled**: the track and thumb are dimmed to 30% opacity, and a label turns to the disabled text color. The label itself is not dimmed, so it stays readable.
+- **Required**: a required switch must be on for the form to be valid. Its label gets a `*` marker.
+
+The thumb slides from one end to the other in 150ms. In a right to left language, on and off are mirrored: on is at the left.
+
+A switch suggests the change happens right away. If the change only takes effect after a **Save**, make that clear, for example by keeping the switch in a form with an obvious save button.
+
+A switch can also give a light vibration when it is toggled, on devices that support it.
+
+<Demo>
+  <ha-switch checked disabled>Start on boot</ha-switch>
+  <ha-switch disabled>Automatic updates</ha-switch>
+</Demo>
+
+## Specs
+
+| Property | Value | Token |
+| --- | --- | --- |
+| Track height | 24px | `--ha-switch-size` |
+| Track width | 48px | `--ha-switch-width` |
+| Track corner radius | Fully rounded, equal to the track height | None |
+| Thumb size | 18px | `--ha-switch-thumb-size` |
+| Thumb shadow | Small shadow | `--ha-box-shadow-s`, through `--ha-switch-thumb-box-shadow` |
+| Border width of track and thumb | 1px | `--ha-border-width-sm` |
+| Space between switch and label | 0.5em | None |
+| Touch target | At least 40px by 40px | `--ha-switch-min-touch-size` |
+| Disabled opacity of track and thumb | 0.3 | `--ha-switch-disabled-opacity` |
+| Focus ring | 2px solid, 2px offset | `--ha-color-focus` |
+| Thumb animation | 150ms, ease | `--ha-animation-duration-fast` |
+
+| State | Track | Track border | Thumb and thumb border |
+| --- | --- | --- | --- |
+| Off | `--ha-color-fill-disabled-quiet-resting` | `--ha-color-border-neutral-normal` | `--ha-color-on-neutral-normal` |
+| Off, hover or focus | `--ha-color-fill-disabled-quiet-hover` | `--ha-color-border-neutral-normal` | `--ha-color-on-neutral-normal` |
+| On | `--ha-color-fill-primary-normal-resting` | `--ha-color-border-primary-loud` | `--ha-color-on-primary-normal` |
+| On, hover or focus | `--ha-color-fill-primary-normal-hover` | `--ha-color-border-primary-loud` | `--ha-color-on-primary-normal` |
+
+Each of these colors can be overridden with a `--ha-switch-*` property, see [styling](#styling).
+
+## Guidelines
+
+- Only let the switch vibrate when the change applies right away. Don't do it when people still have to save.
+
+## Accessibility
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves focus to the switch, and away from it. A disabled switch is skipped. |
+| <kbd>Space</kbd> | Toggles the switch. |
+| <kbd>Arrow right</kbd> | Turns the switch on. In a right to left language, it turns it off. |
+| <kbd>Arrow left</kbd> | Turns the switch off. In a right to left language, it turns it on. |
+
+### Focus
+
+The focus ring shows around the track, and only when you use a keyboard.
+
+### Target size
+
+The track is 48px by 24px. An invisible area around it makes the touch target at least 40px by 40px.
+
+### Screen readers
+
+A screen reader announces a switch, its label, and whether it is on or off. The hint is read as its description. A switch without a label of its own, like one at the end of a settings row, needs a name in code, see below.
+
+### In the code
+
+- Focus is delegated to a native checkbox inside the component.
+- The native checkbox has the role `switch`, and `aria-checked` set to `true` or `false`.
+- The text in the default slot is the accessible name, because it sits in the same `<label>` as the checkbox.
+- Without text in the default slot, the switch has no name of its own. The `title` attribute is passed on to the checkbox, and is then the only name it has.
+- The hint is connected to the checkbox with `aria-describedby`.
+
+## Related
+
+- [Controls](/design/components/controls/): the larger switch for devices on dashboards
+- [Select box](/design/components/select-box/): a choice between options
+- [Button](/design/components/button/): an action instead of a setting
+- [Selector](/design/components/selector/): the boolean selector shows a switch
+
+## In code
+
+The element is `<ha-switch>`. It is based on the [Web Awesome switch](https://webawesome.com/docs/components/switch/).
+
+```html
+<ha-switch checked></ha-switch>
+<ha-switch disabled></ha-switch>
+<ha-switch haptic>Start on boot</ha-switch>
+```
+
+### Attributes
+
+- `checked`: turns the switch on.
+- `disabled`: disables the switch.
+- `required`: makes the switch required: it must be on for the form to be valid.
+- `haptic`: gives a light vibration when the switch is toggled. Only use it when the change applies right away.
+- `hint`: help text below the switch.
+- `name` and `value`: submitted with a form, like on a native checkbox.
+
+### Slots
+
+- Default: the label.
+- `hint`: a hint with markup. Content in this slot replaces the text of the `hint` attribute.
+
+### Events
+
+- `change`: fires when the switch is toggled. Read the new state from `checked` on the element.
+- `input`: fires when the switch receives input.
+
+### Styling
+
+The default colors follow the theme, so in most cases you don't need these.
+
+- `--ha-switch-size`: the height of the track. Defaults to `24px`.
+- `--ha-switch-width`: the width of the track. Defaults to `48px`.
+- `--ha-switch-thumb-size`: the size of the thumb. Defaults to `18px`.
+- `--ha-switch-thumb-box-shadow`: the shadow of the thumb. Defaults to `var(--ha-box-shadow-s)`.
+- `--ha-switch-disabled-opacity`: the opacity of the switch when disabled. Defaults to `0.3`.
+- `--ha-switch-min-touch-size`: the minimum size of the touch target around the switch. Defaults to `40px`.
+- `--ha-switch-required-marker`: the marker after the label of a required switch. Defaults to `"*"`.
+- `--ha-switch-required-marker-offset`: the space before the required marker. Defaults to `0.1rem`.
+
+Colors of the track, thumb, and border. Each has a `-hover` version for when the pointer is over the switch, except `--ha-switch-border-color`:
+
+- Off: `--ha-switch-background-color`, `--ha-switch-border-color`, `--ha-switch-thumb-background-color`, and `--ha-switch-thumb-border-color`.
+- On: `--ha-switch-checked-background-color`, `--ha-switch-checked-border-color`, `--ha-switch-checked-thumb-background-color`, and `--ha-switch-checked-thumb-border-color`.
+
+Source: [`src/components/ha-switch.ts`](https://github.com/home-assistant/frontend/blob/dev/src/components/ha-switch.ts)

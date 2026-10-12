@@ -1,0 +1,516 @@
+---
+// The author filter of the blog: a field you can type in to find an author,
+// with a list that pops up below it (the WAI-ARIA combobox pattern).
+//
+// The page renders a native select first. That is the state: the filter
+// script of the blog reads and sets its value, and listens to its change
+// event. This component hides the select and puts the searchable field in
+// front of it, so the filtering logic stays in one place. Without
+// JavaScript, the select is all there is.
+import { authorAvatar } from "../data/authors";
+import Icon from "./Icon.astro";
+
+interface Props {
+  // Every author with the number of posts they wrote, sorted by name.
+  authors: { name: string; posts: number }[];
+  // All posts, for the "All authors" option.
+  total: number;
+}
+
+const { authors, total } = Astro.props;
+const options = [{ name: "", label: "All authors", posts: total, avatar: undefined as string | undefined }].concat(
+  authors.map((author) => ({ ...author, label: author.name, avatar: authorAvatar(author.name) })),
+);
+---
+
+<author-filter>
+  <label class="fallback">
+    <span class="sr-only">Filter by author</span>
+    <select data-author-filter>
+      {options.map((option) => <option value={option.name}>{option.label}</option>)}
+    </select>
+  </label>
+
+  <div class="combo" hidden>
+    <div class="control">
+      <span class="current">
+        <Icon name="user" size={18} />
+        <img class="avatar" alt="" width="20" height="20" referrerpolicy="no-referrer" hidden />
+      </span>
+      <input
+        type="text"
+        role="combobox"
+        aria-label="Filter by author"
+        aria-expanded="false"
+        aria-controls="author-filter-list"
+        aria-autocomplete="list"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="All authors"
+      />
+      <button type="button" class="clear" aria-label="Clear author filter" hidden>
+        <Icon name="x" size={16} />
+      </button>
+      <span class="chevron"><Icon name="chevron-down" size={18} /></span>
+    </div>
+
+    <div class="popup" hidden>
+      <ul role="listbox" id="author-filter-list" aria-label="Authors">
+        {
+          options.map((option, index) => (
+            <li
+              role="option"
+              id={`author-filter-option-${index}`}
+              data-value={option.name}
+              aria-selected="false"
+            >
+              {option.avatar ? (
+                <img
+                  class="avatar"
+                  src={option.avatar}
+                  alt=""
+                  width="20"
+                  height="20"
+                  loading="lazy"
+                  referrerpolicy="no-referrer"
+                />
+              ) : (
+                <Icon name="user" size={16} />
+              )}
+              <span class="name">{option.label}</span>
+              <span class="posts">
+                {option.posts}
+                <span class="sr-only">{option.posts === 1 ? "post" : "posts"}</span>
+              </span>
+            </li>
+          ))
+        }
+      </ul>
+      <p class="none" hidden>No authors match</p>
+    </div>
+
+    <!-- Outside the popup, so it still speaks when the popup is hidden. -->
+    <p class="sr-only" role="status" aria-live="polite"></p>
+  </div>
+</author-filter>
+
+<script>
+  // Case and accent insensitive: "kolb" finds "Kölb" too.
+  const fold = (text: string) =>
+    text
+      .normalize("NFD")
+      .replace(/\p{Diacritic}/gu, "")
+      .toLowerCase();
+
+  class AuthorFilter extends HTMLElement {
+    private select!: HTMLSelectElement;
+    private input!: HTMLInputElement;
+    private clear!: HTMLButtonElement;
+    private popup!: HTMLElement;
+    private none!: HTMLElement;
+    private status!: HTMLElement;
+    private options: HTMLElement[] = [];
+    private active: HTMLElement | undefined;
+
+    connectedCallback() {
+      this.select = this.querySelector("select")!;
+      this.input = this.querySelector("input")!;
+      this.clear = this.querySelector(".clear")!;
+      this.popup = this.querySelector(".popup")!;
+      this.none = this.querySelector(".none")!;
+      this.status = this.querySelector("[role=status]")!;
+      this.options = [...this.querySelectorAll<HTMLElement>("[role=option]")];
+
+      this.querySelector<HTMLElement>(".fallback")!.hidden = true;
+      this.querySelector<HTMLElement>(".combo")!.hidden = false;
+      this.showValue();
+
+      // The blog script sets the select itself when the page opens with
+      // ?author= in the URL, and tells us with this event.
+      this.select.addEventListener("sync", () => this.showValue());
+
+      this.input.addEventListener("input", () => this.open(this.input.value));
+      this.input.addEventListener("keydown", (event) => this.onKey(event));
+      // Select the name on the way in, so typing replaces it.
+      this.input.addEventListener("focus", () => this.input.select());
+      this.input.addEventListener("click", () => {
+        if (this.isOpen) return;
+        this.input.select();
+        this.open();
+      });
+      this.input.addEventListener("blur", () => {
+        this.close();
+        this.showValue();
+      });
+
+      this.querySelector(".chevron")!.addEventListener("pointerdown", (event) => {
+        event.preventDefault();
+        this.input.focus();
+        this.isOpen ? this.close() : this.open();
+      });
+
+      this.clear.addEventListener("click", () => {
+        this.choose("");
+        this.input.focus();
+      });
+
+      for (const option of this.options) {
+        // Keep the focus in the field, so it does not blur and close first.
+        option.addEventListener("pointerdown", (event) => event.preventDefault());
+        option.addEventListener("click", () => this.choose(option.dataset.value!));
+        option.addEventListener("pointermove", () => this.highlight(option, false));
+      }
+
+      document.addEventListener("pointerdown", (event) => {
+        if (this.isOpen && !this.contains(event.target as Node)) this.close();
+      });
+    }
+
+    private get isOpen() {
+      return this.input.getAttribute("aria-expanded") === "true";
+    }
+
+    private get visible() {
+      return this.options.filter((option) => !option.hidden);
+    }
+
+    // The closed field: the name of the chosen author, or the placeholder.
+    private showValue() {
+      const value = this.select.value;
+      this.input.value = value;
+      this.clear.hidden = !value;
+      for (const option of this.options) {
+        option.setAttribute("aria-selected", String(option.dataset.value === value));
+      }
+
+      // The field shows the avatar of the chosen author, if they have one.
+      const avatar = this.options
+        .find((option) => option.dataset.value === value)
+        ?.querySelector<HTMLImageElement>("img.avatar");
+      const current = this.querySelector<HTMLImageElement>(".current img")!;
+      current.hidden = !avatar;
+      this.querySelector<SVGElement>(".current svg")!.style.display = avatar ? "none" : "";
+      if (avatar) {
+        current.src = avatar.src;
+      }
+    }
+
+    // Opens the list, filtered by what is typed. Without a query, it shows
+    // everyone and starts at the chosen author.
+    private open(query = "") {
+      const folded = fold(query.trim());
+      for (const option of this.options) {
+        const value = option.dataset.value!;
+        option.hidden = folded ? !value || !fold(value).includes(folded) : false;
+      }
+
+      const visible = this.visible;
+      this.none.hidden = visible.length > 0;
+      this.popup.hidden = false;
+      this.input.setAttribute("aria-expanded", "true");
+
+      const selected = visible.find((option) => option.dataset.value === this.select.value);
+      this.highlight(folded ? visible[0] : (selected ?? visible[0]));
+
+      // A screen reader does not see the list shrink while you type, so say
+      // how many authors are left. Only while typing: the full list needs
+      // no announcement.
+      if (folded) {
+        const count = visible.length;
+        this.status.textContent = count
+          ? `${count} author${count === 1 ? "" : "s"} match`
+          : "No authors match";
+      } else {
+        this.status.textContent = "";
+      }
+    }
+
+    private close() {
+      this.popup.hidden = true;
+      this.status.textContent = "";
+      this.input.setAttribute("aria-expanded", "false");
+      this.highlight(undefined);
+    }
+
+    private highlight(option: HTMLElement | undefined, scroll = true) {
+      this.active?.classList.remove("is-active");
+      this.active = option;
+
+      if (!option) {
+        this.input.removeAttribute("aria-activedescendant");
+        return;
+      }
+
+      option.classList.add("is-active");
+      this.input.setAttribute("aria-activedescendant", option.id);
+      if (scroll) option.scrollIntoView({ block: "nearest" });
+    }
+
+    private move(step: number | "first" | "last") {
+      const visible = this.visible;
+      if (!visible.length) return;
+
+      if (step === "first") return this.highlight(visible[0]);
+      if (step === "last") return this.highlight(visible.at(-1));
+
+      const index = this.active ? visible.indexOf(this.active) : -1;
+      const next = Math.min(Math.max(index + step, 0), visible.length - 1);
+      this.highlight(visible[next]);
+    }
+
+    private choose(value: string) {
+      this.close();
+      if (value !== this.select.value) {
+        this.select.value = value;
+        this.select.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+      this.showValue();
+    }
+
+    private onKey(event: KeyboardEvent) {
+      switch (event.key) {
+        case "ArrowDown":
+        case "ArrowUp": {
+          const step = event.key === "ArrowDown" ? 1 : -1;
+          if (!this.isOpen) {
+            this.open();
+            if (event.altKey) break;
+            if (step === -1) this.move("last");
+          } else {
+            this.move(step);
+          }
+          break;
+        }
+
+        case "Home":
+        case "End":
+          // Only take over Home and End while the list is open, so they
+          // still move the cursor in the text otherwise.
+          if (!this.isOpen) return;
+          this.move(event.key === "Home" ? "first" : "last");
+          break;
+
+        case "Enter":
+          if (!this.isOpen || !this.active) return;
+          this.choose(this.active.dataset.value!);
+          break;
+
+        case "Escape":
+          // First Escape closes the list, the next one undoes the typing.
+          if (this.isOpen) this.close();
+          else if (this.input.value !== this.select.value) this.showValue();
+          else return;
+          break;
+
+        default:
+          return;
+      }
+
+      event.preventDefault();
+    }
+  }
+
+  customElements.define("author-filter", AuthorFilter);
+</script>
+
+<style>
+  author-filter {
+    display: block;
+    position: relative;
+    width: min(100%, 300px);
+  }
+
+  .fallback select {
+    padding: var(--ha-space-2) var(--ha-space-4);
+    border: 1px solid var(--site-border);
+    border-radius: var(--ha-border-radius-pill);
+    background: var(--site-surface);
+    color: var(--site-text);
+    font: inherit;
+    font-size: 15px;
+  }
+
+  /* The closed field, shaped like the topic chips next to it. */
+  .control {
+    display: flex;
+    align-items: center;
+    gap: var(--ha-space-2);
+    height: 40px;
+    padding: 0 var(--ha-space-2) 0 var(--ha-space-4);
+    border: 1px solid var(--site-border);
+    border-radius: var(--ha-border-radius-pill);
+    background: var(--site-surface);
+    color: var(--site-text-muted);
+    transition: border-color 0.15s ease;
+  }
+
+  .control:hover {
+    border-color: var(--site-link);
+  }
+
+  /* The field has no outline of its own: the whole pill shows the focus. */
+  .control:has(input:focus-visible) {
+    outline: 2px solid var(--site-focus);
+    outline-offset: 3px;
+  }
+
+  .control svg {
+    flex: 0 0 auto;
+  }
+
+  .current {
+    display: grid;
+    flex: 0 0 auto;
+    place-items: center;
+    width: 20px;
+  }
+
+  .avatar {
+    flex: 0 0 auto;
+    width: 20px;
+    height: 20px;
+    border-radius: var(--ha-border-radius-circle);
+    background: var(--site-accent-quiet);
+  }
+
+  input {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--site-text);
+    font: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    cursor: pointer;
+  }
+
+  input:focus {
+    outline: none;
+    cursor: text;
+  }
+
+  input::placeholder {
+    color: var(--site-text);
+    opacity: 1;
+  }
+
+  .clear,
+  .chevron {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--ha-border-radius-circle);
+    color: var(--site-text-muted);
+  }
+
+  .clear {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .clear:hover {
+    background: var(--site-surface-hover);
+    color: var(--site-text);
+  }
+
+  .clear:focus-visible {
+    outline-offset: 0;
+  }
+
+  .chevron {
+    cursor: pointer;
+    transition: transform 0.15s ease;
+  }
+
+  .control:has([aria-expanded="true"]) .chevron {
+    transform: rotate(180deg);
+  }
+
+  /* The list, styled like the search dialog. */
+  .popup {
+    position: absolute;
+    top: calc(100% + var(--ha-space-2));
+    left: 0;
+    right: 0;
+    z-index: 10;
+    padding: var(--ha-space-2);
+    border: 1px solid var(--site-border);
+    border-radius: var(--site-radius-tile);
+    background: var(--site-surface);
+    color: var(--site-text);
+    box-shadow: var(--ha-box-shadow-l);
+  }
+
+  [role="listbox"] {
+    max-height: min(360px, 50vh);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  [role="option"] {
+    display: flex;
+    align-items: center;
+    gap: var(--ha-space-3);
+    min-height: 40px;
+    padding: var(--ha-space-2) var(--ha-space-3);
+    border-radius: var(--ha-border-radius-md);
+    color: var(--site-text-muted);
+    cursor: pointer;
+  }
+
+  [role="option"] svg {
+    flex: 0 0 auto;
+  }
+
+  .name {
+    flex: 1 1 auto;
+    min-width: 0;
+    color: var(--site-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .posts {
+    flex: 0 0 auto;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* The option the keyboard or the pointer is on. */
+  [role="option"].is-active {
+    background: var(--site-surface-hover);
+    box-shadow: inset 3px 0 0 var(--site-link);
+  }
+
+  [role="option"][aria-selected="true"] {
+    background: var(--site-accent-quiet);
+    color: var(--site-on-accent-quiet);
+  }
+
+  [role="option"][aria-selected="true"] .name {
+    color: inherit;
+    font-weight: 600;
+  }
+
+  .none {
+    margin: 0;
+    padding: var(--ha-space-3);
+    color: var(--site-text-muted);
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+</style>

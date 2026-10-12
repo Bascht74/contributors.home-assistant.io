@@ -1,0 +1,76 @@
+---
+title: Picture entity card
+description: The picture entity card shows one entity as an image, with its name and state on a bar at the bottom. It is the card for cameras.
+sidebarGroup: Media and pictures
+---
+
+## Usage
+
+The picture entity card shows one entity as a picture. The image fills the card, and a dark, see-through bar at the bottom shows the name of the entity on the left and its state on the right. Selecting the card opens the more-info dialog of the entity.
+
+This page has no live example. The demo home on this site has no pictures or cameras to show.
+
+Use it for a camera: the card shows its latest snapshot, or a live stream. Use it for an image entity, or a person with a profile picture. And use it for an entity that is easier to recognize from a picture than from an icon, like a lamp, a doorbell, or the garden.
+
+For anything else, the [tile card](/design/dashboards/tile-card/) tells people more in less space. When the picture should show several entities, use the [picture glance card](/design/dashboards/picture-glance-card/). For a picture without an entity, use the [picture card](/design/dashboards/picture-card/).
+
+### Where the picture comes from
+
+The card picks its image in this order:
+
+1. The picture of the entity itself, when `show_entity_picture` is on and the entity has one, like the album art of a media player.
+2. The `image` you set.
+3. The image of an image entity, or the profile picture of a person.
+
+A camera entity always shows the camera, and `camera_image` shows a camera for any other entity. With `camera_view: live`, the card plays the live stream instead of refreshing a snapshot. Live streams use more bandwidth, so keep `auto` unless people need to see motion.
+
+### State images and filters
+
+The picture can change with the state. `state_image` maps a state to an image, like a photo of the lamp lit for `on`, and one in the dark for `off`. `state_filter` maps a state to a CSS filter, like `brightness(50%)`.
+
+When the entity is off, or unavailable, and there is no image for that state, the card turns the picture gray. People see at a glance that the lamp is off, without reading the state.
+
+### Name and state
+
+Use `show_name` and `show_state` to hide either part of the bar. With one of them, the text is centered. With neither, the bar is gone, and the card is just the picture. Hide the state only when the picture already shows it, like with a camera.
+
+### Content
+
+- Use photos with a calm area at the bottom. The bar is see-through, and busy detail behind it makes the text hard to read.
+- Set an `aspect_ratio` when the images of several cards differ in size, so the cards line up. Use `fit_mode` to decide how the image fills that shape: `cover` crops, `contain` letterboxes, `fill` stretches.
+
+## Configuration
+
+- `entity` (string, required): the entity to show.
+- `name` (string): the name to show. Defaults to the name of the entity.
+- `image` (string or media): the image to show, as a URL or a media source item. Required for most entities, see above.
+- `show_entity_picture` (boolean): uses the picture of the entity, when it has one. Defaults to `false`.
+- `camera_image` (string): a camera entity to show as the picture.
+- `camera_view` (string): `auto` for snapshots, or `live` for the live stream. Defaults to `auto`.
+- `state_image` (map): an image for each state.
+- `state_filter` (map): a CSS filter for each state.
+- `aspect_ratio` (string): the shape of the image, like `16x9` or `50%`. Ignored when the card has a fixed number of rows in the sections view.
+- `fit_mode` (string): `cover`, `contain`, or `fill`. Defaults to `cover`.
+- `show_name` (boolean): shows the name. Defaults to `true`.
+- `show_state` (boolean): shows the state. Defaults to `true`.
+- `theme` (string): a theme to apply to the card.
+- `tap_action` (action): what happens when you select the card. Defaults to `more-info`.
+- `hold_action`, `double_tap_action` (action): what happens on hold or double tap. Default to `none`.
+
+```yaml
+type: picture-entity
+entity: light.living_room_lamp
+image: "/local/floor_lamp.jpg"
+tap_action:
+  action: toggle
+```
+
+## In code
+
+The card lives in `src/panels/lovelace/cards/hui-picture-entity-card.ts`, and the element is `<hui-picture-entity-card>`. The picture is a `<hui-image>` (`src/panels/lovelace/components/hui-image.ts`), shared with the picture glance and picture elements cards. That element handles the camera snapshots and streams, the state images, the filters, the gray filter for an entity that is off, and the aspect ratio.
+
+The card throws `No image source configured` when the entity is not a camera, image, or person, and there is no `image`, `state_image`, `camera_image`, or `show_entity_picture`.
+
+The bar takes its colors from `--ha-picture-card-background-color` and `--ha-picture-card-text-color`. The card has no grid options of its own: in the sections view, it takes all 12 columns, and its height follows the image.
+
+[Source](https://github.com/home-assistant/frontend/blob/dev/src/panels/lovelace/cards/hui-picture-entity-card.ts)

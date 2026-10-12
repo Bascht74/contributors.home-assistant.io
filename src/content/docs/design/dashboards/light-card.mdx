@@ -1,0 +1,59 @@
+---
+title: Light card
+description: The light card shows one light as a big round button, with a ring around it to set the brightness.
+sidebarGroup: Controls
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+<Demo hass>
+  <hui-card style="width: 300px" data-props='{"config": {"type": "light", "entity": "light.living_room_lamp"}}'></hui-card>
+  <hui-card style="width: 300px" data-props='{"config": {"type": "light", "entity": "light.kitchen_ceiling"}}'></hui-card>
+</Demo>
+
+## Usage
+
+The light card is a big control for one light. The middle is a button with the icon of the light, and a ring around it sets the brightness. Below the button, you see the brightness and the name. Selecting the button toggles the light, holding it opens the more-info dialog. The menu button in the corner also opens the more-info dialog.
+
+The icon takes the color of the light, and gets brighter or dimmer with it. A light that is off is gray. When you drag the ring, the brightness shows in the middle of the card while you move.
+
+Use the light card when one light is the main thing on a dashboard or in a section, like a wall tablet next to a door. For most lights, a [tile card](/design/dashboards/tile-card/) with the brightness feature fits better: it takes a quarter of the room, and sits nicely next to the other lights in the same area.
+
+<Demo hass>
+  <hui-card style="width: 340px" data-props='{"config": {"type": "tile", "entity": "light.living_room_lamp", "features": [{"type": "light-brightness"}]}}'></hui-card>
+</Demo>
+
+### Lights without brightness
+
+A light that can only turn on and off has no ring. The card still shows the button and the name, so it does not jump around when you swap the entity. For a light like that, a tile card or a [button card](/design/dashboards/button-card/) says the same in less room.
+
+### Content
+
+- Keep the name short. It sits under the button, in the middle of the card, and a long name wraps or gets cut off.
+- Only set an icon when the default icon of the light does not say what it is, like a floor lamp or a light strip.
+- Keep the default actions. People expect a tap to switch the light, and the ring to dim it.
+
+## Configuration
+
+- `entity` (string, required): the light to show. Only entities of the `light` domain work.
+- `name` (string): the name to show. Defaults to the name of the entity.
+- `icon` (string): the icon in the button. Defaults to the icon of the entity.
+- `theme` (string): a theme to apply to this card only.
+- `tap_action` (action): what happens when you select the button. Defaults to `toggle`.
+- `hold_action` (action): what happens when you hold the button. Defaults to `more-info`.
+- `double_tap_action` (action): what happens when you double tap the button. Defaults to `none`.
+
+```yaml
+type: light
+entity: light.living_room_lamp
+name: "Reading lamp"
+icon: "mdi:floor-lamp"
+```
+
+## In code
+
+The card lives in `src/panels/lovelace/cards/hui-light-card.ts`, and the element is `<hui-light-card>`. The ring is the [`<ha-control-circular-slider>`](/design/components/controls/), the same control the thermostat card uses, in `start` mode from 1 to 100 percent. It only shows when the light supports brightness. Setting the brightness calls `light.turn_on` with `brightness_pct`.
+
+The card has no grid options of its own, so in the sections view it takes the full width of the section and as much height as it needs.
+
+[Source](https://github.com/home-assistant/frontend/blob/dev/src/panels/lovelace/cards/hui-light-card.ts)

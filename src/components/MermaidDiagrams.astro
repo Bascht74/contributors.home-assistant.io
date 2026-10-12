@@ -1,0 +1,159 @@
+---
+// Draws the Mermaid diagrams of a page, from ```mermaid fences (see
+// src/lib/code-blocks.mjs). Mermaid is big, so it only loads on a page that
+// has a diagram, once the first diagram comes near. The diagrams follow the
+// light or dark theme of the site. Without JavaScript, or when a diagram
+// fails to draw, its source stays readable.
+---
+
+<script>
+  type Mermaid = typeof import("mermaid").default;
+
+  const diagrams = [...document.querySelectorAll<HTMLElement>("pre.mermaid")];
+
+  // Start loading Mermaid this far before a diagram scrolls into view, so it
+  // is usually drawn by the time you get there.
+  const ROOT_MARGIN = "800px 0px";
+
+  function isDark(): boolean {
+    const theme = document.documentElement.dataset.theme;
+    if (theme === "dark" || theme === "light") {
+      return theme === "dark";
+    }
+
+    return window.matchMedia("(prefers-color-scheme: dark)").matches;
+  }
+
+  // The colors and font of the site, read from its tokens, so a diagram
+  // looks like part of the page in both themes.
+  function configure(mermaid: Mermaid) {
+    const style = getComputedStyle(document.documentElement);
+    const token = (name: string) => style.getPropertyValue(name).trim();
+
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: "base",
+      darkMode: isDark(),
+      fontFamily: getComputedStyle(document.body).fontFamily,
+      themeVariables: {
+        background: token("--site-surface"),
+        primaryColor: token("--site-accent-quiet"),
+        primaryTextColor: token("--site-text"),
+        primaryBorderColor: token("--site-link"),
+        secondaryColor: token("--site-bg"),
+        tertiaryColor: token("--site-bg"),
+        lineColor: token("--site-text-muted"),
+        textColor: token("--site-text"),
+        edgeLabelBackground: token("--site-surface"),
+        clusterBkg: token("--site-bg"),
+        clusterBorder: token("--site-border"),
+        fontSize: "15px",
+      },
+    });
+  }
+
+  if (diagrams.length) {
+    let mermaidModule: Promise<Mermaid> | undefined;
+    const drawn = new Set<HTMLElement>();
+
+    // One batch at a time: Mermaid keeps global state while it draws, and
+    // a theme change should not race a diagram that is still drawing.
+    let queue = Promise.resolve();
+
+    // Keep the source, so a diagram can be drawn again when the theme
+    // changes. Hide it only now that the script runs: without JavaScript,
+    // the source is all there is, and it stays readable.
+    for (const diagram of diagrams) {
+      diagram.dataset.source = diagram.textContent ?? "";
+      diagram.classList.add("is-pending");
+    }
+
+    // Puts the source back, and shows it, when a diagram does not draw.
+    const showSource = (diagram: HTMLElement) => {
+      diagram.removeAttribute("data-processed");
+      diagram.textContent = diagram.dataset.source ?? "";
+      diagram.classList.remove("is-pending");
+      drawn.delete(diagram);
+    };
+
+    const draw = (targets: HTMLElement[]) => {
+      queue = queue.then(async () => {
+        let mermaid: Mermaid;
+        try {
+          mermaidModule ??= import("mermaid").then((module) => module.default);
+          mermaid = await mermaidModule;
+        } catch {
+          diagrams.forEach(showSource);
+          observer.disconnect();
+          return;
+        }
+
+        configure(mermaid);
+
+        // One diagram per run, so a broken one does not take the others
+        // down with it.
+        for (const diagram of targets) {
+          diagram.removeAttribute("data-processed");
+          diagram.textContent = diagram.dataset.source ?? "";
+
+          try {
+            await mermaid.run({ nodes: [diagram] });
+            drawn.add(diagram);
+          } catch {
+            showSource(diagram);
+          }
+        }
+      });
+    };
+
+    // Mermaid is big: it loads when the first diagram comes near, and each
+    // diagram is drawn as it approaches.
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const near = entries.filter((entry) => entry.isIntersecting).map((entry) => entry.target as HTMLElement);
+        near.forEach((diagram) => observer.unobserve(diagram));
+
+        if (near.length) {
+          draw(near);
+        }
+      },
+      { rootMargin: ROOT_MARGIN },
+    );
+    diagrams.forEach((diagram) => observer.observe(diagram));
+
+    // Redraw when the visitor switches the theme, or the system does. Only
+    // the diagrams already drawn: the others get the new theme when they
+    // come near.
+    const redraw = () => draw([...drawn]);
+    new MutationObserver(redraw).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme"],
+    });
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", redraw);
+  }
+</script>
+
+<style is:global>
+  .prose figure.diagram {
+    margin-inline: 0;
+    padding: var(--ha-space-5);
+    overflow-x: auto;
+    border: 1px solid var(--site-border);
+    border-radius: var(--site-radius-tile);
+    background: var(--site-surface);
+    text-align: center;
+  }
+
+  /* Once the script runs, the source stays hidden until Mermaid replaced it
+     with the diagram. */
+  .prose pre.mermaid.is-pending:not([data-processed]) {
+    visibility: hidden;
+  }
+
+  .prose pre.mermaid {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+  }
+</style>

@@ -1,0 +1,145 @@
+---
+title: Label badge
+description: The round, classic state badge, with a value in the circle and a short label on its edge.
+sidebarGroup: Feedback and status
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+import DoDont from "../../../../components/docs/DoDont.astro";
+
+<Demo>
+  <ha-label-badge label="°C" description="Living room">21</ha-label-badge>
+  <ha-label-badge label="%" description="Humidity" style="--ha-label-badge-color: var(--info-color)">48</ha-label-badge>
+  <ha-label-badge label="Error" description="Not found" style="--ha-label-badge-color: var(--error-color)">
+    <ha-svg-icon path="M13 14H11V9H13M13 18H11V16H13M1 21H23L12 2L1 21Z"></ha-svg-icon>
+  </ha-label-badge>
+</Demo>
+
+## Overview
+
+The label badge is the older, round badge style: a value in a circle, a short label on its bottom edge, and a description below it. Today it only powers the state badge element of the picture elements card.
+
+## When to use
+
+Use a label badge for:
+
+- Work on the state badge element of the picture elements card
+
+Don't use a label badge for:
+
+- Badges on a dashboard. Those use the [badge](/design/components/badge/), which has the current dashboard style.
+
+## Anatomy
+
+1. **Circle**: the round container, with a colored border, and optionally a background image
+2. **Value**: the content of the circle, text or an icon
+3. **Label**: optional, a colored pill on the bottom edge of the circle, in uppercase
+4. **Description**: optional text below the badge
+
+## Variants
+
+### Label length
+
+Labels longer than five characters get a smaller font.
+
+<Demo>
+  <ha-label-badge label="kWh">3.2</ha-label-badge>
+  <ha-label-badge label="Unavailable">?</ha-label-badge>
+  <ha-label-badge description="Kitchen">22</ha-label-badge>
+</Demo>
+
+## Behavior
+
+- The label badge is static: it has no hover, focus, pressed, or disabled state.
+- A value that is too wide for the circle is cut off with an ellipsis. So is a label that is wider than the circle.
+- The description is cut off at 5em wide.
+- Changes to the border and label color fade in 0.3s.
+
+## Specs
+
+All sizes are relative to the font size, so the badge scales with the text around it.
+
+| Property | Value | Token |
+| --- | --- | --- |
+| Circle size | 2.5em | `--ha-label-badge-size` |
+| Font size of the circle | 1.5em | `--ha-label-badge-font-size` |
+| Corner radius | 50%, a circle | `--ha-label-badge-border-radius` |
+| Border | 0.1em solid | `--ha-label-badge-color` |
+| Label font size | 0.5em of the circle, 90% of that when longer than five characters | None |
+| Label corner radius | 12px | `--ha-border-radius-lg` |
+| Label weight | 500 | `--ha-font-weight-medium` |
+| Description font size | 0.9em | `--ha-label-badge-title-font-size` |
+| Description width | 5em | `--ha-label-badge-title-width` |
+| Space above the description | 1em | None |
+
+| Part | Color |
+| --- | --- |
+| Border and label background | `--ha-label-badge-color`, defaults to `--primary-color` |
+| Label text | `--ha-label-badge-label-color`, defaults to white |
+| Circle background | `--label-badge-background-color`, set to `--card-background-color` by the theme |
+| Value | `--label-badge-text-color`, set to the primary text color at 80% opacity by the theme |
+
+## Guidelines
+
+<DoDont doText="Keep the value to a few characters." dontText="Put a long value in the circle. It gets cut off.">
+  <ha-label-badge slot="do" label="°C">21</ha-label-badge>
+  <ha-label-badge slot="dont" label="°C">21.5432</ha-label-badge>
+</DoDont>
+
+<DoDont doText="Use a short description." dontText="Use a long name. The description is cut off at about five characters wide.">
+  <ha-label-badge slot="do" description="Kitchen">22</ha-label-badge>
+  <ha-label-badge slot="dont" description="Downstairs living room">22</ha-label-badge>
+</DoDont>
+
+## Accessibility
+
+### Keyboard
+
+The label badge is not focusable, and has no keyboard interaction.
+
+### Screen readers
+
+A screen reader reads the value, the label, and the description as plain text. The label looks uppercase, but is read as written. An icon as the value is skipped.
+
+### In the code
+
+- The label badge has no role.
+- The label is in uppercase through CSS only.
+- An icon as the value is decorative when it is an `ha-svg-icon`, which has `aria-hidden="true"`.
+
+## Related
+
+- [Badge](/design/components/badge/): the current badge
+- [State icon](/design/components/state-icon/): the icon of an entity
+
+## In code
+
+The element is `<ha-label-badge>`:
+
+```html
+<ha-label-badge label="°C" description="Living room">21</ha-label-badge>
+```
+
+### Attributes
+
+- `label`: short text on the edge of the circle.
+- `description`: text below the badge.
+- `image`: URL of a background image for the circle, like an entity picture.
+
+### Slots
+
+- Default: the value inside the circle. Text or an icon.
+
+### Styling
+
+- `--ha-label-badge-color`: the border and label background. Defaults to `var(--primary-color)`.
+- `--ha-label-badge-label-color`: the label text. Defaults to white.
+- `--ha-label-badge-size`: the size of the circle. Defaults to `2.5em`.
+- `--ha-label-badge-font-size`: the font size of the value. Defaults to `1.5em`.
+- `--ha-label-badge-border-radius`: defaults to `50%`, a circle.
+- `--ha-label-badge-padding`: padding around the whole badge.
+- `--ha-label-badge-label-text-transform`: defaults to `uppercase`.
+- `--ha-label-badge-title-font-size`, `--ha-label-badge-title-font-weight`, and `--ha-label-badge-title-width`: the description below the badge.
+- `--label-badge-background-color` and `--label-badge-text-color`: the circle background and value color. These are theme variables.
+
+Source: [`src/components/ha-label-badge.ts`](https://github.com/home-assistant/frontend/blob/dev/src/components/ha-label-badge.ts)

@@ -1,0 +1,128 @@
+---
+title: Spinner
+description: A spinner shows that something is loading or in progress, when you don't know how long it will take.
+sidebarGroup: Feedback and status
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+import DoDont from "../../../../components/docs/DoDont.astro";
+
+<Demo>
+  <ha-spinner></ha-spinner>
+</Demo>
+
+## Overview
+
+A spinner shows that something is loading or in progress, when you don't know how long it will take: loading data, connecting to a device, running an action. Show it where the result will appear, so people know what they are waiting for.
+
+## When to use
+
+Use a spinner for:
+
+- Waiting for something without a known duration
+- A whole page, panel, or card that is loading
+
+Don't use a spinner for:
+
+- An action started from a button. Use the `loading` state of the [button](/design/components/button/), or a [progress button](/design/components/progress-button/). The feedback then stays on the thing people selected.
+- A level against a known maximum. Use a [bar](/design/components/bar/).
+- Loading that failed. Replace the spinner with an [alert](/design/components/alert/) that says what went wrong.
+
+## Anatomy
+
+1. **Track**: the full circle behind the indicator
+2. **Indicator**: the arc that grows, shrinks, and turns around the track
+
+## Variants
+
+### Size
+
+There are four sizes. Pick the size that fits the space it is waiting to fill:
+
+- **Tiny**: 16px
+- **Small**: 28px
+- **Medium**: 48px, the default
+- **Large**: 68px
+
+<Demo>
+  <ha-spinner size="tiny"></ha-spinner>
+  <ha-spinner size="small"></ha-spinner>
+  <ha-spinner size="medium"></ha-spinner>
+  <ha-spinner size="large"></ha-spinner>
+</Demo>
+
+## Behavior
+
+The spinner has one state: it keeps turning until you remove it. It has no hover, focus, or pressed state. The whole spinner turns once every 3.5 seconds, while the arc grows and shrinks every 1.5 seconds. The styles have no separate rule for reduced motion, so the animation runs the same when someone asks for less motion.
+
+## Specs
+
+| Size | Diameter | Token |
+| --- | --- | --- |
+| Tiny | 16px | `--ha-spinner-size` |
+| Small | 28px | `--ha-spinner-size` |
+| Medium, the default | 48px | `--ha-spinner-size` |
+| Large | 68px | `--ha-spinner-size` |
+
+| Property | Value | Token |
+| --- | --- | --- |
+| Track and indicator width | 4px | None |
+| Indicator color | Primary color | `--primary-color`, through `--ha-spinner-indicator-color` |
+| Track color | Divider color | `--divider-color`, through `--ha-spinner-divider-color` |
+| Indicator ends | Round | None |
+| Rotation | 3.5s per turn, linear | None |
+| Arc animation | 1.5s, ease-in-out | None |
+
+## Guidelines
+
+<DoDont doText="Show the loading state on the button that started it." dontText="Put a separate spinner next to the button.">
+  <ha-button slot="do" loading>Save</ha-button>
+  <Fragment slot="dont">
+    <ha-button>Save</ha-button>
+    <ha-spinner size="small"></ha-spinner>
+  </Fragment>
+</DoDont>
+
+- Don't leave a spinner running forever. If loading fails, replace it with an alert.
+
+## Accessibility
+
+### Keyboard
+
+The spinner is not focusable, and has no keyboard interaction.
+
+### Screen readers
+
+The spinner is announced as a progress bar named "Loading", without a value, because there is no known progress.
+
+### In the code
+
+The spinner has the role `progressbar`, with the accessible name "Loading" from the localization of Web Awesome, and no value.
+
+## Related
+
+- [Button](/design/components/button/): the `loading` state for actions
+- [Progress button](/design/components/progress-button/): a button that shows the result of its action
+- [Bar](/design/components/bar/): a level against a known maximum
+- [Alert](/design/components/alert/): when loading fails
+
+## In code
+
+The element is `<ha-spinner>`. It is based on the [Web Awesome spinner](https://webawesome.com/docs/components/spinner/).
+
+```html
+<ha-spinner></ha-spinner>
+<ha-spinner size="small"></ha-spinner>
+```
+
+### Attributes
+
+- `size`: `tiny`, `small`, `medium`, or `large`. Without it, the spinner is 48 pixels, the same as `medium`.
+
+### Styling
+
+- `--ha-spinner-size`: the size, for when none of the presets fit. The `size` attribute sets this for you.
+- `--ha-spinner-indicator-color`: the moving part. Defaults to `var(--primary-color)`.
+- `--ha-spinner-divider-color`: the track behind it. Defaults to `var(--divider-color)`.
+
+Source: [`src/components/ha-spinner.ts`](https://github.com/home-assistant/frontend/blob/dev/src/components/ha-spinner.ts)

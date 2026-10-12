@@ -1,0 +1,267 @@
+---
+title: Dropdown
+description: Dropdowns show a menu of actions or options, behind a button.
+sidebarGroup: Actions
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+<Demo>
+  <ha-dropdown>
+    <ha-button slot="trigger" appearance="outlined" with-caret>Actions</ha-button>
+    <ha-dropdown-item value="edit">
+      <ha-svg-icon slot="icon" path="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z"></ha-svg-icon>
+      Edit
+    </ha-dropdown-item>
+    <ha-dropdown-item value="duplicate">
+      <ha-svg-icon slot="icon" path="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"></ha-svg-icon>
+      Duplicate
+    </ha-dropdown-item>
+    <ha-dropdown-item value="download">
+      <ha-svg-icon slot="icon" path="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z"></ha-svg-icon>
+      Download
+    </ha-dropdown-item>
+    <ha-dropdown-item value="delete" variant="danger">
+      <ha-svg-icon slot="icon" path="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"></ha-svg-icon>
+      Delete
+    </ha-dropdown-item>
+  </ha-dropdown>
+</Demo>
+
+## Overview
+
+A dropdown groups actions that don't need to be visible all the time, behind a button. The most common case in Home Assistant is the overflow menu: the three dots button in the top right of a page, a card, or a row, with everything you can do with that item. It keeps the screen calm, while the actions stay one tap away.
+
+## When to use
+
+Use a dropdown for:
+
+- Actions on an item that are used less often, like **Duplicate** or **Download**
+- View options, like which columns to show or the sort order
+- A short list of related items in a submenu, like the areas to move something to
+
+Don't use a dropdown for:
+
+- The main action of a screen. If people come to a screen to save, the **Save** [button](/design/components/button/) belongs on the screen itself.
+- Picking a value in a form. A dropdown is a menu, not a form field. Use a select, or a [select box](/design/components/select-box/) for a few options that need explaining.
+
+## Anatomy
+
+1. **Trigger**: the element that opens the menu, like an icon button or a button with a caret
+2. **Menu**: the raised surface with the items
+3. **Item**: one action or option, with a label
+4. **Icon**: optional, before the label of an item
+5. **Checkmark**: on checkbox items, shows whether the option is on
+6. **Details**: optional extra content after the label, like a keyboard shortcut
+7. **Submenu indicator and submenu**: on an item with a submenu, an arrow at the end, and a second menu next to the item
+
+## Variants
+
+### Trigger
+
+In the frontend the trigger is often an icon button with the three dots icon, with the menu opening below it, aligned to its end. A [button](/design/components/button/) with a caret works too, when a label makes the menu easier to find.
+
+### Action items
+
+Keep labels short, and start with a verb when the item runs an action: **Edit**, **Duplicate**, **Download**. An icon before the label helps people scan a longer menu.
+
+Destructive actions, like **Delete**, use the danger variant: the label and icon turn red.
+
+### Options and toggles
+
+A dropdown can also hold options. Checkbox items are for settings that are on or off, like which columns to show. A selected item marks the current choice from a set, like the sort order.
+
+<Demo>
+  <ha-dropdown>
+    <ha-button slot="trigger" appearance="plain" with-caret>View</ha-button>
+    <ha-dropdown-item type="checkbox" checked>Show area</ha-dropdown-item>
+    <ha-dropdown-item type="checkbox" checked>Show integration</ha-dropdown-item>
+    <ha-dropdown-item type="checkbox">Show status</ha-dropdown-item>
+  </ha-dropdown>
+  <ha-dropdown>
+    <ha-button slot="trigger" appearance="plain" with-caret>Sort by</ha-button>
+    <ha-dropdown-item value="name" selected>Name</ha-dropdown-item>
+    <ha-dropdown-item value="area">Area</ha-dropdown-item>
+    <ha-dropdown-item value="modified">Last modified</ha-dropdown-item>
+  </ha-dropdown>
+</Demo>
+
+### Submenus and disabled items
+
+Put related items in a submenu, like a list of areas to move something to, so the main menu stays short.
+
+Disable an item when the action exists, but is not possible right now.
+
+<Demo>
+  <ha-dropdown>
+    <ha-button slot="trigger" appearance="plain" with-caret>More</ha-button>
+    <ha-dropdown-item value="rename">Rename</ha-dropdown-item>
+    <ha-dropdown-item value="paste" disabled>Paste</ha-dropdown-item>
+    <ha-dropdown-item>
+      Move to
+      <ha-dropdown-item slot="submenu" value="living-room">Living room</ha-dropdown-item>
+      <ha-dropdown-item slot="submenu" value="kitchen">Kitchen</ha-dropdown-item>
+      <ha-dropdown-item slot="submenu" value="bedroom">Bedroom</ha-dropdown-item>
+    </ha-dropdown-item>
+  </ha-dropdown>
+</Demo>
+
+## Behavior
+
+- **Opening**: selecting the trigger opens the menu, and selecting it again closes it. Opening one dropdown closes any other open dropdown. The menu scales up from 90% and fades in.
+- **Placement**: the menu opens below the trigger, aligned to its start, by default. If there is no room, it flips to the other side, and it shifts to stay at least 10px from the edges of the screen. A long menu gets a maximum height and scrolls, and on phones it stays clear of the notch and the navigation bar.
+- **Hover**: on devices with a pointer that can hover, an item gets the normal neutral fill. A danger item gets the normal danger fill.
+- **Focus**: the focused item gets the same fill as on hover, and a focus ring.
+- **Selected**: a selected item gets a quiet primary fill, a medium font weight, and the primary color for its label and icon.
+- **Checked**: a checkbox item shows a marked checkbox icon when it is on, and an empty one when it is off.
+- **Disabled**: a disabled item is shown at 50% opacity, and selecting it does nothing.
+- **Selecting**: selecting an item closes the menu and moves focus back to the trigger. A checkbox item is toggled first. The page can keep the menu open in code.
+- **Closing**: the menu also closes with <kbd>Escape</kbd>, with <kbd>Tab</kbd>, or by selecting anywhere outside of it.
+- **Submenus**: moving the pointer from an item to its submenu keeps the submenu open, even when the pointer crosses other items on the way.
+
+When the trigger is an icon button, it is shown as selected while the menu is open.
+
+## Specs
+
+| Property | Value | Token |
+| --- | --- | --- |
+| Menu padding | 4px | `--ha-space-1` |
+| Menu corner radius | 8px | `--ha-border-radius-md` |
+| Menu border | 1px solid | `--ha-border-width-sm`, `--ha-color-border-neutral-quiet` |
+| Menu background | Card background | `--card-background-color` |
+| Menu shadow | Medium shadow | `--ha-box-shadow-m` |
+| Font size | 14px | `--ha-font-size-m`, through `--ha-dropdown-font-size` |
+| Item minimum height | 40px | `--ha-space-10` |
+| Item padding | 0.5em top and bottom, 1em left and right | None |
+| Item corner radius | 4px | `--ha-border-radius-sm` |
+| Item line height | 1.2 | `--ha-line-height-condensed` |
+| Space between icon and label | 0.75em | None |
+| Open and close animation | 75ms, ease | `--ha-animation-duration-instant` |
+| Distance to the edge of the screen | At least 10px | None |
+| Focus ring | 2px solid | `--ha-color-focus` |
+
+| Item | State | Background | Label | Icon |
+| --- | --- | --- | --- | --- |
+| Default | Resting | Transparent | `--primary-text-color` | `--ha-color-on-neutral-normal` |
+| Default | Hover or focus | `--ha-color-fill-neutral-normal-resting` | `--primary-text-color` | `--ha-color-on-neutral-normal` |
+| Danger | Resting | Transparent | `--ha-color-on-danger-quiet` | `--ha-color-on-danger-quiet` |
+| Danger | Hover or focus | `--ha-color-fill-danger-normal-resting` | `--ha-color-on-danger-normal` | `--ha-color-on-danger-quiet` |
+| Selected | Resting | `--ha-color-fill-primary-quiet-resting` | `--primary-color` | `--primary-color` |
+| Selected | Hover | `--ha-color-fill-primary-quiet-hover` | `--primary-color` | `--primary-color` |
+
+## Guidelines
+
+- Start the label of an action with a verb: **Edit**, **Duplicate**, **Download**.
+- Put destructive actions, like **Delete**, at the end of the menu, with the danger variant.
+- When a destructive action cannot be undone, ask for confirmation in a [dialog](/design/components/dialog/) first. See [remove, delete, add, or create](/design/ui-text/remove-delete/) for picking the right word.
+- Use a submenu to keep a long list of related items out of the main menu.
+- Disable an item when the action exists, but is not possible right now, instead of hiding it.
+
+## Accessibility
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Enter</kbd> or <kbd>Space</kbd> on the trigger | Opens or closes the menu. When it opens, focus moves to the first item. |
+| <kbd>Arrow down</kbd> and <kbd>Arrow up</kbd> | Move focus to the next or previous item. At the end, focus wraps around. |
+| <kbd>Home</kbd> and <kbd>End</kbd> | Move focus to the first or last item. |
+| Typing a letter | Moves focus to the first item whose label starts with the typed text. |
+| <kbd>Enter</kbd> or <kbd>Space</kbd> on an item | Selects the item, or opens its submenu. |
+| <kbd>Arrow right</kbd> | Opens the submenu of the focused item. In a right to left language, this is <kbd>Arrow left</kbd>. |
+| <kbd>Arrow left</kbd> | Closes the submenu and returns to its item. In a right to left language, this is <kbd>Arrow right</kbd>. |
+| <kbd>Escape</kbd> | Closes the menu, and moves focus back to the trigger. |
+| <kbd>Tab</kbd> | Closes the menu. |
+
+### Focus
+
+Only one item at a time can take focus, so <kbd>Tab</kbd> doesn't walk through every item. Arrow keys move between items instead. The focused item shows a focus ring.
+
+### Target size
+
+Each item is at least 40px high.
+
+### Screen readers
+
+The menu is announced as a menu, and each item with its position, like "2 of 5". Checkbox items are announced as checked or not checked, disabled items as disabled, and items with a submenu as having one. A selected item looks selected, but is not announced as selected.
+
+### In the code
+
+- The menu has the role `menu`, with a vertical orientation.
+- Items have the role `menuitem`. Checkbox items have the role `menuitemcheckbox`, with `aria-checked`.
+- Each item gets its position in the menu, with `aria-posinset` and `aria-setsize`.
+- A disabled item has `aria-disabled="true"`.
+- An item with a submenu has `aria-haspopup="menu"`, and `aria-expanded` while its submenu is open.
+- The trigger gets `aria-haspopup="menu"`, and `aria-expanded` set to `true` or `false`.
+- The `selected` attribute changes the look of an item, but it sets no ARIA state.
+- An icon button used as a trigger needs a `label`, which becomes its accessible name.
+
+## Related
+
+- [Button](/design/components/button/): for the main action, and as a trigger
+- [Select box](/design/components/select-box/): picking a value in a form
+- [Dialog](/design/components/dialog/): confirming a destructive action from the menu
+- [UI text](/design/ui-text/): how to write labels
+
+## In code
+
+The elements are `<ha-dropdown>` and `<ha-dropdown-item>`. They are based on the [Web Awesome dropdown](https://webawesome.com/docs/components/dropdown/) and [dropdown item](https://webawesome.com/docs/components/dropdown-item/).
+
+```html
+<ha-dropdown placement="bottom-end">
+  <ha-button slot="trigger" with-caret>Actions</ha-button>
+  <ha-dropdown-item value="edit">
+    <ha-svg-icon slot="icon" path="..."></ha-svg-icon>
+    Edit
+  </ha-dropdown-item>
+  <ha-dropdown-item value="delete" variant="danger">Delete</ha-dropdown-item>
+</ha-dropdown>
+```
+
+### Attributes
+
+`<ha-dropdown>`:
+
+- `placement`: where the menu opens, relative to the trigger. `bottom-start` (default), `bottom`, `bottom-end`, `top-start`, `top`, `top-end`, `left-start`, `left`, `left-end`, `right-start`, `right`, or `right-end`. If there is no room, the menu flips to the other side.
+- `distance`: the distance between the trigger and the menu, in pixels.
+- `skidding`: shifts the menu along the trigger, in pixels.
+- `open`: opens the menu.
+
+`<ha-dropdown-item>`:
+
+- `value`: identifies the item in the `wa-select` event.
+- `variant`: `default` or `danger`.
+- `type`: `normal` (default) or `checkbox`.
+- `checked`: turns a checkbox item on.
+- `selected`: marks the item as the current choice. This is an addition in Home Assistant, not part of Web Awesome.
+- `disabled`: disables the item.
+- `href`, `target`, `rel`, and `download`: turn the item into a link.
+
+When the trigger is an `<ha-icon-button>`, the dropdown marks it as selected while the menu is open. You can also open the menu from another element, by setting the `anchorElement` property from code.
+
+### Slots
+
+`<ha-dropdown>`:
+
+- Default: the items.
+- `trigger`: the element that opens the menu, like a button or an icon button.
+
+`<ha-dropdown-item>`:
+
+- Default: the label.
+- `icon`: an icon before the label.
+- `details`: extra content after the label, like a keyboard shortcut.
+- `submenu`: the items of a submenu.
+
+### Events
+
+- `wa-select`: fires on `<ha-dropdown>` when people select an item. The item is in `event.detail.item`, so read `event.detail.item.value` to know which one. Checkbox items are already toggled when the event fires. Call `event.preventDefault()` to keep the menu open.
+- `wa-show` and `wa-after-show`: fire when the menu opens, and after the animation.
+- `wa-hide` and `wa-after-hide`: fire when the menu closes, and after the animation.
+
+### Styling
+
+- `--ha-dropdown-font-size`: the font size of the menu. Defaults to `var(--ha-font-size-m)`.
+- `--show-duration` and `--hide-duration`: the duration of the open and close animations.
+
+Source: [`src/components/ha-dropdown.ts`](https://github.com/home-assistant/frontend/blob/dev/src/components/ha-dropdown.ts) and [`src/components/ha-dropdown-item.ts`](https://github.com/home-assistant/frontend/blob/dev/src/components/ha-dropdown-item.ts)

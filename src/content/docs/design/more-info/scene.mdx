@@ -1,0 +1,33 @@
+---
+title: Scene
+description: The more-info view of a scene, with an Activate button and the entities the scene controls.
+sidebarGroup: Helpers
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+<Demo hass>
+  <ha-demo-more-info entity="scene.movie_night"></ha-demo-more-info>
+  <ha-demo-more-info entity="scene.good_night"></ha-demo-more-info>
+</Demo>
+
+## What it shows
+
+A scene has no state to change, only something to do: set a group of devices to how you saved them. So its view is a state row with an **Activate** button, and below it the entities that are part of the scene.
+
+The state of a scene is the moment it was last activated, or unknown when it never was. The good night scene has never been activated, so its state is unknown.
+
+The entities show as tile cards, one per row. Each tile shows the state of the entity, and gets a control when the entity has one that fits, like a brightness slider for a dimmable light. That way you can check and fine-tune what the scene did, without leaving the dialog.
+
+## Design notes
+
+- **Activate** is a small text [button](/design/components/button/) at the end of the row. It is the only action, so it doesn't need more weight.
+- The tiles leave out what all members have in common. Everything in movie night is in the living room, so its tiles show no area. Good night spans the living room and the hallway, so its tiles do.
+- Entities that are hidden are left out of the list.
+- The dialog shows no history for a scene in the info view. History is one tap away, behind the **History** button in the header.
+
+## In code
+
+The state row is `state-card-scene` in `src/state-summary/state-card-scene.ts`. The list of entities is rendered by `more-info-content` in `src/dialogs/more-info/more-info-content.ts`, for any entity with members. It builds a grid of tile cards from the `entity_id` attribute of the scene.
+
+Source: [`state-card-scene.ts`](https://github.com/home-assistant/frontend/blob/dev/src/state-summary/state-card-scene.ts)

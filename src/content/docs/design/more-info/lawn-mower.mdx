@@ -1,0 +1,36 @@
+---
+title: Lawn mower
+description: The more-info view of a robot lawn mower, with an animated status picture and buttons to start, stop, and dock.
+sidebarGroup: Appliances
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+<Demo hass>
+  <ha-demo-more-info entity="lawn_mower.lawn_mower"></ha-demo-more-info>
+</Demo>
+
+## What it shows
+
+The lawn mower view is a sibling of the [vacuum](/design/more-info/vacuum/) view. Both are robots that do their job on their own, so both show a picture of the robot with a row of commands below it, instead of a slider or a switch.
+
+The picture is a drawing of a robot mower that changes with the state: mowing, returning, paused, docked, or in error. It takes the color of the state.
+
+Below the picture, a group of [control buttons](/design/components/controls/) holds the commands. Each one only shows when the mower supports it:
+
+- **Start mowing** or **Pause**, in one button. It shows pause while the mower is mowing and can pause, and start otherwise.
+- **Stop**.
+- **Return to dock**.
+
+The state at the top is the state of the mower, like **Docked**. When the device has a battery sensor, the battery level shows next to the time, like on the vacuum. The mower in the fake home has none, so you don't see it here.
+
+## Design notes
+
+- Buttons that make no sense right now are disabled. The mower above is docked, so **Stop** and **Return to dock** are grayed out.
+- Unlike the vacuum, the lawn mower view has no secondary settings below the buttons.
+
+## In code
+
+The view is `more-info-lawn_mower` in `src/dialogs/more-info/controls/more-info-lawn_mower.ts`. The picture is `ha-state-control-lawn_mower-status` in `src/state-control/lawn_mower/`. The `LawnMowerEntityFeature` enum and helpers like `canDock` are in `src/data/lawn_mower.ts`.
+
+Source: [`more-info-lawn_mower.ts`](https://github.com/home-assistant/frontend/blob/dev/src/dialogs/more-info/controls/more-info-lawn_mower.ts)

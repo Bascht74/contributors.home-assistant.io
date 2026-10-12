@@ -1,0 +1,76 @@
+---
+title: Entity card
+description: The entity card shows the state of one entity as a big value, with its name and icon. It is made for a number you want to read at a glance.
+sidebarGroup: Entity cards
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+<Demo hass>
+  <hui-card style="width: 300px" data-props='{"config": {"type": "entity", "entity": "sensor.outdoor_temperature"}}'></hui-card>
+  <hui-card style="width: 300px" data-props='{"config": {"type": "entity", "entity": "sensor.desk_plug_power"}}'></hui-card>
+</Demo>
+
+## Usage
+
+The entity card puts the state of one entity front and center: the name at the top, the icon in the corner, and the value in a large font below. It works best for a reading people check often, like the temperature outside or the power a device uses right now.
+
+The entity card only shows. It has no controls, and selecting it opens the more-info dialog. To show an entity people also operate, like a light, use the [tile card](/design/dashboards/tile-card/). To show how a value changed over time, use the [sensor card](/design/dashboards/sensor-card/), which adds a graph below the value.
+
+### Attribute
+
+With `attribute`, the card shows an attribute instead of the state. Add a `unit` when the attribute has none of its own. A custom unit always comes after the value.
+
+<Demo hass>
+  <hui-card style="width: 300px" data-props='{"config": {"type": "entity", "entity": "climate.thermostat", "attribute": "current_temperature", "name": "Living room", "unit": "°C"}}'></hui-card>
+</Demo>
+
+### State color
+
+For lights, the icon takes the color of the state, like amber when the light is on, or the color of the light itself. For other entities, the icon stays in the default icon color. Set `state_color: true` to color the icon by state for those too, or `state_color: false` to turn it off for a light.
+
+<Demo hass>
+  <hui-card style="width: 300px" data-props='{"config": {"type": "entity", "entity": "light.living_room_lamp"}}'></hui-card>
+  <hui-card style="width: 300px" data-props='{"config": {"type": "entity", "entity": "lock.front_door", "state_color": true}}'></hui-card>
+</Demo>
+
+### Footer
+
+The card can have a footer, like a graph of the entity or a row of buttons. With a graph, the card turns into a small sensor card, so prefer the [sensor card](/design/dashboards/sensor-card/) for that.
+
+<Demo hass>
+  <hui-card style="width: 300px" data-props='{"config": {"type": "entity", "entity": "sensor.living_room_temperature", "footer": {"type": "graph", "entity": "sensor.living_room_temperature"}}}'></hui-card>
+</Demo>
+
+### Content
+
+- Use it for numbers and short states. A long state gets cut off.
+- Keep the name short. The area or the heading above the card often already says where the value comes from, so "Temperature" can be enough.
+
+## Configuration
+
+- `entity` (string, required): the entity to show.
+- `name` (string): the name to show. Defaults to the name of the entity.
+- `icon` (string): the icon to show. Defaults to the icon of the entity.
+- `attribute` (string): shows this attribute instead of the state.
+- `unit` (string): the unit to show after the value. Defaults to the unit of the entity.
+- `state_color` (boolean): colors the icon by the state of the entity. Defaults to `true` for lights, and `false` for the rest.
+- `theme` (string): the theme to use for this card.
+- `footer` (mapping): a footer, of type `graph`, `buttons`, or `picture`.
+- `tap_action`, `hold_action`, `double_tap_action` (action): what happens when you select, hold, or double tap the card. Selecting opens the more-info dialog by default.
+
+```yaml
+type: entity
+entity: climate.thermostat
+attribute: current_temperature
+name: "Living room"
+unit: "°C"
+```
+
+## In code
+
+The card lives in `src/panels/lovelace/cards/hui-entity-card.ts`, and the element is `<hui-entity-card>`. The footer is created by `createHeaderFooterElement`, the same one the [entities card](/design/dashboards/entities-card/) uses for its header and footer.
+
+In the sections view, the card takes 6 of the 12 columns and two rows, and can't get smaller than that.
+
+[Source](https://github.com/home-assistant/frontend/blob/dev/src/panels/lovelace/cards/hui-entity-card.ts)

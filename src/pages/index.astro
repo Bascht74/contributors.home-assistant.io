@@ -1,0 +1,591 @@
+---
+import shapeTwo from "../assets/shapes/shape_two.svg?raw";
+import waveOne from "../assets/shapes/wave_one.svg?raw";
+import waveTwo from "../assets/shapes/wave_two.svg?raw";
+import EventList from "../components/EventList.astro";
+import Icon from "../components/Icon.astro";
+import Logo from "../components/Logo.astro";
+import PostCard from "../components/PostCard.astro";
+import { AREA_GROUPS, groupLinks, type AreaGroup } from "../data/areas";
+import { SITE } from "../data/site";
+import Base from "../layouts/Base.astro";
+import { getPosts } from "../lib/blog";
+import { CALENDAR, getUpcomingEvents } from "../lib/events";
+import { ogImagePath } from "../lib/og";
+
+const sections = (Object.entries(AREA_GROUPS) as [AreaGroup, string][]).map(
+  ([groupId, label]) => ({
+    id: groupId,
+    label,
+    areas: groupLinks(groupId),
+  }),
+);
+
+const latestPosts = (await getPosts()).slice(0, 3);
+
+// Hidden when nothing is planned. When the calendar couldn't be loaded, the
+// block stays, with the links to subscribe to it.
+const calendar = await getUpcomingEvents();
+const showEvents = !calendar.loaded || calendar.events.length > 0;
+---
+
+<Base title={SITE.title} description={SITE.description} image={ogImagePath("index")}>
+  <main id="main-content" tabindex="-1">
+    <section class="hero">
+      <div class="hero-inner">
+        <div class="container hero-grid">
+          <h1>
+            <span class="line">Help build</span>
+            <span class="line">the open home</span>
+          </h1>
+          <p class="lockup"><Logo variant="white" stacked /></p>
+
+          <p class="intro">
+            Code, design, documentation, translations, or community.
+            Whatever you bring, this is where you start.
+          </p>
+
+          <div class="actions">
+            <a class="button button-light" href="/start/first-contribution/">Make your first contribution</a>
+            <a class="button button-ghost" href="#areas">Browse all areas</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="wave" aria-hidden="true">
+        <div class="container"><span class="shapes" set:html={shapeTwo} /></div>
+        <span class="wave-shape" set:html={waveOne} />
+      </div>
+    </section>
+
+    <section id="areas" class="container index">
+      <h2>What do you want to do?</h2>
+      <div class="groups">
+        {
+          sections.map((section) => (
+            <div class:list={["group", `group--${section.id}`]}>
+              <h3>
+                <span class="mark" aria-hidden="true" />
+                {section.label}
+              </h3>
+              <ul>
+                {section.areas.map((area) => (
+                  <li>
+                    <a href={area.href}>
+                      <span class="area-icon"><Icon name={area.icon} size={26} /></span>
+                      <span class="area-title">{area.action}</span>
+                      <span class="area-text">{area.description}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="steps-band">
+      <div class="container">
+        <h2>New here? Four steps.</h2>
+        <ol class="steps">
+          <li>
+            <a class="step-link" href="#areas">
+              <span class="step-title">Pick an area</span>
+              <span class="step-text">Most areas have a first contribution guide of their own.</span>
+            </a>
+          </li>
+          <li>
+            <a class="step-link" href="/start/where-we-talk/">
+              <span class="step-title">Join the conversation</span>
+              <span class="step-text">Find the people working on it, and say hi.</span>
+            </a>
+          </li>
+          <li>
+            <a class="step-link" href="/start/first-contribution/">
+              <span class="step-title">Find something small</span>
+              <span class="step-text">A good first issue, a typo, a missing translation.</span>
+            </a>
+          </li>
+          <li>
+            <a class="step-link" href="/start/pull-requests/">
+              <span class="step-title">Ship it</span>
+              <span class="step-text">Get feedback, iterate, and see it land in a release.</span>
+            </a>
+          </li>
+        </ol>
+      </div>
+    </section>
+    <div class="wave-shape steps-wave" aria-hidden="true" set:html={waveTwo} />
+
+    {
+      latestPosts.length > 0 && (
+        <section class="container blog">
+          <div class="blog-header">
+            <h2>From the blog</h2>
+            <a href="/blog/">All posts</a>
+          </div>
+          <ul class="posts">
+            {latestPosts.map((post) => (
+              <li>
+                <PostCard post={post} headingLevel={3} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    {
+      showEvents && (
+        <section class="container coming-up">
+          <div class="blog-header">
+            <h2>Coming up</h2>
+            <a href="/community/reference/events/">All events and how to join</a>
+          </div>
+          <p class="events-intro">
+            Release days, meetups, and community syncs: video calls about one project, open to everyone who is
+            interested. Select an event to see what it is about and how to join.
+          </p>
+          <div class="events-card">
+            <EventList limit={3} />
+            {!calendar.loaded && (
+              <p class="subscribe">
+                <a href={CALENDAR.google}>Add to Google Calendar</a>
+                <a href={CALENDAR.ics}>Calendar feed for other apps</a>
+              </p>
+            )}
+          </div>
+        </section>
+      )
+    }
+  </main>
+</Base>
+
+<style>
+  .container {
+    max-width: var(--site-page-width);
+    margin: 0 auto;
+    padding: 0 var(--site-gutter);
+  }
+
+  /* Hero, in the style of creators.home-assistant.io */
+
+  .hero {
+    color: #ffffff;
+  }
+
+  .hero-inner {
+    padding: clamp(56px, 9vw, 120px) 0 clamp(32px, 4vw, 48px);
+    overflow: hidden;
+    isolation: isolate;
+    background: linear-gradient(90deg, #0898c7 0%, #006ba8 100%);
+  }
+
+  /*
+   * Headline on the left; the lockup and the intro share the right column,
+   * so they always line up. The lockup sits on the headline's baseline.
+   */
+  .hero-grid {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: clamp(48px, 7vw, 120px);
+    align-items: end;
+  }
+
+  @media (max-width: 900px) {
+    .hero-grid {
+      grid-template-columns: minmax(0, 1fr);
+      row-gap: var(--ha-space-6);
+    }
+  }
+
+  h1 {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    font-size: clamp(48px, 8.5vw, 112px);
+    font-weight: 700;
+    line-height: 0.98;
+    letter-spacing: -0.035em;
+  }
+
+  /* Like "Creator Network" on creators.home-assistant.io. */
+  .lockup {
+    margin: 0 0 0.12em;
+    font-size: clamp(30px, 4vw, 60px);
+  }
+
+  /*
+   * Intro and buttons sit under the headline in the left column. That keeps
+   * the bottom right free for the shapes on the wave.
+   */
+  .intro {
+    grid-column: 1;
+    max-width: 620px;
+    margin: clamp(32px, 4vw, 56px) 0 0;
+    font-size: clamp(20px, 2vw, 24px);
+    line-height: 1.4;
+  }
+
+  .actions {
+    grid-column: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ha-space-3);
+    margin-top: var(--ha-space-8);
+  }
+
+  .button-light {
+    background: #ffffff;
+    color: var(--brand-navy);
+  }
+
+  .button-light:hover {
+    color: var(--brand-navy);
+    box-shadow: 0 6px 20px rgb(0 35 50 / 0.3);
+  }
+
+  /* The wave is a little wider than the page to hide its edges; clip it. */
+  .hero,
+  .steps-wave {
+    overflow-x: clip;
+  }
+
+  .wave {
+    position: relative;
+    height: clamp(48px, 9vw, 150px);
+  }
+
+  /* A little wider than the page, so no seam shows at the edges. */
+  .wave-shape :global(svg) {
+    display: block;
+    width: calc(100% + 8px);
+    max-width: none;
+    height: auto;
+    margin: -1px 0 0 -4px;
+  }
+
+  .wave .container {
+    position: relative;
+    height: 0;
+  }
+
+  .shapes {
+    position: absolute;
+    z-index: 1;
+    right: var(--site-gutter);
+    top: clamp(-96px, -5vw, -24px);
+    width: clamp(140px, 22vw, 360px);
+  }
+
+  .shapes :global(svg) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  /* The area index: type and rules, no boxes. */
+
+  .index {
+    padding-top: var(--ha-space-8);
+  }
+
+  h2 {
+    margin: 0;
+    font-size: clamp(28px, 3.5vw, 40px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+
+  .groups {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 480px), 1fr));
+    gap: var(--ha-space-16) var(--ha-space-16);
+    margin-top: var(--ha-space-12);
+  }
+
+  h3 {
+    display: flex;
+    align-items: center;
+    gap: var(--ha-space-3);
+    margin: 0 0 var(--ha-space-2);
+    font-size: 18px;
+    font-weight: 650;
+    color: var(--site-text-muted);
+  }
+
+  /*
+   * Each group is marked with one of the half circles from the brand shapes
+   * (see creators.home-assistant.io), in its own color and direction.
+   */
+  .mark {
+    flex: 0 0 auto;
+    width: 14px;
+    height: 28px;
+    border-radius: 0 28px 28px 0;
+    background: #00aef8;
+  }
+
+  /* Where it all begins: the whole circle. */
+  .group--start .mark {
+    width: 20px;
+    height: 20px;
+    margin: 4px;
+    border-radius: 50%;
+  }
+
+  .group--build .mark {
+    border-radius: 28px 0 0 28px;
+    background: #1e3764;
+  }
+
+  .group--shape .mark {
+    width: 28px;
+    height: 14px;
+    border-radius: 28px 28px 0 0;
+    background: var(--brand-mint);
+  }
+
+  .group--run .mark {
+    width: 28px;
+    height: 14px;
+    border-radius: 0 0 28px 28px;
+    background: #007fa8;
+  }
+
+  .group--understand .mark {
+    border-radius: 0 28px 28px 0;
+    background: var(--site-text-muted);
+  }
+
+  /*
+   * "Start here" holds one area, the way in for everyone. It spans the full
+   * width, with the text next to the title instead of under it, so it reads
+   * as the front door and not as a group that lost its other tiles. The
+   * link rule is doubled up to win over `.group a`, which comes later.
+   */
+  .group--start {
+    grid-column: 1 / -1;
+  }
+
+  .group--start .area-title {
+    font-size: clamp(26px, 3vw, 36px);
+  }
+
+  @media (min-width: 900px) {
+    .group.group--start a {
+      display: flex;
+      align-items: center;
+      column-gap: var(--ha-space-4);
+    }
+
+    .group--start .area-text {
+      max-width: 60ch;
+      margin-left: var(--ha-space-4);
+      padding-left: var(--ha-space-6);
+      border-left: 1px solid var(--site-border);
+      font-size: 18px;
+    }
+  }
+
+  .group ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-bottom: 1px solid var(--site-border);
+  }
+
+  .group li {
+    border-top: 1px solid var(--site-border);
+  }
+
+  /* Icon in its own column, next to the title; the text lines up under it. */
+  .group a {
+    display: grid;
+    grid-template-columns: 26px minmax(0, 1fr);
+    column-gap: var(--ha-space-4);
+    row-gap: var(--ha-space-1);
+    padding: var(--ha-space-5) 0;
+    color: var(--site-text);
+    text-decoration: none;
+  }
+
+  .area-icon {
+    display: flex;
+    align-self: center;
+    color: var(--site-text-muted);
+  }
+
+  .area-text {
+    grid-column: 2;
+  }
+
+  .area-title {
+    font-size: clamp(22px, 2.2vw, 28px);
+    font-weight: 650;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  .area-text {
+    color: var(--site-text-muted);
+    line-height: 1.5;
+  }
+
+  .group a:hover .area-icon {
+    color: var(--site-link);
+  }
+
+  .group a:hover .area-title {
+    color: var(--site-link);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.15em;
+  }
+
+  .steps,
+  .posts {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Steps, a real sequence: numbered like the big list on creators. */
+
+  /* Solid navy, so the band flows into the wave below it without a seam. */
+  .steps-band {
+    margin-top: var(--ha-space-20);
+    padding: var(--ha-space-16) 0 var(--ha-space-8);
+    background: var(--brand-navy);
+    color: #ffffff;
+  }
+
+  .steps-wave {
+    margin-top: -1px;
+  }
+
+  .steps {
+    counter-reset: step;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+    gap: var(--ha-space-8);
+    margin-top: var(--ha-space-10);
+  }
+
+  .steps li {
+    counter-increment: step;
+    display: flex;
+    flex-direction: column;
+    gap: var(--ha-space-2);
+    padding-top: var(--ha-space-4);
+    border-top: 2px solid rgb(255 255 255 / 0.12);
+  }
+
+  .steps li::before {
+    content: counter(step);
+    font-size: 64px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--brand-mint);
+  }
+
+  /* The whole step is the link, so it is an easy target on a phone. */
+  .step-link {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ha-space-2);
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* Underlined, so the steps read as links and not as decoration. */
+  .step-link .step-title {
+    text-decoration: underline;
+    text-decoration-color: rgb(22 243 190 / 0.5);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 6px;
+  }
+
+  .step-link:hover .step-title,
+  .step-link:focus-visible .step-title {
+    text-decoration-color: var(--brand-mint);
+  }
+
+  .step-title {
+    margin-top: var(--ha-space-3);
+    font-size: 20px;
+    font-weight: 650;
+  }
+
+  .step-text {
+    color: #b1c3cf;
+    line-height: 1.5;
+  }
+
+  /* Blog */
+
+  .blog {
+    padding-top: var(--ha-space-20);
+  }
+
+  .blog-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--ha-space-3);
+  }
+
+  .blog-header a {
+    font-weight: 600;
+  }
+
+  /* Coming up: the next events of the contributor calendar. */
+
+  .coming-up {
+    padding-top: var(--ha-space-16);
+  }
+
+  .events-intro {
+    max-width: 70ch;
+    margin: var(--ha-space-3) 0 0;
+    color: var(--site-text-muted);
+  }
+
+  .events-card {
+    margin-top: var(--ha-space-8);
+    padding: var(--ha-space-5) var(--ha-space-6);
+    border: 1px solid var(--site-border);
+    border-radius: var(--site-radius-card);
+    background: var(--site-surface);
+  }
+
+  /* Side by side, in the same columns as the posts above. */
+  .events-card :global(.events) {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+    gap: var(--ha-space-4) var(--ha-space-6);
+  }
+
+  .events-card :global(.event) {
+    padding: 0;
+    border-top: 0;
+  }
+
+  .subscribe {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ha-space-2) var(--ha-space-6);
+    margin: var(--ha-space-3) 0 0;
+    font-weight: 600;
+  }
+
+  .posts {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+    gap: var(--ha-space-4);
+    margin-top: var(--ha-space-8);
+  }
+</style>

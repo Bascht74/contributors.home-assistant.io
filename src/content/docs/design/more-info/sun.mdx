@@ -1,0 +1,33 @@
+---
+title: Sun
+description: The more-info view of the sun, with the next sunrise and sunset, the elevation, and the azimuth.
+sidebarGroup: Information
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+<Demo hass>
+  <ha-demo-more-info entity="sun.sun"></ha-demo-more-info>
+</Demo>
+
+## What it shows
+
+The sun entity tells you where the sun is, and what it does next. Its view is a short list below the state row, which says whether the sun is **Above horizon** or **Below horizon**.
+
+- **Rising** and **Setting**: the next sunrise and sunset, each with how long until it happens on the left, and the time on the right. Whichever comes first is listed first.
+- **Elevation**: how high the sun is above the horizon, in degrees.
+- **Azimuth**: the compass direction of the sun, in degrees.
+
+The sun above sets in a few hours, so **Setting** comes before **Rising**.
+
+## Design notes
+
+- The times follow the time format of the user, like 24 hour or AM and PM.
+- Sorting by what comes next keeps the most useful line at the top, so you never read tomorrow's sunrise before tonight's sunset.
+- The sun has no newer more-info design, so the dialog shows the state row at the top, like the [person](/design/more-info/person/) view.
+
+## In code
+
+The view is `more-info-sun` in `src/dialogs/more-info/controls/more-info-sun.ts`.
+
+Source: [`more-info-sun.ts`](https://github.com/home-assistant/frontend/blob/dev/src/dialogs/more-info/controls/more-info-sun.ts)

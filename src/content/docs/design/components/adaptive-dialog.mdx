@@ -1,0 +1,175 @@
+---
+title: Adaptive dialog
+description: A dialog on a big screen, and a bottom sheet on a phone. It picks the right one by itself.
+sidebarGroup: Feedback and status
+---
+
+## Overview
+
+The adaptive dialog is a [dialog](/design/components/dialog/) that fits the screen it is on. On a large screen, it is a regular dialog in the middle of the window. On a phone, or a short screen, it slides up from the bottom as a bottom sheet, where it is easy to reach with your thumb and easy to swipe away.
+
+Everything else works like a dialog: the same header, body, and footer, and the same guidelines for titles and buttons. This page covers what is different.
+
+It needs a running Home Assistant to open, so there is no live demo here.
+
+## When to use
+
+Use an adaptive dialog for:
+
+- Forms and other input that need to work well on a phone
+- Content that benefits from the full width of a small screen
+- A dialog that should behave the same way on desktop and mobile
+
+Use a regular [dialog](/design/components/dialog/) when you don't need the bottom sheet, like a dialog that is only used on large screens. The confirmation dialogs of the frontend are regular dialogs.
+
+## Anatomy
+
+In dialog mode, the anatomy is that of the [dialog](/design/components/dialog/#anatomy). In bottom sheet mode:
+
+1. **Scrim**: the overlay behind the sheet
+2. **Handle**: a small bar at the top, that hints you can drag the sheet
+3. **Surface**: the sheet, with rounded corners at the top
+4. **Header**: the close button, the title, an optional subtitle, and optional action buttons
+5. **Body**: the content, which scrolls when it doesn't fit
+6. **Footer**: the buttons, at the bottom
+
+## Variants
+
+### Dialog and bottom sheet
+
+The screen size picks the mode:
+
+- **Dialog**: on screens wider than 870px and taller than 500px.
+- **Bottom sheet**: on screens 870px wide or less, or 500px high or less.
+
+### Width
+
+In dialog mode, the adaptive dialog has the same four widths as a dialog: small (320px), medium (580px, the default), large (1024px), and full. A bottom sheet always uses the full width of the screen, and ignores the width.
+
+### Adaptive popover
+
+The adaptive popover is a close relative. On a large screen, it opens as a popover next to the element that opened it, instead of in the middle of the window. On a small screen, or when there is no element to anchor to, it behaves like the adaptive dialog. The date picker uses it.
+
+## Behavior
+
+- **Picking the mode**: the mode is picked once, when the dialog is created, and then stays the same while it is open. Resizing the window does not switch it. That keeps a half filled form from being reset. A dialog can opt in to switching live while it is open.
+- **Opening**: a bottom sheet slides up in 300ms. With reduced motion turned on, it appears right away. Focus moves to the element that is marked to get it.
+- **Closing**: the close button, a button marked as a close button, <kbd>Escape</kbd>, and selecting the scrim close it, in both modes.
+- **Swiping**: you can drag a bottom sheet down. A quick swipe down closes it. A slow drag closes it when you let go past half of its height. Otherwise it snaps back. A drag that starts in content that is scrolled down, or in a control that drags by itself, like a slider, a switch, the color wheel, or a map, moves that content and not the sheet.
+- **Guarded closing**: when closing is blocked, like with a form that has changes, <kbd>Escape</kbd> and selecting the scrim do nothing. A bottom sheet then hides its handle, and can't be swiped away.
+- **Height**: a bottom sheet is as tall as its content, up to 90% of the screen, and always leaves at least 48px free at the top.
+
+## Specs
+
+In dialog mode, the specs are those of the [dialog](/design/components/dialog/#specs). In bottom sheet mode:
+
+| Property | Value | Token |
+| --- | --- | --- |
+| Width | The full width of the screen, within the safe area | None |
+| Maximum height | 90% of the screen, leaving at least 48px at the top | `--ha-bottom-sheet-max-height` |
+| Corner radius | 20px, at the top | `--ha-border-radius-2xl`, through `--ha-bottom-sheet-border-radius` |
+| Background | Card background | `--card-background-color`, through `--ha-dialog-surface-background` |
+| Body padding | 0 at the top, 24px on the other sides | `--ha-space-6`, through `--dialog-content-padding` |
+| Open and close animation | 300ms, 1ms with reduced motion | None |
+
+## Guidelines
+
+Follow the guidelines of the [dialog](/design/components/dialog/#guidelines): a clear title, a short body, and one main action next to **Cancel**.
+
+- Put the buttons in the footer, with the main action as an accent button and **Cancel** as a plain button.
+- Header actions, like help or settings, are icon buttons or a menu.
+- Keep the content short enough to work on a phone. If it needs a lot of scrolling on a small screen, it probably needs a page.
+
+## Accessibility
+
+### Keyboard
+
+The same as the [dialog](/design/components/dialog/#keyboard): <kbd>Tab</kbd> moves through the content, and <kbd>Escape</kbd> closes it, unless closing is guarded.
+
+### Focus
+
+When it opens, focus moves to the element marked to get it. Components that delegate focus, like a form, pass it on to their first field.
+
+### Target size
+
+The close button is an icon button of 48px by 48px. Swiping is never the only way to close a bottom sheet: the close button is always there, unless a dialog hides it on purpose.
+
+### Screen readers
+
+The adaptive dialog is announced as a dialog, in both modes. The handle of the bottom sheet is hidden from screen readers.
+
+### In the code
+
+- The accessible name is the `header-title`, or the element you point to with `aria-labelledby`.
+- Use `aria-describedby` to connect a description.
+- The close button has the translated label `ui.common.close` as its accessible name.
+- The adaptive popover is a popover with the role `dialog` and `aria-modal="true"`, and traps focus.
+
+## Related
+
+- [Dialog](/design/components/dialog/): the dialog this one builds on, with the guidelines for content and buttons
+- [Button](/design/components/button/): the buttons in the footer
+- [Form](/design/components/form/): the fields in a dialog
+
+## In code
+
+The element is `<ha-adaptive-dialog>`. It renders an `ha-dialog` or an `ha-bottom-sheet`, depending on the screen size. Open it the same way as a [dialog](/design/components/dialog/#in-code), with the `show-dialog` event.
+
+```html
+<ha-adaptive-dialog open header-title="Dialog title">
+  <ha-icon-button
+    slot="headerActionItems"
+    label="Help"
+    path="..."
+  ></ha-icon-button>
+  <div>Dialog content</div>
+  <ha-dialog-footer slot="footer">
+    <ha-button slot="secondaryAction" appearance="plain" data-dialog="close">
+      Cancel
+    </ha-button>
+    <ha-button slot="primaryAction">Submit</ha-button>
+  </ha-dialog-footer>
+</ha-adaptive-dialog>
+```
+
+### Attributes
+
+- `open`: opens the dialog.
+- `type`: `standard` (default) or `alert`. Only used in dialog mode.
+- `width`: `small`, `medium` (default), `large`, or `full`. Only used in dialog mode.
+- `prevent-scrim-close`: blocks closing with Escape or by selecting the scrim, and swiping the bottom sheet away.
+- `header-title` and `header-subtitle`: the header text.
+- `header-subtitle-position`: `below` (default) or `above` the title.
+- `allow-mode-change`: switches between dialog and bottom sheet while open, when the screen size changes. Leave it off for forms, so fields don't reset.
+- `flexcontent`: makes the body a flex container.
+- `without-header`: leaves out the header.
+- `hide-close-button`: leaves out the close button.
+- `aria-labelledby` and `aria-describedby`: passed on to the dialog or the sheet.
+
+### Slots
+
+- Default: the body.
+- `header`: replaces the whole header.
+- `headerNavigationIcon`: replaces the close button.
+- `headerTitle` and `headerSubtitle`: your own title and subtitle, when the attributes are not set.
+- `headerActionItems`: icon buttons or a menu in the top right.
+- `footer`: the footer, usually an `ha-dialog-footer`.
+
+### Events
+
+- `opened`: the dialog or sheet is shown.
+- `after-show`: the open animation is done.
+- `closed`: the dialog or sheet is hidden.
+
+### Styling
+
+- `--ha-dialog-surface-background`: the background, in both modes.
+- `--ha-dialog-border-radius`: the corner radius, in dialog mode.
+- `--ha-bottom-sheet-surface-background` and `--ha-bottom-sheet-scrim-color`: the background and scrim of the bottom sheet.
+- `--ha-dialog-surface-backdrop-filter` and `--ha-dialog-scrim-backdrop-filter`: backdrop filters for the surface and the scrim.
+
+### Adaptive popover
+
+The element is `<ha-adaptive-popover>`. It takes the same attributes and slots as the adaptive dialog. Set the `dialogAnchor` property to the element it should open next to. Without an anchor, or on a small screen, it falls back to the adaptive dialog.
+
+Source: [`src/components/ha-adaptive-dialog.ts`](https://github.com/home-assistant/frontend/blob/dev/src/components/ha-adaptive-dialog.ts), [`src/components/ha-bottom-sheet.ts`](https://github.com/home-assistant/frontend/blob/dev/src/components/ha-bottom-sheet.ts), and [`src/components/ha-adaptive-popover.ts`](https://github.com/home-assistant/frontend/blob/dev/src/components/ha-adaptive-popover.ts)

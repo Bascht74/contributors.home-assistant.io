@@ -1,0 +1,19 @@
+---
+// Sends old links to design.home-assistant.io on to the page that replaced
+// them. That site was a single page app: the page sat in the hash, like
+// `#components/ha-button`. The server redirects everything to /design/, and
+// browsers keep the hash across a redirect, so it arrives here. Only the
+// browser can see the hash, so this has to happen in a script.
+//
+// The map lives in src/data/design-redirects.json. Its keys are the hashes,
+// without the `#`. In-page anchors, like `#start-here`, are not in it.
+import redirects from "../../data/design-redirects.json";
+---
+
+<script is:inline define:vars={{ redirects }}>
+  const page = location.hash.slice(1).replace(/^\//, "");
+
+  if (Object.hasOwn(redirects, page)) {
+    location.replace(redirects[page]);
+  }
+</script>

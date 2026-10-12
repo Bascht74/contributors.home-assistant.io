@@ -1,0 +1,165 @@
+---
+title: Gauge
+description: A gauge shows a single value on a half circle dial, with an optional color for how good or bad that value is.
+sidebarGroup: Showing values
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+import DoDont from "../../../../components/docs/DoDont.astro";
+
+<Demo>
+  <ha-gauge value="21" min="0" max="40" label="°C" style="width: 200px; --gauge-color: var(--success-color)"></ha-gauge>
+  <ha-gauge value="78" label="%" style="width: 200px; --gauge-color: var(--warning-color)"></ha-gauge>
+</Demo>
+
+## Overview
+
+A gauge is the dial of the gauge card, and of the energy gauge cards like self-sufficiency. It shows one value on a half circle, with the number printed in the middle. The dial adds context: where the value sits in its range, and how good or bad that is.
+
+## When to use
+
+Use a gauge for:
+
+- One value that lives within a known range, where the position in that range matters, like a temperature, a battery level, or a percentage
+- A value with a severity, like good, warning, or bad
+
+Don't use a gauge for:
+
+- A level inside a settings row or a list. Use a [bar](/design/components/bar/), it takes far less room.
+- A value without a meaningful minimum and maximum. The dial has nothing to show then.
+
+## Anatomy
+
+1. **Track**: the empty half circle, the full range from `min` to `max`
+2. **Value arc**: the filled part of the track, up to the value
+3. **Levels**: optional colored segments of the track
+4. **Needle**: in needle mode, replaces the value arc and points at the value
+5. **Value text**: the formatted value and unit, or the label of the current level, in the middle
+
+## Variants
+
+### Filled arc with a severity color
+
+The default. The arc fills up to the value. The dial color can carry meaning: the success, warning, or error color, based on where the value is. Without a color set, the filled part of the dial has no color. Use the info color when the value has no good or bad.
+
+<Demo>
+  <ha-gauge value="30" style="width: 160px; --gauge-color: var(--info-color)"></ha-gauge>
+  <ha-gauge value="30" style="width: 160px; --gauge-color: var(--success-color)"></ha-gauge>
+  <ha-gauge value="60" style="width: 160px; --gauge-color: var(--warning-color)"></ha-gauge>
+  <ha-gauge value="90" style="width: 160px; --gauge-color: var(--error-color)"></ha-gauge>
+</Demo>
+
+### Needle with levels
+
+In the needle version, the dial shows a needle instead of a filled arc, and can be colored in segments, called levels. Each level starts at its own value and runs up to the next one. This shows the whole scale at once, so people see both the value and how close it is to the next segment.
+
+<Demo>
+  <ha-gauge value="62" needle levels='[{"level":0,"stroke":"var(--success-color)"},{"level":50,"stroke":"var(--warning-color)"},{"level":80,"stroke":"var(--error-color)"}]' label="%" style="width: 200px"></ha-gauge>
+</Demo>
+
+A level can have a label. When the value falls in that segment, the label replaces the number in the middle of the gauge. Use it when a word says more than the number, like **Low** or **High**.
+
+If the first level does not start at the minimum, the gauge adds a segment in the info color from the minimum up to the first level.
+
+## Behavior
+
+- The gauge is not interactive. It has no hover, focus, pressed, or disabled state.
+- When the value changes, the arc or needle moves to the new position in 1 second, with an ease curve.
+- A value below the minimum or above the maximum is shown at the start or end of the dial. The text still shows the real value.
+- The value text scales to fit the space inside the dial: at most 55% of the width and 40% of the height of the gauge.
+- A percent sign gets the spacing that fits the language of the user. Any other unit is shown after a space.
+- The value text is always laid out left to right, also in a right to left language.
+
+## Specs
+
+The gauge is an SVG that scales with its width. The sizes below are in SVG units, on a drawing that is 100 units wide and 55 units high.
+
+| Property | Value | Token |
+| --- | --- | --- |
+| Width | Follows the width you give the element, height follows | None |
+| Arc radius | 40 units | None |
+| Arc and level thickness | 12 units | None |
+| Arc ends | Square | None |
+| Value text size before scaling | 16px | `--ha-font-size-l` |
+| Value text area | At most 55% of the width and 40% of the height, 10% from the bottom | None |
+| Animation | 1s, ease | None |
+
+| Part | Color |
+| --- | --- |
+| Track | `--primary-background-color` |
+| Value arc | `--gauge-color` |
+| Added first level | `--info-color` |
+| Needle | `--primary-text-color`, with a 1 unit outline in `--card-background-color` |
+| Value text | `--primary-text-color` |
+
+## Guidelines
+
+<DoDont doText="Color the dial by severity, so the color means something." dontText="Leave out the gauge color. The filled part of the dial has no color then.">
+  <ha-gauge slot="do" value="78" label="%" style="width: 160px; --gauge-color: var(--warning-color)"></ha-gauge>
+  <ha-gauge slot="dont" value="78" label="%" style="width: 160px"></ha-gauge>
+</DoDont>
+
+<DoDont doText="Put the unit in the label." dontText="Show a number without a unit, when the value has one.">
+  <ha-gauge slot="do" value="21" min="0" max="40" label="°C" style="width: 160px; --gauge-color: var(--info-color)"></ha-gauge>
+  <ha-gauge slot="dont" value="21" min="0" max="40" style="width: 160px; --gauge-color: var(--info-color)"></ha-gauge>
+</DoDont>
+
+## Accessibility
+
+### Keyboard
+
+The gauge is not focusable and has no keyboard interaction.
+
+### Screen readers
+
+A screen reader can read the value and unit as text. The dial itself, and the severity it shows, has no text alternative: severity is shown through color only. The value text is the part that does not depend on color.
+
+### In the code
+
+The gauge has no role and no ARIA attributes. The value and unit are SVG text.
+
+## Related
+
+- [Bar](/design/components/bar/): a compact level for rows and lists
+- [Controls](/design/components/controls/): when the value can be changed
+- [Gauge card](/design/dashboards/gauge-card/): the card built on this dial
+- [Color](/design/foundations/color/): the severity colors
+
+## In code
+
+The element is `<ha-gauge>`. Give it a width; the height follows.
+
+```html
+<ha-gauge
+  value="21"
+  min="0"
+  max="40"
+  label="°C"
+  style="width: 200px; --gauge-color: var(--success-color)"
+></ha-gauge>
+```
+
+The value is formatted with the `locale` of the user, so set the `locale` property from `hass.locale`.
+
+### Attributes
+
+- `value`: the current value. Defaults to `0`.
+- `min`: the start of the scale. Defaults to `0`.
+- `max`: the end of the scale. Defaults to `100`.
+- `label`: the unit, shown after the value.
+- `needle`: shows a needle instead of a filled arc.
+- `levels`: a JSON array of segments, each with a `level`, a `stroke` color, and an optional `label`. If the first level does not start at `min`, the gauge adds an info colored segment from `min`.
+
+These can only be set as properties:
+
+- `locale`: the locale data used to format the value.
+- `valueText`: text to show instead of the formatted value. The gauge card uses it to show the state as formatted by Home Assistant.
+- `formatOptions`: `Intl.NumberFormatOptions` for formatting the value.
+
+### Styling
+
+- `--gauge-color`: the color of the filled arc. Not used in needle mode.
+- `--primary-background-color`: the empty part of the dial.
+- `--primary-text-color`: the value text, and the needle.
+
+Source: [`src/components/ha-gauge.ts`](https://github.com/home-assistant/frontend/blob/dev/src/components/ha-gauge.ts)

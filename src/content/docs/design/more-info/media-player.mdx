@@ -1,0 +1,40 @@
+---
+title: Media player
+description: The more-info view of a speaker, TV, or other media player, laid out like a music app.
+sidebarGroup: Media
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+<Demo hass>
+  <ha-demo-more-info entity="media_player.living_room_speaker"></ha-demo-more-info>
+  <ha-demo-more-info entity="media_player.living_room_tv"></ha-demo-more-info>
+</Demo>
+
+## What it shows
+
+The media player view looks like the now playing screen of a music app, because that is what people expect when they control what is playing. From top to bottom:
+
+- **Cover art**: the picture of what is playing, like an album cover. Without one, a gray square with a music note takes its place.
+- **Title and artist**: the title of the media, and a line with the artist or other details below it. Both scroll slowly when they are too long to fit, using [marquee text](/design/components/marquee-text/).
+- **Progress**: a [slider](/design/components/slider/) with the position and the duration below it. You can drag it to seek, when the player supports that. It only shows when the media has a duration.
+- **Playback controls**: previous and next track, with a big filled play or pause [button](/design/components/button/) in the middle. Repeat and shuffle sit on the outer ends, when the player supports them.
+- **Volume**: a mute button and a volume slider. Players that only step the volume get volume down and volume up buttons instead.
+- **More actions**: a row of icon buttons for browsing media, joining other speakers, picking the source and the sound mode, and turning the player on or off.
+
+The speaker is playing music. The TV is off: it shows only the empty cover and the buttons to pick a source and turn it on.
+
+## Design notes
+
+- This view has no large state at the top. The cover art, the title, and the play button already tell you what is going on.
+- Every control checks the supported features of the player. A control the player doesn't support is left out. Around the play button, a missing control leaves an empty spot, so play and pause always stay in the center.
+- The volume only shows while the player is on, since there is nothing to hear when it is off.
+- The source and sound mode buttons open a [dropdown](/design/components/dropdown/), with the current choice selected.
+- When a speaker is grouped with others, the join button shows a small badge with the number of speakers in the group.
+- When the player is unavailable, the view shows only the empty cover with the state, and no controls.
+
+## In code
+
+The view is `more-info-media_player` in `src/dialogs/more-info/controls/more-info-media_player.ts`. Which playback buttons show is decided by `computeMediaControls` in `src/data/media-player.ts`. The features are in `src/data/feature/media-player_entity_feature.ts`.
+
+Source: [`more-info-media_player.ts`](https://github.com/home-assistant/frontend/blob/dev/src/dialogs/more-info/controls/more-info-media_player.ts)

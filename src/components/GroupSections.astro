@@ -1,0 +1,49 @@
+---
+// The pages of the sidebar groups that have no heading on their folder's
+// overview, at the end of that overview. The breadcrumbs of those pages
+// link here. Built from the sidebar, see groupOverview() in src/lib/docs.ts.
+//
+// The headings look and work like the ones from Markdown, link included
+// (see src/lib/heading-anchors.mjs), so "On this page" and search treat
+// them the same.
+import type { GroupOverview } from "../lib/docs";
+import Icon from "./Icon.astro";
+
+interface Props {
+  overview: GroupOverview;
+}
+
+const { overview } = Astro.props;
+const { heading, sections } = overview;
+---
+
+{
+  heading && (
+    <>
+      <div class="heading-wrapper level-h2">
+        <h2 id={heading.id}>{heading.text}</h2>
+        <a class="heading-anchor" href={`#${heading.id}`} aria-label={`Link to section: ${heading.text}`} data-pagefind-ignore>
+          <Icon name="link" size={16} />
+        </a>
+      </div>
+
+      {sections.map((section) => (
+        <>
+          <div class="heading-wrapper level-h3">
+            <h3 id={section.id}>{section.name}</h3>
+            <a class="heading-anchor" href={`#${section.id}`} aria-label={`Link to section: ${section.name}`} data-pagefind-ignore>
+              <Icon name="link" size={16} />
+            </a>
+          </div>
+          <ul>
+            {section.pages.map((page) => (
+              <li>
+                <a href={page.href}>{page.title}</a>: {page.description}
+              </li>
+            ))}
+          </ul>
+        </>
+      ))}
+    </>
+  )
+}

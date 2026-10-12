@@ -1,0 +1,184 @@
+---
+title: "From idea to release"
+description: How larger work on Home Assistant is planned in the open, from a feature request to a roadmap opportunity, an epic, tasks, and pull requests, and where you can join in along the way.
+order: 2
+sidebarLabel: How it works
+---
+
+import StackDiagram from "../../../components/docs/StackDiagram.astro";
+
+A lot of work on Home Assistant needs no plan at all. A bug fix, an improvement to an integration, or a new integration that is [ready for core](/core/integrations/create/#does-it-belong-in-core): you open a pull request, and that's it. [Pull requests and reviews](/start/pull-requests/) covers that path.
+
+Larger work is different. When something spans several repositories, needs design, or changes how Home Assistant is built, the [Open Home Foundation](/glossary/open-home-foundation/) plans it in layers, in public repositories on GitHub. This page walks through those layers, shows where each one lives, and where you can follow along or join in. At the end, one real piece of work is traced from the first feature request to the release that shipped it.
+
+## The layers at a glance
+
+<StackDiagram
+  caption="From top to bottom: each layer is broken down into the one below it. On GitHub, opportunities, epics, and tasks are linked as sub-issues, so you can follow the links up and down."
+  layers={[
+    {
+      label: "Goals: where the foundation wants to go",
+      boxes: [
+        { title: "Goals", text: "Set by the board", href: "https://github.com/OpenHomeFoundation/goals" },
+      ],
+    },
+    {
+      label: "Opportunities: problems worth solving",
+      boxes: [
+        { title: "Feature requests", text: "Ideas and votes from anyone", href: "https://github.com/home-assistant/feature-requests/discussions" },
+        { title: "Roadmap", text: "Opportunities, shaped by the product team", href: "https://github.com/OpenHomeFoundation/roadmap" },
+      ],
+    },
+    {
+      label: "Epics: a body of work, often one phase of an opportunity",
+      boxes: [
+        { title: "Epics", text: "Deliverables and completion criteria", href: "https://github.com/home-assistant/epics" },
+      ],
+    },
+    {
+      label: "Tasks: one piece of work in one repository",
+      boxes: [
+        { title: "Core", text: "Python and integrations", href: "https://github.com/home-assistant/core" },
+        { title: "Frontend", text: "The interface", href: "https://github.com/home-assistant/frontend" },
+        { title: "Documentation", text: "home-assistant.io", href: "https://github.com/home-assistant/home-assistant.io" },
+        { title: "Tasks", text: "Work that fits nowhere else", href: "https://github.com/home-assistant/tasks" },
+      ],
+    },
+    {
+      label: "Shipping it",
+      boxes: [
+        { title: "Pull requests", text: "Reviewed like any other", href: "/start/pull-requests/" },
+        { title: "Release", text: "Every month", href: "/releases/how-it-works/" },
+      ],
+    },
+  ]}
+/>
+
+Next to these layers, not in them, sits the [architecture](#alongside-the-roadmap-architecture). It guards how Home Assistant is built, for everything that goes in, whether it comes from the roadmap or not.
+
+## Goals
+
+At the top are the goals of the Open Home Foundation, in the [goals repository](https://github.com/OpenHomeFoundation/goals). The board of the foundation sets them, and they define where the foundation wants to go. Examples are [Make Home Assistant more approachable](https://github.com/OpenHomeFoundation/goals/issues/7) and [Proxy all the things](https://github.com/OpenHomeFoundation/goals/issues/4). The board also maintains them, and each goal links to the roadmap opportunities that work toward it.
+
+Only members of the foundation write goals, but the discussion is open: you can comment on a goal and share your view.
+
+## Feature requests
+
+Most ideas start as a [feature request](https://github.com/home-assistant/feature-requests/discussions). Anyone can open one, vote on one, or join the discussion. Describe the problem you want to solve, not only the solution you have in mind. [Where we talk](/start/where-we-talk/#feature-requests) has more on writing a good one.
+
+The product team of the foundation regularly reviews popular and strategic requests, and turns some of them into roadmap opportunities. Votes and thoughtful discussion count, but not every request makes it onto the roadmap.
+
+## Roadmap opportunities
+
+The [roadmap](https://github.com/OpenHomeFoundation/roadmap) of the Open Home Foundation covers Home Assistant, ESPHome, Music Assistant, and the other projects of the foundation. It is not a list of features with dates. It is a set of [opportunities](/glossary/opportunity/): problems worth solving. Each one is an issue, linked to the goal it supports.
+
+An opportunity can start as a rough idea and get shaped over time. Its issue has room for:
+
+- **Problem statement**: what the problem is, who has it, and why it matters
+- **Community signals**: the feature requests, discussions, or Discord threads that point to it
+- **Scope and boundaries**: what is in, and what is explicitly out
+- **Foreseen solution**: the solution, shaped enough to understand what it means to build it
+- **Risks and open questions**: what is still uncertain
+- **Appetite**: how much time the opportunity is worth, roughly small, medium, or large
+- **Execution issues**: links to the work, once it is approved
+- **Decision log**: key decisions and pivots, with dates
+
+A large opportunity can have smaller opportunities below it. For example, [shaping the UI around how a household uses its smart home](https://github.com/OpenHomeFoundation/roadmap/issues/129) holds several more focused ones.
+
+**Who takes part:** only foundation staff and authorized contributors create opportunities. Issues opened by anyone else are closed automatically. Comments are open to everyone, and they matter: they can add signals, question the scope, or change the solution, as the [example below](#example-better-sun-triggers) shows.
+
+**How opportunities are picked:** the decision log of the template mentions the outcomes of a "betting table", where opportunities are chosen for work. How that works, and who takes part, is not described in the public repositories.
+
+**Follow along:** the [roadmap project board](https://ohf.to/roadmap) shows the active opportunities and their progress, and you can watch the [roadmap repository](https://github.com/OpenHomeFoundation/roadmap) on GitHub. The [roadmap category](https://www.home-assistant.io/blog/categories/roadmap/) of the Home Assistant blog has the bigger picture, the most recent being [Roadmap 2025](https://www.home-assistant.io/blog/2025/05/09/roadmap-2025h1/) from May 2025. When the work ships, the release notes often link the opportunity, like [2026.6](https://www.home-assistant.io/blog/2026/06/03/release-20266/) did when it closed the opportunity to make infrared a two-way platform.
+
+Work that needs design goes through the [UX design discussions](https://github.com/OpenHomeFoundation/ux-design/discussions) of the foundation. [How we design](/design/how-we-design/) explains that path.
+
+## Epics
+
+An [epic](/glossary/epic/) is a larger body of work made up of several tasks, often across several repositories. Epics live in the [epics repository](https://github.com/home-assistant/epics). Each one states:
+
+- The roadmap opportunity it delivers
+- The problem it solves and the outcome it aims for
+- Its deliverables
+- When it counts as done
+- Context, like the feature requests, design documents, or Discord channel that go with it
+
+An epic is a sub-issue of its opportunity. Epics can also block each other, which GitHub shows in the sidebar of the issue.
+
+### Phases
+
+An opportunity is often delivered in phases, and each phase gets its own epic. For example, [HTTP server configuration through the UI](https://github.com/OpenHomeFoundation/roadmap/issues/47) has [phase 1, the port default and the UI](https://github.com/home-assistant/epics/issues/48), which is done, and [phase 2, SSL/TLS in the UI and dual stack](https://github.com/home-assistant/epics/issues/118), which is in progress. Phase 3 is listed in phase 2, but has no epic yet.
+
+Later phases can be a plan rather than a promise. The epic for [phase 3 of making Home Assistant OS easier to install](https://github.com/home-assistant/epics/issues/135) says so itself: its scope is a plan, not a commitment, and items may move between phases or be dropped.
+
+### Epics outside the roadmap
+
+Not every epic comes from an opportunity. Some are cleanups across many integrations, like [translating file system errors with the common `OSError` helpers](https://github.com/home-assistant/epics/issues/142). They explain the right pattern, list the integrations that need a fix, and ask you to reference the epic in your pull request. If you are looking for a well-defined piece of work in Home Assistant Core, these are a good place to look.
+
+**Who takes part:** members of the home-assistant organization on GitHub create epics. Issues opened by anyone else are closed automatically. Reading and following them is open to everyone.
+
+## Tasks
+
+A task is a smaller piece of work in a single repository. It is an issue of the type **Task**, in the repository where the work happens: Home Assistant Core, the frontend, the documentation, the Supervisor, or any other. Each task is a sub-issue of its epic, so the epic shows how far along the work is.
+
+Work that doesn't fit in any repository goes to the [tasks repository](https://github.com/home-assistant/tasks). Only members of the home-assistant organization open issues there.
+
+**Who takes part:** not everyone can open a task. In most repositories, a workflow checks every new issue of the type **Task**: if you aren't a member of the home-assistant organization on GitHub, it closes the issue with the `auto-closed` label and a comment that points you to the bug report form and to feature requests. Home Assistant Core and home-assistant.io also accept tasks from anyone listed in the `CODEOWNERS` file of the repository, like integration owners. Once a task exists, it's an ordinary issue: you can comment, ask questions, or offer to help. Want to work on one? Say so on the task before you start, so nobody does the same work twice.
+
+## Pull requests
+
+The work itself happens in pull requests, like any other contribution. Link the task in the description, for example with `fixes #12345`, so the task closes when the pull request is merged. Documentation for a new feature goes to the `next` branch of home-assistant.io, so it goes live with the release. The review is the same as for every other pull request: see [pull requests and reviews](/start/pull-requests/).
+
+**Who takes part:** everyone. Opening a pull request, and reviewing one, is open to all contributors.
+
+## Release
+
+Merged work ships in the next monthly release. The week before, it is in the beta, where anyone can test it in their own home. [How releases work](/releases/how-it-works/) explains the cycle, and [your first release contribution](/releases/first-contribution/) shows how to join the beta.
+
+## Alongside the roadmap: architecture
+
+The architecture meeting guards the technical architecture of Home Assistant. It is not a step in the roadmap flow: it sits next to it, to look after the technology. Any change to how Home Assistant is built needs its approval, wherever the change comes from: an opportunity, an epic, or a pull request of your own. Think of a new type of entity, a change to an entity model, or new triggers and conditions for an entity component.
+
+The meeting handles proposals, which are discussions in the [architecture repository](https://github.com/home-assistant/architecture).
+
+When roadmap work touches the architecture, the two link to each other. An opportunity can lead to an [architecture discussion](https://github.com/home-assistant/architecture/discussions), which links back to it as the place where the reasoning lives. An opportunity can also build on an architecture discussion that was there first, like the opportunity to [let Home Assistant send radio frequency commands](https://github.com/OpenHomeFoundation/roadmap/issues/102).
+
+A proposal is discussed in the open, and then decided in the meeting. The outcome is posted on the discussion and marked as its answer: approved or rejected, with the date of the meeting and any remarks, like changes the meeting wants. Decisions that set a lasting rule for the whole project are also written down as an Architecture Decision Record. [How architecture decisions are made](/architecture/decisions/) explains that process.
+
+**Who takes part:** anyone can start an architecture discussion or join one.
+
+
+## Where you can join in
+
+| Layer | Where | What you can do |
+| --- | --- | --- |
+| Goals | [OpenHomeFoundation/goals](https://github.com/OpenHomeFoundation/goals) | Read and comment |
+| Feature requests | [Feature requests](https://github.com/home-assistant/feature-requests/discussions) | Propose, vote, and discuss |
+| Opportunities | [OpenHomeFoundation/roadmap](https://github.com/OpenHomeFoundation/roadmap) and the [project board](https://ohf.to/roadmap) | Follow and comment |
+| Architecture | [Architecture discussions](https://github.com/home-assistant/architecture/discussions) | Start a discussion, or join one |
+| Design | [UX design discussions](https://github.com/OpenHomeFoundation/ux-design/discussions) | Share ideas and give feedback |
+| Epics | [home-assistant/epics](https://github.com/home-assistant/epics) | Follow along, and pick up work from the cleanup epics |
+| Tasks | The repository of the work | Comment, and offer to help |
+| Pull requests | The repository of the work | Open and review pull requests |
+| Release | The [beta](/releases/first-contribution/) | Test, and report what breaks |
+
+## Example: better sun triggers
+
+Here is one piece of work, traced from start to finish. It made the sun [triggers](/glossary/trigger/) and [conditions](/glossary/condition/) work with the actual position of the sun, instead of fixed time offsets around sunrise and sunset.
+
+1. **Feature request.** In March 2026, a user asked for [dawn and dusk triggers](https://github.com/home-assistant/feature-requests/discussions/3043), next to sunrise and sunset.
+2. **Opportunity.** In April 2026, the opportunity [Improve sun-based triggers and conditions](https://github.com/OpenHomeFoundation/roadmap/issues/96) was opened, with that request as its community signal. It described the problem (an offset that matches dusk in spring is wrong in winter, and useless above the Arctic Circle), proposed a full set of triggers and conditions based on the elevation of the sun, and set a small appetite. In the comments, community members added signals and questioned the choice to leave out time offsets.
+3. **Architecture.** A maintainer pointed out that new triggers and conditions for an entity component need architecture approval. So the [architecture discussion](https://github.com/home-assistant/architecture/discussions/1394) was opened in May 2026, linking back to the opportunity. The architecture meeting first asked for changes, like one dawn trigger with a type option instead of three separate triggers. In June 2026, it approved the revised proposal.
+4. **First release.** The high priority triggers and conditions were built in [core#174485](https://github.com/home-assistant/core/pull/174485) and [core#174537](https://github.com/home-assistant/core/pull/174537), and shipped in [2026.7](https://www.home-assistant.io/blog/2026/07/01/release-20267/).
+5. **Epic and tasks.** In July 2026, after that first release, the epic [Improve sun-based triggers and conditions](https://github.com/home-assistant/epics/issues/112) was opened below the opportunity, with tasks in two repositories: the work that had just shipped, [time offsets](https://github.com/home-assistant/core/issues/175828), [the remaining triggers and conditions](https://github.com/home-assistant/core/issues/175830), and [the documentation](https://github.com/home-assistant/home-assistant.io/issues/46939).
+6. **Feedback changes the plan.** After 2026.7, people on Discord and in the comments of the opportunity asked for time offsets. That needed its own [architecture discussion](https://github.com/home-assistant/architecture/discussions/1430), approved in the core meeting at the end of July. The [pull request](https://github.com/home-assistant/core/pull/176967) was merged the next day and shipped in [2026.8](https://www.home-assistant.io/blog/2026/08/05/release-20268/).
+7. **Last release.** Golden hour, blue hour, midnight sun, and polar night came in [core#180106](https://github.com/home-assistant/core/pull/180106), documented in [home-assistant.io#47624](https://github.com/home-assistant/home-assistant.io/pull/47624), and shipped in [2026.9](https://www.home-assistant.io/blog/2026/09/02/release-20269/#golden-hour-blue-hour-and-polar-sun-automations).
+8. **Closed.** The epic was closed in September 2026, and the opportunity a week and a half later. One follow-up task, [triggers and conditions based on the azimuth of the sun](https://github.com/home-assistant/core/issues/181914), is still open.
+
+A few things stand out. The work started from a feature request with about a dozen votes. Comments from the community changed what was built. The architecture decision came before the code, and a later change needed a decision of its own. And the real order is messier than the layers suggest: here, the epic was opened after the first part had already shipped.
+
+## Who to talk to
+
+- A question about an opportunity or an epic? Ask it in a comment on that issue, so the people working on it see it.
+- A question about the architecture of a change? Use the [architecture discussions](https://github.com/home-assistant/architecture/discussions), or ask in **#developers** on [Discord](https://www.home-assistant.io/join-chat/).
+- Not sure where your idea belongs? Start with a [feature request](https://github.com/home-assistant/feature-requests/discussions).

@@ -1,0 +1,555 @@
+{
+  "commits": {
+    "core": "f705dca431263de0d1b967ca58e43a70d936a72a",
+    "frontend": "edb7a42a7e7d6da540f97cd788deaa93ecc11f5c"
+  },
+  "totals": {
+    "symbols": 1625,
+    "resolved": 1538
+  },
+  "areas": {
+    "apps": {
+      "index": "core",
+      "symbols": 3,
+      "resolved": 1
+    },
+    "architecture": {
+      "index": "core",
+      "symbols": 15,
+      "resolved": 12
+    },
+    "companion": {
+      "index": null,
+      "symbols": 96,
+      "resolved": 0
+    },
+    "core": {
+      "index": "core",
+      "symbols": 1383,
+      "resolved": 1343
+    },
+    "data": {
+      "index": null,
+      "symbols": 5,
+      "resolved": 0
+    },
+    "design": {
+      "index": "frontend",
+      "symbols": 51,
+      "resolved": 42
+    },
+    "frontend": {
+      "index": "frontend",
+      "symbols": 129,
+      "resolved": 100
+    },
+    "glossary": {
+      "index": "core",
+      "symbols": 11,
+      "resolved": 11
+    },
+    "os": {
+      "index": null,
+      "symbols": 24,
+      "resolved": 0
+    },
+    "security": {
+      "index": "core",
+      "symbols": 33,
+      "resolved": 29
+    },
+    "translate": {
+      "index": null,
+      "symbols": 1,
+      "resolved": 0
+    },
+    "writing": {
+      "index": null,
+      "symbols": 5,
+      "resolved": 0
+    }
+  },
+  "unresolved": [
+    {
+      "text": "getConfigElement()",
+      "index": "frontend",
+      "count": 5,
+      "pages": [
+        "src/content/docs/frontend/custom-ui/badge.md",
+        "src/content/docs/frontend/custom-ui/card-editor.md",
+        "src/content/docs/frontend/custom-ui/card-feature.md",
+        "src/content/docs/frontend/custom-ui/strategy.md"
+      ]
+    },
+    {
+      "text": "BluetoothServiceInfoBleak",
+      "index": "core",
+      "count": 4,
+      "pages": [
+        "src/content/docs/core/integrations/bluetooth.md",
+        "src/content/docs/core/integrations/discovery.md"
+      ]
+    },
+    {
+      "text": "hass.data",
+      "index": "core",
+      "count": 4,
+      "pages": [
+        "src/content/docs/core/integrations/config-entries.md",
+        "src/content/docs/core/integrations/tutorial.md",
+        "src/content/docs/core/internals/hass.md",
+        "src/content/docs/core/quality-scale/runtime-data.md"
+      ]
+    },
+    {
+      "text": "actionError()",
+      "index": "frontend",
+      "count": 3,
+      "pages": [
+        "src/content/docs/design/components/progress-button.mdx",
+        "src/content/docs/design/patterns/loading.mdx"
+      ]
+    },
+    {
+      "text": "actionSuccess()",
+      "index": "frontend",
+      "count": 3,
+      "pages": [
+        "src/content/docs/design/components/progress-button.mdx",
+        "src/content/docs/design/patterns/loading.mdx"
+      ]
+    },
+    {
+      "text": "generate()",
+      "index": "frontend",
+      "count": 3,
+      "pages": [
+        "src/content/docs/frontend/custom-ui/strategy.md"
+      ]
+    },
+    {
+      "text": "getConfigForm()",
+      "index": "frontend",
+      "count": 3,
+      "pages": [
+        "src/content/docs/frontend/custom-ui/badge.md",
+        "src/content/docs/frontend/custom-ui/card-editor.md",
+        "src/content/docs/frontend/custom-ui/card-feature.md"
+      ]
+    },
+    {
+      "text": "getStubConfig()",
+      "index": "frontend",
+      "count": 3,
+      "pages": [
+        "src/content/docs/frontend/custom-ui/badge.md",
+        "src/content/docs/frontend/custom-ui/card-editor.md"
+      ]
+    },
+    {
+      "text": "get_raw_timings()",
+      "index": "core",
+      "count": 2,
+      "pages": [
+        "src/content/docs/core/entities/infrared.md",
+        "src/content/docs/core/entities/radio-frequency.md"
+      ]
+    },
+    {
+      "text": "getCardSize()",
+      "index": "frontend",
+      "count": 2,
+      "pages": [
+        "src/content/docs/frontend/custom-ui/card.md"
+      ]
+    },
+    {
+      "text": "hass.connection.subscribeMessage()",
+      "index": "frontend",
+      "count": 2,
+      "pages": [
+        "src/content/docs/frontend/extending/websocket-api.md",
+        "src/content/docs/frontend/reference/hass-object.md"
+      ]
+    },
+    {
+      "text": "hass.state",
+      "index": "core",
+      "count": 2,
+      "pages": [
+        "src/content/docs/architecture/core/startup.md",
+        "src/content/docs/core/internals/hass.md"
+      ]
+    },
+    {
+      "text": "navigate()",
+      "index": "frontend",
+      "count": 2,
+      "pages": [
+        "src/content/docs/frontend/architecture/routing-and-panels.md"
+      ]
+    },
+    {
+      "text": "pause()",
+      "index": "core",
+      "count": 2,
+      "pages": [
+        "src/content/docs/core/entities/lawn-mower.md",
+        "src/content/docs/core/entities/vacuum.md"
+      ]
+    },
+    {
+      "text": "RadioFrequencyCommand",
+      "index": "core",
+      "count": 2,
+      "pages": [
+        "src/content/docs/core/entities/radio-frequency.md"
+      ]
+    },
+    {
+      "text": "setConfig()",
+      "index": "frontend",
+      "count": 2,
+      "pages": [
+        "src/content/docs/frontend/custom-ui/card-editor.md",
+        "src/content/docs/frontend/custom-ui/strategy.md"
+      ]
+    },
+    {
+      "text": "update()",
+      "index": "core",
+      "count": 2,
+      "pages": [
+        "src/content/docs/core/entities/state-updates.md"
+      ]
+    },
+    {
+      "text": "_press()",
+      "index": "frontend",
+      "count": 1,
+      "pages": [
+        "src/content/docs/frontend/custom-ui/card-feature.md"
+      ]
+    },
+    {
+      "text": "async_added_to_hass()",
+      "index": "core",
+      "count": 1,
+      "pages": [
+        "src/content/docs/core/entities/lifecycle.md"
+      ]
+    },
+    {
+      "text": "async_register_built_in_panel()",
+      "index": "frontend",
+      "count": 1,
+      "pages": [
+        "src/content/docs/frontend/architecture/routing-and-panels.md"
+      ]
+    },
+    {
+      "text": "async_register_panel()",
+      "index": "frontend",
+      "count": 1,
+      "pages": [
+        "src/content/docs/frontend/custom-ui/panel.md"
+      ]
+    },
+    {
+      "text": "async_will_remove_from_hass()",
+      "index": "core",
+      "count": 1,
+      "pages": [
+        "src/content/docs/core/entities/lifecycle.md"
+      ]
+    },
+    {
+      "text": "BaseHaScanner",
+      "index": "core",
+      "count": 1,
+      "pages": [
+        "src/content/docs/core/integrations/bluetooth.md"
+      ]
+    },
+    {
+      "text": "BleakClient",
+      "index": "core",
+      "count": 1,
+      "pages": [
+        "src/content/docs/core/integrations/bluetooth.md"
+      ]
+    },
+    {
+      "text": "BleakScanner",
+      "index": "core",
+      "count": 1,
+      "pages": [
+        "src/content/docs/core/integrations/bluetooth.md"
+      ]
+    },
+    {
+      "text": "BluetoothScannerDevice",
+      "index": "core",
+      "count": 1,
+      "pages": [
+        "src/content/docs/core/integrations/bluetooth.md"
+      ]
+    },
+    {
+      "text": "ClientSession",
+      "index": "core",
+      "count": 1,
+      "pages": [
+        "src/content/docs/core/integrations/api-library.md"
+      ]
+    },
+    {
+      "text": "closeDialog()",
+      "index": "frontend",
+      "count": 1,
+      "pages": [
+        "src/content/docs/design/components/dialog.mdx"
+      ]
+    },
+    {
+      "text": "ConfigEntry.data",
+      "index": "core",
+      "count": 1,
+      "pages": [
+        "src/content/docs/core/quality-scale/config-flow.md"
+      ]
+    },
+    {
+      "text": "ConfigEntry.options",
+      "index": "core",
+      "count": 1,
+      "pages": [
+        "src/content/docs/core/quality-scale/config-flow.md"
+      ]
+    },
+    {
+      "text": "dock()",
+      "index": "core",
+      "count": 1,
+      "pages": [
+        "src/content/docs/core/entities/lawn-mower.md"
+      ]
+    },
+    {
+      "text": "dt_util.utcnow()",
+      "index": "core",
+      "count": 1,
+      "pages": [
+        "src/content/docs/core/entities/datetime.md"
+      ]
+    },
+    {
+      "text": "EncryptedSharedPreferences",
+      "index": "core",
+      "count": 1,
+      "pages": [
+        "src/content/docs/security/guides/companion-apps.md"
+      ]
+    },
+    {
+      "text": "EntityFeature",
+      "index": "core",
+      "count": 1,
+      "pages": [
+        "src/content/docs/core/entities/entity-class.md"
+      ]
+    },
+    {
+      "text": "formatEntityAttributeValueToParts()",
+      "index": "frontend",
+      "count": 1,
+      "pages": [
+        "src/content/docs/frontend/reference/hass-object.md"
+      ]
+    },
+    {
+      "text": "formatEntityStateToParts()",
+      "index": "frontend",
+      "count": 1,
+      "pages": [
+        "src/content/docs/frontend/reference/hass-object.md"
+      ]
+    },
+    {
+      "text": "hass.config.location_name",
+      "index": "core",
+      "count": 1,
+      "pages": [
+        "src/content/docs/core/internals/instance-discovery.md"
+      ]
+    },
+    {
+      "text": "hass.die_if_empty",
+      "index": "core",
+      "count": 1,
+      "pages": [
+        "src/content/docs/apps/bashio/index.md"
+      ]
+    },
+    {
+      "text": "hass.die_if_true",
+      "index": "core",
+      "count": 1,
+      "pages": [
+        "src/content/docs/apps/bashio/index.md"
+      ]
+    },
+    {
+      "text": "hass.is_running",
+      "index": "core",
+      "count": 1,
+      "pages": [
+        "src/content/docs/architecture/core/startup.md"
+      ]
+    },
+    {
+      "text": "hass.is_stopping",
+      "index": "core",
+      "count": 1,
+      "pages": [
+        "src/content/docs/architecture/core/startup.md"
+      ]
+    },
+    {
+      "text": "hass.loop",
+      "index": "core",
+      "count": 1,
+      "pages": [
+        "src/content/docs/core/internals/hass.md"
+      ]
+    },
+    {
+      "text": "homeassistant.util.dt.utcnow()",
+      "index": "core",
+      "count": 1,
+      "pages": [
+        "src/content/docs/core/entities/media-player.md"
+      ]
+    },
+    {
+      "text": "InfraredCommand",
+      "index": "core",
+      "count": 1,
+      "pages": [
+        "src/content/docs/core/entities/infrared.md"
+      ]
+    },
+    {
+      "text": "loadCardHelpers()",
+      "index": "frontend",
+      "count": 1,
+      "pages": [
+        "src/content/docs/frontend/custom-ui/card.md"
+      ]
+    },
+    {
+      "text": "ModbusSerialParams",
+      "index": "core",
+      "count": 1,
+      "pages": [
+        "src/content/docs/core/internals/modbus.md"
+      ]
+    },
+    {
+      "text": "ModbusUnit",
+      "index": "core",
+      "count": 1,
+      "pages": [
+        "src/content/docs/core/internals/modbus.md"
+      ]
+    },
+    {
+      "text": "ModulationType",
+      "index": "core",
+      "count": 1,
+      "pages": [
+        "src/content/docs/core/entities/radio-frequency.md"
+      ]
+    },
+    {
+      "text": "ModulationType.OOK",
+      "index": "core",
+      "count": 1,
+      "pages": [
+        "src/content/docs/core/entities/radio-frequency.md"
+      ]
+    },
+    {
+      "text": "moveActiveItem()",
+      "index": "frontend",
+      "count": 1,
+      "pages": [
+        "src/content/docs/design/components/list.mdx"
+      ]
+    },
+    {
+      "text": "PendingIntent",
+      "index": "core",
+      "count": 1,
+      "pages": [
+        "src/content/docs/security/guides/companion-apps.md"
+      ]
+    },
+    {
+      "text": "ResizeController",
+      "index": "frontend",
+      "count": 1,
+      "pages": [
+        "src/content/docs/design/dashboards/weather-forecast-card.mdx"
+      ]
+    },
+    {
+      "text": "SafeScriptMessageHandler",
+      "index": "core",
+      "count": 1,
+      "pages": [
+        "src/content/docs/security/guides/companion-apps.md"
+      ]
+    },
+    {
+      "text": "sensitive()",
+      "index": "core",
+      "count": 1,
+      "pages": [
+        "src/content/docs/security/guides/companion-apps.md"
+      ]
+    },
+    {
+      "text": "start()",
+      "index": "core",
+      "count": 1,
+      "pages": [
+        "src/content/docs/core/entities/vacuum.md"
+      ]
+    },
+    {
+      "text": "stop()",
+      "index": "core",
+      "count": 1,
+      "pages": [
+        "src/content/docs/core/entities/lawn-mower.md"
+      ]
+    },
+    {
+      "text": "subscribeMessage()",
+      "index": "frontend",
+      "count": 1,
+      "pages": [
+        "src/content/docs/frontend/extending/websocket-api.md"
+      ]
+    },
+    {
+      "text": "toggle()",
+      "index": "core",
+      "count": 1,
+      "pages": [
+        "src/content/docs/core/entities/climate.md"
+      ]
+    }
+  ]
+}

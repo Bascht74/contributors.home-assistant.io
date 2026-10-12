@@ -1,0 +1,242 @@
+---
+title: Area picker
+description: The area picker lets people choose one area of their home, or create a new one on the spot.
+sidebarGroup: Pickers
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+import DoDont from "../../../../components/docs/DoDont.astro";
+
+<Demo hass layout="stack">
+  <ha-area-picker value="living_room" no-add></ha-area-picker>
+  <ha-area-picker no-add></ha-area-picker>
+</Demo>
+
+## Overview
+
+The area picker is a field for choosing one [area](/glossary/area/): the room a device is in, the area a card shows, the area a helper belongs to. Select the field to open a searchable list of areas. Each area shows its icon, and the floor it is on.
+
+## When to use
+
+Use the area picker for:
+
+- Choosing exactly one area
+- Assigning something to an area, where the area people need might not exist yet
+
+Don't use the area picker for:
+
+- Picking several areas. Use the area [selector](/design/components/selector/), which can allow more than one.
+- Picking what an action works on. Use the target selector: it accepts areas, but also entities, devices, floors, and labels.
+- A field in a form. Use the area selector in a [form](/design/components/form/), and the form renders the picker for you.
+
+## Anatomy
+
+1. **Field**: the button that shows the value and opens the list
+2. **Label**: inside the field, **Area** by default
+3. **Value**: the icon and name of the area, with its floor below it
+4. **Clear button**: removes the value, when the field is not required
+5. **Arrow**: shows that the field opens a list
+6. **Helper**: optional text below the field
+7. **List**: the popover with a search field and the areas, and at the end the option to add a new area
+
+## Variants
+
+### Label
+
+The label defaults to **Area**. Set your own when the field needs more context, like **Area of the device**.
+
+The label shows inside the field. Once people pick an area that is on a floor, the field shows the floor in place of the label, so it reads as the area name with the floor below it. Areas without a floor, like the **Garden**, keep the label.
+
+<Demo hass layout="stack">
+  <ha-area-picker label="Area of the device" value="bedroom" no-add></ha-area-picker>
+  <ha-area-picker label="Area of the device" value="garden" no-add></ha-area-picker>
+</Demo>
+
+### Adding an area
+
+At the end of the list, the picker offers to add a new area. When people search for an area that does not exist, that option takes the search as the name: **Add new area 'Attic'**. Selecting it opens the dialog to create the area, and picks the new area when it is created. In the demos on this page, that dialog does not open.
+
+<Demo hass layout="stack" caption="Search for an area that does not exist, like Attic, to see the suggestion.">
+  <ha-area-picker></ha-area-picker>
+</Demo>
+
+This option can be turned off.
+
+### Filtering
+
+You can limit the list to areas that have certain entities in them, like only areas with lights:
+
+<Demo hass layout="stack">
+  <ha-area-picker include-domains='["light"]' no-add></ha-area-picker>
+</Demo>
+
+The filters look at the entities in an area, and the entities of the devices in it. You can also filter on the device class of those entities, leave out entities of some domains, or leave out certain areas.
+
+### Add button
+
+The picker can show a button instead of an empty field. Once people pick an area, the picker shows it like a regular picker. This fits lists, where people add areas one by one.
+
+<Demo hass layout="stack">
+  <ha-area-picker add-button-label="Add area" no-add></ha-area-picker>
+</Demo>
+
+## Behavior
+
+- **Enabled**: selecting the field opens the list, and moves focus to its search field.
+- **Hover and pressed**: the field shows a ripple.
+- **Focus**: the line at the bottom of the field turns 2px thick, in the primary color.
+- **Search**: typing filters the list as you type. When nothing matches, the list says **No areas found for** your search term. When the home has no areas, it says **No areas available**.
+- **Unknown**: when the value is an area that does not exist, the field turns to the quiet warning color and shows **Unknown area selected**.
+- **Disabled**: the field is dimmed to 50% opacity and can't be opened.
+- **Narrow screens**: when the window is at most 870px wide or 500px high, the list opens as a bottom sheet instead of a popover.
+
+Picking an area closes the list. The new value is reported once the list has closed.
+
+<Demo hass layout="stack">
+  <ha-area-picker value="attic" no-add></ha-area-picker>
+  <ha-area-picker value="kitchen" disabled></ha-area-picker>
+</Demo>
+
+## Specs
+
+The area picker uses the shared picker field and list of the frontend, `ha-picker-field` and `ha-generic-picker`.
+
+### Field
+
+| Property | Value | Token |
+| --- | --- | --- |
+| Minimum height | 56px | None |
+| Padding start | 16px | `--ha-space-4` |
+| Padding end | 8px | `--ha-space-2` |
+| Gap between parts | 8px | `--ha-space-2` |
+| Corner radius | 4px at the top, square at the bottom | `--ha-border-radius-sm` |
+| Background | Form background | `--ha-color-form-background` |
+| Bottom line | 1px | `--ha-color-border-neutral-loud` |
+| Bottom line, focused | 2px | `--mdc-theme-primary` |
+| Bottom line, invalid | 2px | `--error-color` |
+| Placeholder text | Secondary text color | `--secondary-text-color` |
+| Clear button | 32px | `--ha-icon-button-size` |
+| Arrow icon | 20px, in a 32px wide area | `--mdc-icon-size` |
+| Unknown background | Quiet warning fill | `--ha-color-fill-warning-quiet-resting` |
+| Unknown text | Warning text | `--ha-color-on-warning-normal` |
+| Disabled | 50% opacity on the disabled form background | `--ha-color-form-background-disabled` |
+| Space above the helper | 8px | `--ha-space-2` |
+
+### List
+
+| Property | Value | Token |
+| --- | --- | --- |
+| Width | The width of the field, at least 250px | `--ha-generic-picker-width` |
+| Maximum height | The smaller of 70% of the window height and 500px. When the window is at most 1000px high, the smaller of 70% and 400px | None |
+| Corner radius | 8px | `--ha-border-radius-md` |
+| Shadow | Medium shadow | `--ha-box-shadow-m` |
+| Bottom sheet corner radius | 20px | `--ha-border-radius-2xl` |
+| Bottom sheet maximum width | 600px | None |
+
+## Guidelines
+
+- Keep the option to add an area where it helps: when people assign something to an area, the area they need might not exist yet.
+- Turn the option to add an area off where creating one makes no sense, like in a filter, or when picking from areas that already have something in them.
+- Set your own label when **Area** alone does not say what the area is for.
+
+<DoDont hass doText="Say what the area is for, when the field needs context." dontText="Leave a generic label where people can't tell what they are picking an area for.">
+  <ha-area-picker slot="do" label="Area of the device" no-add></ha-area-picker>
+  <ha-area-picker slot="dont" no-add></ha-area-picker>
+</DoDont>
+
+## Accessibility
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves focus to the field, and to the clear button when there is one. A disabled field is skipped. |
+| <kbd>Enter</kbd> or <kbd>Space</kbd> | Opens the list, when the field has focus. |
+| Typing | Searches the list. Focus is in the search field when the list opens. |
+| <kbd>Arrow down</kbd> and <kbd>Arrow up</kbd> | Moves through the areas. |
+| <kbd>Home</kbd> and <kbd>End</kbd> | Jumps to the first or last area. |
+| <kbd>Page up</kbd> and <kbd>Page down</kbd> | Moves a page through the list. |
+| <kbd>Enter</kbd> | Picks the highlighted area. While searching, the top match is highlighted. With only one option in the list, <kbd>Enter</kbd> picks it. |
+| <kbd>Escape</kbd> | Closes the list. |
+
+### Focus
+
+Focus on the field shows as a thicker bottom line, not as a focus ring. While the list is open as a popover, focus stays inside it. In the list, focus stays in the search field while the arrow keys move the highlight.
+
+### Target size
+
+The field is at least 56px high and fills the width it gets. The clear button is 32px by 32px.
+
+### Screen readers
+
+- The field is announced as a button, named by its label and the area in it. When the picked area is on a floor, the name is the area and floor name.
+- The list is announced as a dialog with a list of options, and the picked area as selected.
+- The clear button is announced as "Clear", in the language of the user.
+
+### In the code
+
+- Focus is delegated to a native `<button>` in the field. Its accessible name is the label together with the text in the field. When the picked area is on a floor, the label is left out.
+- The list opens in an element with the role `dialog` and `aria-modal="true"`, named after the label. The popover traps focus.
+- The list has the role `listbox`, and each area the role `option`, with `aria-selected` for the picked area.
+- The highlighted row is marked with an `active` attribute. The list does not set `aria-activedescendant`.
+- The clear button has the translated label `ui.common.clear` as its accessible name.
+
+## Related
+
+- [Device picker](/design/components/device-picker/): pick one device
+- [Entity picker](/design/components/entity-picker/): pick one entity
+- [Selector](/design/components/selector/): the area selector, for one or several areas
+- [Form](/design/components/form/): renders the picker from a schema
+
+## In code
+
+The element is `<ha-area-picker>`. It reads the areas, floors, devices, entities, and states from the context the app provides, so you don't pass `hass` to it.
+
+```ts
+html`
+  <ha-area-picker
+    .value=${this._areaId}
+    .includeDomains=${["light"]}
+    @value-changed=${this._areaChanged}
+  ></ha-area-picker>
+`;
+```
+
+In HTML, the list attributes take JSON:
+
+```html
+<ha-area-picker include-domains='["light"]' no-add></ha-area-picker>
+```
+
+### Attributes
+
+- `label`: the label. Defaults to **Area**.
+- `value`: the ID of the selected area.
+- `helper`: help text below the field.
+- `placeholder`: the text in the empty field.
+- `no-add`: hides the option to add a new area.
+- `include-domains`: only show areas with entities of these domains.
+- `exclude-domains`: hide areas with entities of these domains.
+- `include-device-classes`: only show areas with entities of these device classes.
+- `exclude-areas`: hide these areas.
+- `add-button-label`: shows a button with this label instead of the empty field.
+- `required`: marks the field as required.
+- `disabled`: disables the picker.
+
+### Properties
+
+These can only be set from code:
+
+- `deviceFilter`: a function that gets each device registry entry, and returns `true` to keep it. Only areas with a matching device show.
+- `entityFilter`: a function that gets the state object of each entity, and returns `true` to keep it. Only areas with a matching entity show.
+
+### Methods
+
+- `open()`: opens the list.
+
+### Events
+
+- `value-changed`: fires when people pick or clear an area. The new area ID is in `event.detail.value`, or `undefined` when cleared.
+- `change`: fires after `value-changed`.
+
+Source: [`src/components/ha-area-picker.ts`](https://github.com/home-assistant/frontend/blob/dev/src/components/ha-area-picker.ts)

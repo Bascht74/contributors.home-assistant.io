@@ -1,0 +1,96 @@
+---
+title: Tile card
+description: The tile card shows one entity with its icon, name, and state, and can add controls for it. It is the default card for almost everything.
+sidebarGroup: Entity cards
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+<Demo hass>
+  <hui-card style="width: 340px" data-props='{"config": {"type": "tile", "entity": "light.living_room_lamp", "features": [{"type": "light-brightness"}]}}'></hui-card>
+  <hui-card style="width: 340px" data-props='{"config": {"type": "tile", "entity": "climate.thermostat"}}'></hui-card>
+</Demo>
+
+## Usage
+
+The tile card is where you start. It shows one entity: an icon, a name, and the state. Selecting the card opens the more-info dialog of the entity. Selecting the icon does the most obvious thing for that entity: it toggles a light, a switch, or a fan, and it activates a scene or presses a button. For entities that have no quick action, like a sensor, the icon does nothing.
+
+When Home Assistant builds a dashboard for you, and when you add an entity to a section, it becomes a tile card. Pick another card only when the tile can't do the job, like a graph over time with the [history graph card](/design/dashboards/history-graph-card/), or a big control with the [thermostat card](/design/dashboards/thermostat-card/).
+
+The tile card follows the state of the entity. The icon and its background take the color of the state, like amber for a light that is on, or the color of the light itself. When the entity is off or unavailable, the card is gray.
+
+### Features
+
+Features add controls to the tile: a brightness slider, buttons to open and close a cover, the target temperature, a set of modes. A feature only shows up for an entity that supports it. Add the features people use most, not every feature the entity has. One or two is plenty for most tiles.
+
+<Demo hass>
+  <hui-card style="width: 340px" data-props='{"config": {"type": "tile", "entity": "cover.bedroom_blinds", "features": [{"type": "cover-open-close"}, {"type": "cover-position"}]}}'></hui-card>
+  <hui-card style="width: 340px" data-props='{"config": {"type": "tile", "entity": "climate.thermostat", "features": [{"type": "target-temperature"}]}}'></hui-card>
+</Demo>
+
+The same features work in the [area card](/design/dashboards/area-card/), the [thermostat card](/design/dashboards/thermostat-card/), and the [humidifier card](/design/dashboards/humidifier-card/). A feature is built once, and every card that supports features can use it.
+
+### Features inline
+
+With `features_position: inline`, the feature sits next to the name instead of below it. The tile keeps the height of a single row, but needs the full width of the section. It works best with a single, compact feature, like a slider.
+
+<Demo hass>
+  <hui-card style="width: 400px" data-props='{"config": {"type": "tile", "entity": "fan.bedroom_fan", "features": [{"type": "fan-speed"}], "features_position": "inline"}}'></hui-card>
+</Demo>
+
+### Vertical
+
+With `vertical: true`, the icon sits above the name and the state. A vertical tile can be narrower, down to a quarter of a section. Use it for a row of small tiles that people mostly toggle.
+
+<Demo hass>
+  <hui-card style="width: 160px" data-props='{"config": {"type": "tile", "entity": "light.living_room_lamp", "vertical": true}}'></hui-card>
+  <hui-card style="width: 160px" data-props='{"config": {"type": "tile", "entity": "light.hallway", "vertical": true}}'></hui-card>
+  <hui-card style="width: 160px" data-props='{"config": {"type": "tile", "entity": "light.kitchen_ceiling", "vertical": true}}'></hui-card>
+</Demo>
+
+### State content
+
+By default, the tile shows the state of the entity. With `state_content`, you pick what it shows instead, like an attribute, or the time since the last change. A list shows several, separated by a dot. Use `hide_state` to show only the name.
+
+<Demo hass>
+  <hui-card style="width: 340px" data-props='{"config": {"type": "tile", "entity": "climate.thermostat", "state_content": ["state", "current_temperature"]}}'></hui-card>
+  <hui-card style="width: 340px" data-props='{"config": {"type": "tile", "entity": "lock.front_door", "hide_state": true}}'></hui-card>
+</Demo>
+
+### Content
+
+- Keep the name short. The tile is narrow, and a long name gets cut off. The name of the device is often enough, because the area already gives the context.
+- Only override the icon or the color when it adds meaning. The default icon and color follow the state, and people learn to read them.
+- A tile is one entity. For a group of entities, use one tile per entity, or the [entities card](/design/dashboards/entities-card/).
+
+## Configuration
+
+- `entity` (string, required): the entity to show.
+- `name` (string): the name to show. Defaults to the name of the entity.
+- `icon` (string): the icon to show. Defaults to the icon of the entity, which can change with its state.
+- `color` (string): the color of the icon when the entity is active, like `amber` or `primary`. Defaults to `state`, the color of the state.
+- `show_entity_picture` (boolean): shows the picture of the entity, like the cover of the media playing, instead of the icon. Defaults to `false`.
+- `vertical` (boolean): puts the icon above the name. Defaults to `false`.
+- `hide_state` (boolean): hides the state. Defaults to `false`.
+- `state_content` (string or list): what to show as the state: `state`, `last_changed`, `last_updated`, or the name of an attribute.
+- `tap_action` (action): what happens when you select the card. Defaults to `more-info`.
+- `icon_tap_action` (action): what happens when you select the icon. Defaults to `toggle` for entities that can be toggled, and `none` for the rest.
+- `hold_action`, `double_tap_action`, `icon_hold_action`, `icon_double_tap_action` (action): what happens on hold or double tap. Default to `none`.
+- `features` (list): the features to show, each with a `type`.
+- `features_position` (string): `bottom` or `inline`. Defaults to `bottom`.
+
+```yaml
+type: tile
+entity: cover.bedroom_blinds
+features:
+  - type: cover-open-close
+  - type: cover-position
+```
+
+## In code
+
+The card lives in `src/panels/lovelace/cards/hui-tile-card.ts`, and the element is `<hui-tile-card>`. The tile itself is built from `<ha-tile-container>`, `<ha-tile-icon>`, and `<ha-tile-info>`, shared components in `src/components/tile/`. The features live in `src/panels/lovelace/card-features/`, one element per feature type.
+
+In the sections view, the tile takes 6 of the 12 columns, and one row. Each row of features adds a row. An inline feature needs all 12 columns, and a vertical tile adds a row and can shrink to 3 columns.
+
+[Source](https://github.com/home-assistant/frontend/blob/dev/src/panels/lovelace/cards/hui-tile-card.ts)

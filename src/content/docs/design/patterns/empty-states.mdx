@@ -1,0 +1,72 @@
+---
+title: Empty states
+description: What to show when a screen or a list has nothing in it, and how to help people move on from there.
+order: 3
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+Sooner or later, every list is empty. Someone just installed Home Assistant, a search finds nothing, a filter hides everything. An empty state turns that blank space into a clear message: what is going on, and what people can do about it.
+
+## When to use
+
+Use an empty state when a screen, a panel, or a list has finished loading and has nothing to show. There are two kinds, and they need different words:
+
+- **Nothing yet**: people have not picked or created anything. Tell them what to do to get started.
+- **No results**: there is data, but the current search or filter matches none of it. Tell them what to change.
+
+The history panel shows both. Before you pick anything, it says **Nothing to show yet**: "Select areas, devices, entities or labels to see their history". When your selection has no history, it says **No results found**: "No history for the current selection. Try changing the targets, filters, or time range."
+
+Pickers make the same split: one text for a list that has no items at all, and another for a search that matches nothing.
+
+Don't show an empty state while the content is still loading. Show a [loading state](/design/patterns/loading/) until you know the list is empty.
+
+## How it works
+
+The frontend has one component for this: `ha-empty-state`. It centers its content in the space it gets, up to 500 pixels wide, with:
+
+- An icon on top, 64 pixels, in the secondary text color
+- A heading that says what is going on
+- An optional description that says why, or what to do next
+- Optional actions below it, like a button to add the first item
+
+<Demo caption="The empty state of the history panel, with its real text.">
+  <ha-empty-state
+    icon="M9 17H7V10H9V17M13 17H11V7H13V17M17 17H15V13H17V17M19 19H5V5H19V19.1M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3Z"
+    heading="No results found"
+    description="No history for the current selection. Try changing the targets, filters, or time range."
+  ></ha-empty-state>
+</Demo>
+
+### Writing the text
+
+- The heading is short and plain: **No results found**, **Nothing to show yet**.
+- The description says what people can do: "Try changing the targets, filters, or time range."
+- When there is one clear next step, offer it as a button, with a label that says what it does.
+
+See [Messages](/design/ui-text/messages/) for more on the words.
+
+## Accessibility
+
+- The heading is a real heading (`h2`), so screen reader users can find it.
+- The icon is decoration. The heading and description carry the message on their own.
+
+## Components
+
+- `ha-empty-state`, in `src/components/ha-empty-state.ts` of the frontend.
+- [Button](/design/components/button/), for the next step
+- [Entity picker](/design/components/entity-picker/) and the other pickers, for their own empty and no match texts
+
+## In code
+
+```ts
+html`
+  <ha-empty-state
+    .icon=${mdiChartBoxOutline}
+    .heading=${this.hass.localize("ui.panel.history.no_results_title")}
+    .description=${this.hass.localize("ui.panel.history.no_results")}
+  ></ha-empty-state>
+`;
+```
+
+Put actions, like an `ha-button`, in the default slot. Set `--ha-empty-state-icon-size` to change the size of the icon.

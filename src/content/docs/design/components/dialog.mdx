@@ -1,0 +1,249 @@
+---
+title: Dialog
+description: Dialogs ask for a decision or input, on top of what you were doing.
+sidebarGroup: Feedback and status
+---
+
+import DoDont from "../../../../components/docs/DoDont.astro";
+
+## Overview
+
+Dialogs interrupt. Use them for things that need attention now: a confirmation, a short form, a choice. For anything bigger, use a page.
+
+Dialogs in the frontend are based on [Material Design 3](https://m3.material.io/components/dialogs/overview), with the adjustments described on this page.
+
+## When to use
+
+Use a dialog for:
+
+- Confirming an action, especially one that can't be undone
+- A short form, like renaming something
+- A choice someone must make before they can continue
+
+Don't use a dialog for:
+
+- A message that doesn't block anything. Use an [alert](/design/components/alert/).
+- Content that needs more room than a dialog has. Use a dedicated page.
+- Content that people show and hide on the page. Use an [expansion panel](/design/components/expansion-panel/).
+
+## Anatomy
+
+1. **Scrim**: the overlay behind the dialog
+2. **Surface**: the dialog itself, with rounded corners and a shadow
+3. **Close button**: in the top left of the header
+4. **Title**: the header text, and an optional subtitle below or above it
+5. **Header actions**: optional icon buttons in the top right, like help or settings
+6. **Body**: the content, which scrolls when it doesn't fit
+7. **Footer**: the buttons, at the bottom right
+
+When the body is scrolled, a thin line appears below the header.
+
+## Variants
+
+### Standard and alert
+
+A standard dialog has a header with a close button. On a small screen, it fills the whole screen.
+
+An alert dialog is for alerts and confirmations. It stays a dialog on a small screen, with its rounded corners. By design it only has buttons, no close button. Making a dialog an alert dialog does not remove the close button by itself: the confirmation dialog of the frontend brings its own header without one.
+
+### Width
+
+There are four widths: small, medium (the default), large, and full. Use one of these, and avoid custom sizes unless there is a clear need.
+
+## Behavior
+
+- **Opening**: the dialog animates in over the scrim in 200ms. With reduced motion turned on, it appears right away. Focus moves to the element that is marked to get it, or to the dialog itself.
+- **Closing**: the close button, a button in the dialog marked as a close button, <kbd>Escape</kbd>, and selecting the scrim all close the dialog. Focus then returns to the element that opened it.
+- **Guarded closing**: when someone has changed a form in the dialog, it does not close with <kbd>Escape</kbd> or by selecting the scrim. Instead, it gives a little shake (a 250ms pulse). That prevents losing work by accident. Confirmation dialogs work the same way.
+- **Scrolling**: the body scrolls when the content doesn't fit, and the page behind the dialog doesn't scroll.
+- **Small screens**: up to 450px wide or 500px high, a standard dialog fills the screen, without rounded corners.
+
+## Specs
+
+| Property | Value | Token |
+| --- | --- | --- |
+| Width, small | 320px | `--ha-dialog-width-sm` |
+| Width, medium | 580px | `--ha-dialog-width-md` |
+| Width, large | 1024px | `--ha-dialog-width-lg` |
+| Width, full | 95% of the screen, within the safe area | `--ha-dialog-width-full` |
+| Maximum height | The safe height minus 80px | `--ha-space-20`, through `--ha-dialog-max-height` |
+| Corner radius | 24px, 0 for a standard dialog on small screens | `--ha-border-radius-3xl`, through `--ha-dialog-border-radius` |
+| Background | Card background | `--card-background-color`, through `--ha-dialog-surface-background` |
+| Shadow | Large shadow | `--wa-shadow-l`, through `--dialog-box-shadow` |
+| Header minimum height | 48px | `--ha-space-12` |
+| Header padding | 4px left and right, 8px on larger screens | `--ha-space-1`, `--ha-space-2` |
+| Title | 20px, weight 500, line height 1.2 | `--ha-font-size-xl`, `--ha-font-weight-medium`, `--ha-line-height-condensed` |
+| Subtitle | 14px, line height 1.6 | `--ha-font-size-m`, `--ha-line-height-normal` |
+| Subtitle color | Secondary text color | `--secondary-text-color` |
+| Body padding | 0 at the top, 24px on the other sides | `--ha-space-6`, through `--dialog-content-padding` |
+| Footer padding | 12px at the top, 16px on the other sides | `--ha-space-3`, `--ha-space-4` |
+| Space between footer buttons | 12px | `--ha-space-3` |
+| Open and close animation | 200ms, 0ms with reduced motion | `--ha-dialog-show-duration`, `--ha-dialog-hide-duration` |
+
+## Guidelines
+
+### Layout
+
+- Keep dialogs narrow. The design guideline is at most 560 pixels wide, and a fixed 320 pixels for alert and confirmation dialogs. The code is not that strict: the default width is 580 pixels, and the confirmation dialog uses it too. Need more room? Use a dedicated page.
+- The close button sits in the top left, on every screen size.
+- Extra icon buttons, like help, settings, or expand, sit in the top right. With more than two, they go into an overflow menu.
+- The main action is grouped with **Cancel** at the bottom right. On mobile, full screen dialogs keep these buttons fixed at the bottom.
+- Alert and confirmation dialogs only have buttons, no close button.
+
+### Closing
+
+- Every dialog with actions has a way out: on desktop a **Cancel** button and the close button, on mobile the close button.
+- When someone has changed a form in the dialog, it does not close with Escape or by selecting outside of it. That prevents losing work by accident.
+
+### Buttons
+
+<DoDont doText="Group a plain Cancel with one main action." dontText="Add a third button that leaves the task unfinished.">
+  <Fragment slot="do">
+    <ha-button appearance="plain">Cancel</ha-button>
+    <ha-button>Save</ha-button>
+  </Fragment>
+  <Fragment slot="dont">
+    <ha-button appearance="plain">Cancel</ha-button>
+    <ha-button appearance="outlined">Save for later</ha-button>
+    <ha-button>Save</ha-button>
+  </Fragment>
+</DoDont>
+
+<DoDont doText="Use the danger variant for a destructive action." dontText="Use the brand color for an action that deletes something.">
+  <Fragment slot="do">
+    <ha-button appearance="plain">Cancel</ha-button>
+    <ha-button variant="danger">Delete</ha-button>
+  </Fragment>
+  <Fragment slot="dont">
+    <ha-button appearance="plain">Cancel</ha-button>
+    <ha-button>Delete</ha-button>
+  </Fragment>
+</DoDont>
+
+- Keep labels short: **Save**, **Delete**, **Enable**.
+- Avoid three buttons in one dialog, especially when one of them leaves the task unfinished.
+
+### Content
+
+People mostly read the title and the buttons. Put what matters there.
+
+- Always give a dialog a title.
+- Avoid content entered by users in the title, like a name. It can make the title unreadably long.
+- Use the description for people who are unsure: explain what will happen.
+- Keep it short.
+
+A confirmation dialog for deleting a dashboard:
+
+> **Delete dashboard?**
+>
+> Dashboard Kitchen will be permanently deleted from Home Assistant.
+>
+> **Cancel** / **Delete**
+
+## Accessibility
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves focus through the dialog. Focus stays inside the dialog while it is open. |
+| <kbd>Escape</kbd> | Closes the dialog, unless closing is guarded. Then the dialog shakes and stays open. |
+| <kbd>Enter</kbd> or <kbd>Space</kbd> | Selects the focused button, like any button. |
+
+### Focus
+
+When the dialog opens, focus moves into it: to the first field of a form, or to the dialog itself. When the dialog closes, focus returns to the element that had it before. The rest of the page can't be reached while the dialog is open.
+
+### Target size
+
+The close button is an icon button of 48px by 48px.
+
+### Screen readers
+
+A dialog is announced as a dialog, with its title as its name. A confirmation dialog also reads its description. The close button is announced as "Close", in the language of the user.
+
+### In the code
+
+- The dialog is a native `<dialog>` element, opened as a modal, so it has the role `dialog` and the page behind it is inert.
+- Focus moves to the element with `autofocus`. Components that delegate focus, like `<ha-form autofocus>`, pass it on to their first field.
+- The accessible name is the `header-title`, or `accessibleLabel` for a dialog that puts its title in a slot.
+- Use `aria-describedby` to connect the description, like the confirmation dialogs do.
+- The close button has the translated label `ui.common.close` as its accessible name.
+
+## Related
+
+- [Adaptive dialog](/design/components/adaptive-dialog/): a dialog that becomes a bottom sheet on a phone
+- [Button](/design/components/button/): the buttons in the footer
+- [Alert](/design/components/alert/): a message that doesn't block anything
+- [Form](/design/components/form/): the fields in a dialog
+- [UI text](/design/ui-text/): how to write titles and labels
+
+## In code
+
+The element is `<ha-dialog>`. It is based on the [Web Awesome dialog](https://webawesome.com/docs/components/dialog/). Look at existing dialogs in the [frontend repository](https://github.com/home-assistant/frontend/tree/dev/src/dialogs) before you build a new one.
+
+Open a dialog by firing the `show-dialog` event, and let it load itself:
+
+```ts
+fireEvent(this, "show-dialog", {
+  dialogTag: "dialog-example",
+  dialogImport: () => import("./dialog-example"),
+  dialogParams: { title: "Example", data: someData },
+});
+```
+
+- Use `DialogMixin` for a new dialog (`src/dialogs/dialog-mixin.ts`). Read the parameters from its `params` property, and call `closeDialog()` to close it.
+- Use `header-title` and `header-subtitle` for simple header text, and the header slots when you need more.
+- Put the buttons in `ha-dialog-footer`, in its `primaryAction` and `secondaryAction` slots.
+- Add `autofocus` to the first focusable element, like `<ha-form autofocus>`.
+
+```html
+<ha-dialog open header-title="Rename" width="small">
+  <ha-form autofocus></ha-form>
+  <ha-dialog-footer slot="footer">
+    <ha-button slot="secondaryAction" appearance="plain" data-dialog="close">
+      Cancel
+    </ha-button>
+    <ha-button slot="primaryAction">Rename</ha-button>
+  </ha-dialog-footer>
+</ha-dialog>
+```
+
+### Attributes
+
+- `open`: opens the dialog.
+- `type`: `standard` (default) or `alert`. A standard dialog fills the screen on small screens, an alert dialog stays a dialog.
+- `width`: `small`, `medium` (default), `large`, or `full`.
+- `prevent-scrim-close`: blocks closing with Escape or by selecting the scrim. The dialog shakes instead.
+- `header-title` and `header-subtitle`: the header text.
+- `header-subtitle-position`: `below` (default) or `above` the title.
+- `flexcontent`: makes the body a flex container.
+- `without-header`: leaves out the header.
+- `aria-labelledby` and `aria-describedby`: passed on to the dialog.
+
+### Slots
+
+- Default: the body.
+- `header`: replaces the whole header.
+- `headerNavigationIcon`: replaces the close button.
+- `headerTitle` and `headerSubtitle`: your own title and subtitle, when the attributes are not set.
+- `headerActionItems`: icon buttons in the top right.
+- `footer`: the footer, usually an `ha-dialog-footer`.
+
+### Events
+
+- `opened`: the dialog is shown.
+- `after-show`: the open animation is done.
+- `closed`: the dialog is hidden.
+
+### Styling
+
+- `--dialog-content-padding`: the padding of the body.
+- `--ha-dialog-show-duration` and `--ha-dialog-hide-duration`: the animation durations.
+- `--ha-dialog-surface-background`: the background.
+- `--ha-dialog-border-radius`: the corner radius.
+- `--dialog-box-shadow`: the shadow.
+- `--ha-dialog-surface-backdrop-filter` and `--ha-dialog-scrim-backdrop-filter`: backdrop filters for the surface and the scrim.
+- `--dialog-surface-margin-top`: the top margin of the surface.
+
+Source: [`src/components/ha-dialog.ts`](https://github.com/home-assistant/frontend/blob/dev/src/components/ha-dialog.ts)

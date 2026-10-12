@@ -1,0 +1,36 @@
+---
+title: Input number
+description: The more-info view of a number helper, a slider or a number field in the state row.
+sidebarGroup: Helpers
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+<Demo hass>
+  <ha-demo-more-info entity="input_number.comfort_temperature"></ha-demo-more-info>
+  <ha-demo-more-info entity="input_number.vacation_days"></ha-demo-more-info>
+</Demo>
+
+## What it shows
+
+A number helper (`input_number`) doesn't have the newer more-info design. Its control lives in the state row at the top of the dialog: the icon and name on the left, and the control on the right.
+
+The control follows the display mode set on the helper:
+
+- **Slider**: a [slider](/design/components/slider/) with the value and the unit next to it. The comfort temperature uses a slider, from 15 to 25 °C in steps of 0.5.
+- **Input field**: a number [text input](/design/components/input/), with the unit at the end. The vacation days use a field.
+
+Below the state row, the dialog shows the history of the helper and its activity, like it does for any entity without a view of its own. These demos show only the state row.
+
+## Design notes
+
+- The slider and the field use the minimum, maximum, and step of the helper.
+- The new value is sent when you let go of the slider, or when you confirm the field, not on every keystroke.
+- When the helper is unavailable, the slider and the field are disabled.
+- The [number](/design/more-info/number/) entities of devices get the same row.
+
+## In code
+
+The state row is `state-card-input_number` in `src/state-summary/state-card-input_number.ts`. There is no `more-info-input_number`: the domain is in `DOMAINS_HIDE_DEFAULT_MORE_INFO` in `src/dialogs/more-info/const.ts`, so the dialog shows only the row and the history.
+
+Source: [`state-card-input_number.ts`](https://github.com/home-assistant/frontend/blob/dev/src/state-summary/state-card-input_number.ts)

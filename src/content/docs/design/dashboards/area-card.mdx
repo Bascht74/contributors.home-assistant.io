@@ -1,0 +1,104 @@
+---
+title: Area card
+description: The area card sums up one area of the home, with its picture, its sensors, and alerts, and can add controls for everything in it.
+sidebarGroup: Grouping and layout
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+<Demo hass>
+  <hui-card style="width: 360px" data-props='{"config": {"type": "area", "area": "living_room", "sensor_classes": ["temperature", "humidity"]}}'></hui-card>
+  <hui-card style="width: 360px" data-props='{"config": {"type": "area", "area": "living_room", "display_type": "compact", "sensor_classes": ["temperature", "humidity"], "features": [{"type": "area-controls"}]}}'></hui-card>
+</Demo>
+
+## Usage
+
+The area card shows one area at a glance: its name and icon, the readings of its sensors, and alerts when something needs attention. Use it on an overview, where each area gets one card, and selecting it leads to the details of that area.
+
+The card works from the area registry. It finds the entities of the area on its own, so it stays up to date when devices are added or moved. For one entity in an area, use the [tile card](/design/dashboards/tile-card/).
+
+### Display type
+
+The `display_type` decides how much room the card takes:
+
+- `picture`: the default. The picture of the area fills the top of the card. Without a picture, the icon of the area takes its place on a plain background.
+- `camera`: shows the live view of a camera in the area, instead of the picture.
+- `icon`: shows the icon of the area on a plain background, the same size as a picture.
+- `compact`: no picture at all. The card is as small as a tile, with the icon in front of the name.
+
+<Demo hass>
+  <hui-card style="width: 340px" data-props='{"config": {"type": "area", "area": "hallway", "display_type": "icon"}}'></hui-card>
+  <hui-card style="width: 340px" data-props='{"config": {"type": "area", "area": "hallway", "display_type": "compact"}}'></hui-card>
+</Demo>
+
+Use the picture when people recognize their rooms from it, like on a wall tablet. Use the compact type when the overview has many areas, so they fit on one screen. A compact card can be `vertical`, like a vertical tile.
+
+The demos on this page have no area pictures, so the picture type shows the icon instead.
+
+### Sensors and alerts
+
+With `sensor_classes`, the card shows the readings of the sensors of the area, by their device class. When an area has several sensors of the same class, the card shows their median, or their total for a class that adds up, like power or energy. Climate devices count too, through their current temperature. A temperature or humidity sensor set on the area itself wins over all of them.
+
+With `alert_classes`, the card shows an icon for each class that has a binary sensor on in the area, like motion, an open window, or a leak. On the larger types, the alerts sit in a column on the picture. On the compact type, only the first alert shows, as a badge on the icon. Alerts only appear when something is going on, so an empty spot is good news.
+
+<Demo hass>
+  <hui-card style="width: 340px" data-props='{"config": {"type": "area", "area": "kitchen", "display_type": "compact", "alert_classes": ["window", "moisture"]}}'></hui-card>
+  <hui-card style="width: 340px" data-props='{"config": {"type": "area", "area": "hallway", "display_type": "compact", "sensor_classes": ["illuminance"], "alert_classes": ["motion", "door"]}}'></hui-card>
+</Demo>
+
+Without `sensor_classes` or `alert_classes`, the card shows no readings or alerts. Pick the few classes that matter for the overview, like temperature and humidity, and motion and leaks.
+
+### Features
+
+The area card takes features, like the tile card. The `area-controls` feature adds buttons to turn the lights, fans, and covers of the area on or off together. By default, it shows up to four buttons, for the kinds of devices the area has. With `controls`, you pick them.
+
+<Demo hass>
+  <hui-card style="width: 360px" data-props='{"config": {"type": "area", "area": "bedroom", "display_type": "compact", "features": [{"type": "area-controls", "controls": ["fan", "cover-blind"]}]}}'></hui-card>
+</Demo>
+
+### Content
+
+- The name and the icon come from the area registry. Override them only when the dashboard needs a different word than the rest of Home Assistant.
+- Use `exclude_entities` to leave out an entity that would make the readings wrong, like a temperature sensor inside a fridge.
+- By default, the card does nothing when you select it. Give it a `tap_action` that navigates to the area, so the card is a way in.
+
+## Configuration
+
+- `area` (string, required): the ID of the area.
+- `name` (string): the name to show. Defaults to the name of the area.
+- `color` (string): the color of the icon.
+- `display_type` (string): `picture`, `camera`, `icon`, or `compact`. Defaults to `picture`.
+- `vertical` (boolean): puts the icon above the name. Only for the `compact` type. Defaults to `false`.
+- `camera_view` (string): `auto` or `live`, for the `camera` type.
+- `aspect_ratio` (string): the shape of the picture, like `16:9`. Defaults to `16:9`.
+- `sensor_classes` (list): the device classes of the sensors to show.
+- `alert_classes` (list): the device classes of the binary sensors to show as alerts.
+- `exclude_entities` (list): entities to leave out of the readings, alerts, and controls.
+- `features` (list): the features to show, each with a `type`.
+- `features_position` (string): `bottom` or `inline`. Defaults to `bottom`.
+- `tap_action` (action): what happens when you select the card. Defaults to `none`.
+- `image_tap_action` (action): what happens when you select the picture. For the `camera` type, it opens the camera.
+
+```yaml
+type: area
+area: living_room
+display_type: compact
+sensor_classes:
+  - temperature
+  - humidity
+alert_classes:
+  - motion
+features:
+  - type: area-controls
+tap_action:
+  action: navigate
+  navigation_path: "/dashboard-rooms/living-room"
+```
+
+## In code
+
+The card lives in `src/panels/lovelace/cards/hui-area-card.ts`, and the element is `<hui-area-card>`. It is built from the same tile parts as the tile card, `<ha-tile-container>`, `<ha-tile-icon>`, and `<ha-tile-info>`, and the alerts are tile badges. The area controls feature is `src/panels/lovelace/card-features/hui-area-controls-card-feature.ts`.
+
+In the sections view, the area card takes 6 of the 12 columns. The compact type takes one row, like a tile. The picture, camera, and icon types add two rows for the picture. Features add rows the same way as on the tile card.
+
+[Source](https://github.com/home-assistant/frontend/blob/dev/src/panels/lovelace/cards/hui-area-card.ts)

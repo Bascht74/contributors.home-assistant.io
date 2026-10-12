@@ -1,0 +1,68 @@
+---
+title: The big picture
+description: All the pieces of Home Assistant on one page, what each one does, and how they talk to each other.
+order: 2
+---
+
+import ArchitectureMap from "../../../components/docs/ArchitectureMap.astro";
+
+Home Assistant is not one program. It is a handful of pieces that work together: an application in Python at the center, a web interface, apps for phones, and, on most installations, an operating system that runs it all. This page shows each piece and how they connect, so the rest of this area has a place to hang on.
+
+<ArchitectureMap />
+
+## The center: Home Assistant Core
+
+[Home Assistant Core](/architecture/core/) is a Python application, and every installation runs it. It knows the state of every device in the home, runs automations, and keeps the history. Integrations connect it to devices and services.
+
+The most important idea: everything becomes [entities](/glossary/entity/). An integration turns a Philips Hue lamp into a light entity, a thermostat into a climate entity and a few sensors. From then on, the rest of Home Assistant only works with entities, whatever brand they come from.
+
+## Where people use it
+
+- **The [frontend](/frontend/)** is the web interface: dashboards, settings, the automation editor. It runs in the browser, and Core serves its files. [Its place in the whole](/architecture/frontend/) explains how it relates to Core.
+- **The [companion apps](/companion/)** show the same frontend on phones, tablets, and Macs, and add sensors, notifications, and widgets from the device. See [how they connect](/architecture/platform/companion-apps/).
+- **[Voice](/architecture/platform/voice/)** turns a spoken sentence into an action, from a satellite in the kitchen, or the phone.
+- **Other software**, like scripts, Amazon Alexa, and Google Assistant, talks to Home Assistant through its APIs or through Home Assistant Link.
+
+They all talk to Core over the same [APIs](/architecture/connections/), and log in the same way.
+
+## What it connects to
+
+Integrations talk to the outside world: devices on the local network, radios like Zigbee, Z-Wave, Thread, and Bluetooth, and services on the internet. The code that knows how to talk to a specific device lives in a Python library, which the integration uses. More on that in the [principles](/architecture/principles/).
+
+Some protocols run as a separate program, next to Core: Z-Wave JS for Z-Wave, an MQTT broker, and a Matter server for Matter. The integration talks to that program.
+
+## What runs it
+
+On [Home Assistant OS](/os/operating-system/), the recommended installation, the [Supervisor](/architecture/platform/supervisor/) runs Home Assistant Core in a container, next to [apps](/apps/how-apps-work/), like an MQTT broker or Z-Wave JS. It makes backups, and installs updates of everything, including the operating system.
+
+With [Home Assistant Container](/os/installation-types/), the user runs Core in a container themselves, without the Supervisor and apps.
+
+## Outside the home
+
+[Home Assistant Link](/architecture/platform/cloud/), from Nabu Casa, is optional. It makes Home Assistant reachable from anywhere through an encrypted tunnel, connects it to Alexa and Google Assistant, and offers speech services for voice.
+
+## One flow, end to end
+
+You turn on a light from a dashboard:
+
+1. You select the light's card. The frontend sends `call_service` for `light.turn_on` over the [WebSocket API](/core/internals/websocket-api/).
+2. Core checks you may do that, and performs the [action](/core/internals/actions/): it calls `async_turn_on` on the light entity.
+3. The entity, part of an integration, tells the lamp to turn on, through its library.
+4. The lamp reports it is on. The entity writes its new state to the [state machine](/core/internals/states/).
+5. The state machine fires `state_changed`. The frontend gets it, and shows the light as on, on every screen. The recorder writes it to the history, and any automation waiting for it runs.
+
+The same path works for an automation, a voice command, or an app: only step 1 is different.
+
+## Ready to contribute?
+
+Every piece on this page has an area on this site, with a first contribution to get you going:
+
+- **Home Assistant Core and integrations**: [your first contribution to Core](/core/first-contribution/).
+- **The frontend**: [your first frontend contribution](/frontend/first-contribution/).
+- **The companion apps**: [your first companion app contribution](/companion/first-contribution/).
+- **Voice**: [voice translations](/translate/voice/), for the sentences Assist understands in your language.
+- **The Supervisor and Home Assistant OS**: [your first contribution to the Supervisor](/os/first-contribution/).
+- **Apps**: [your first contribution](/apps/first-contribution/) in the Apps area.
+- **Home Assistant Link**: the `cloud` integration is part of Core.
+
+The [Architecture overview](/architecture/#ready-to-contribute) has the full map, including design, documentation, and translations.

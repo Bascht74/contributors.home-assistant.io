@@ -1,0 +1,97 @@
+---
+// Shows a token scale straight from the synced tokens: spacing, corner
+// radius, or font size. Like ColorPalette, this keeps the page in step with
+// what the frontend ships.
+import { type Scale, tokenScale } from "../../lib/design-tokens";
+
+interface Props {
+  scale: Scale;
+}
+
+const { scale } = Astro.props;
+const steps = tokenScale(scale);
+---
+
+<ul class:list={["scale", `scale--${scale}`]}>
+  {
+    steps.map((step) => (
+      <li>
+        <span class="sample" aria-hidden="true">
+          {scale === "space" && <span class="bar" style={`width: var(${step.token})`} />}
+          {scale === "radius" && <span class="corner" style={`border-radius: var(${step.token})`} />}
+          {scale === "font-size" && <span class="text" style={`font-size: ${step.value}`}>Aa</span>}
+        </span>
+        <code>{step.token}</code>
+        <span class="value">{step.value}</span>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .scale {
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: var(--ha-space-1);
+  }
+
+  li {
+    display: grid;
+    grid-template-columns: 96px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--ha-space-4);
+    margin: 0;
+    padding: var(--ha-space-2) 0;
+    border-bottom: 1px solid var(--site-border);
+    font-size: 15px;
+  }
+
+  .scale--radius {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: var(--ha-space-4);
+  }
+
+  .scale--radius li {
+    grid-template-columns: 1fr;
+    gap: var(--ha-space-1);
+    border-bottom: 0;
+  }
+
+  .sample {
+    display: flex;
+    align-items: center;
+    min-height: 24px;
+  }
+
+  .bar {
+    display: block;
+    height: 12px;
+    border-radius: 2px;
+    background: var(--brand-blue);
+  }
+
+  .corner {
+    display: block;
+    width: 72px;
+    height: 72px;
+    border: 2px solid var(--brand-blue);
+    background: var(--site-accent-quiet);
+  }
+
+  .text {
+    font-family: Roboto, Noto, sans-serif;
+    line-height: 1;
+  }
+
+  .scale code {
+    padding: 0;
+    background: none;
+  }
+
+  .value {
+    color: var(--site-text-muted);
+    font-family: var(--site-font-code);
+    font-size: 14px;
+  }
+</style>

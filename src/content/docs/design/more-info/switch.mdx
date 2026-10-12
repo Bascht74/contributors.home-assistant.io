@@ -1,0 +1,36 @@
+---
+title: Switch
+description: The more-info view of a switch, a toggle helper, or a siren, built around one big on and off switch.
+sidebarGroup: Appliances
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+<Demo hass>
+  <ha-demo-more-info entity="switch.desk_plug"></ha-demo-more-info>
+  <ha-demo-more-info entity="input_boolean.guest_mode"></ha-demo-more-info>
+</Demo>
+
+## What it shows
+
+A switch does one thing: on or off. Its view is the simplest of the newer views: the state at the top, and one big vertical [control switch](/design/components/controls/) below it, with on at the top. It uses a power icon for on, and a crossed out power icon for off.
+
+The desk plug is a switch, and it is on. The guest mode is a toggle helper (`input_boolean`), and it is off. Both get the same view.
+
+## Sirens
+
+A siren gets the same view, with a speaker icon for on and a muted speaker for off. When the siren supports tones, a volume, or a duration, a **More controls** button below the switch opens a view where you pick the tone, volume, and duration, and turn the siren on or off with them.
+
+The fake home has no siren, so there is no demo of it here.
+
+## Design notes
+
+- The switch takes the color of the state, so you see from across the room whether something is on.
+- When the integration can't know the real state (an assumed state), the switch becomes two separate buttons, one for on and one for off, so you can always send both commands.
+- Lights without brightness and fans without speed use this same switch as their main control, with their own icons.
+
+## In code
+
+The views are `more-info-switch`, `more-info-input_boolean`, and `more-info-siren`, in `src/dialogs/more-info/controls/`. They share `ha-state-control-toggle` from `src/state-control/ha-state-control-toggle.ts`, and pass it the icons for on and off. The advanced siren controls are in `src/dialogs/more-info/components/siren/`, and the `SirenEntityFeature` enum is in `src/data/feature/siren_entity_feature.ts`.
+
+Source: [`more-info-switch.ts`](https://github.com/home-assistant/frontend/blob/dev/src/dialogs/more-info/controls/more-info-switch.ts)

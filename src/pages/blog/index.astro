@@ -1,0 +1,11 @@
+---
+// The front page of the blog: the newest post, and the posts of this year.
+// Older years have a page of their own, see [year]/index.astro.
+import BlogArchive from "../../components/BlogArchive.astro";
+import { getPosts } from "../../lib/blog";
+
+const [latest] = await getPosts();
+const year = latest?.data.date.getUTCFullYear() ?? new Date().getUTCFullYear();
+---
+
+<BlogArchive year={year} showLatest />

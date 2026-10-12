@@ -1,0 +1,35 @@
+---
+title: Water heater
+description: The more-info view of a water heater, with a round dial for the target temperature and menus for the operation and away mode.
+sidebarGroup: Lights and climate
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+<Demo hass>
+  <ha-demo-more-info entity="water_heater.water_heater"></ha-demo-more-info>
+</Demo>
+
+## What it shows
+
+The main control is the target temperature of the water, on the round dial that the [climate](/design/more-info/climate/) and [humidifier](/design/more-info/humidifier/) views use too: the [control circular slider](/design/components/controls/). A dot on the ring marks the current temperature.
+
+Inside the dial you find the label **Target**, the target temperature in big numbers, and a minus and a plus button. The current temperature is shown as a small label above the dial.
+
+Below the dial, a row of menus holds the secondary settings. Each one only shows when the water heater supports it:
+
+- **Mode**, with the operation modes of the device, like **Eco**, **Electric**, **Heat pump**, and **Performance**. The water heater above is in eco mode, so that is its state.
+- The away mode, on or off, with a person icon that walks away when it is on.
+
+## Design notes
+
+- The mode of a water heater is its state. The menu changes the state, and the label on the menu shows it.
+- The **Mode** options are sorted in a fixed order, not the order the device reports them in.
+- When the device doesn't support a target temperature, the dial turns into a read-only ring with the current temperature and the state, without buttons.
+- The dial takes the color of the state, and goes gray when the water heater is off.
+
+## In code
+
+The view is `more-info-water_heater` in `src/dialogs/more-info/controls/more-info-water_heater.ts`. The dial is `ha-state-control-water_heater-temperature` in `src/state-control/water_heater/`. The `WaterHeaterEntityFeature` enum and the sort order of the modes are in `src/data/water_heater.ts`.
+
+Source: [`more-info-water_heater.ts`](https://github.com/home-assistant/frontend/blob/dev/src/dialogs/more-info/controls/more-info-water_heater.ts)

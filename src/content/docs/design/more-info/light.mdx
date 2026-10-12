@@ -1,0 +1,48 @@
+---
+title: Light
+description: The more-info view of a light, with a big brightness slider and switches for color and color temperature.
+sidebarGroup: Lights and climate
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+<Demo hass>
+  <ha-demo-more-info entity="light.living_room_lamp"></ha-demo-more-info>
+</Demo>
+
+## What it shows
+
+The main control of a light is brightness, because that is what people change most. It is a tall vertical [control slider](/design/components/controls/), filled from the bottom like a glass. When the light has a color, the slider takes it, slightly toned so a very pale color stays visible.
+
+The state at the top shows the brightness, like **71%**, instead of just **On**. When the light is off, or has no brightness, it shows the regular state.
+
+What the view shows depends on the color modes the light supports:
+
+- **On and off only**: no slider. A big switch takes its place, with a lit and an unlit bulb as icons.
+- **Brightness**: the slider, with a **Toggle** button below it to turn the light on or off.
+- **Color temperature**: a button to swap the main control for a color temperature slider, from warm to cool.
+- **Color**: a button to swap the main control for a color wheel. Lights with extra white channels (RGBW or RGBWW) also get sliders for the color brightness and the white brightness below the wheel.
+- **White**: a **Set white** button, for lights with a separate white channel.
+
+The floor lamp above supports color and color temperature, so it gets all three buttons: brightness, color, and temperature. The hallway light below only dims, so it gets the slider and the **Toggle** button. The kitchen ceiling light dims too, but it is off: the slider is empty and has no handle.
+
+<Demo hass>
+  <ha-demo-more-info entity="light.hallway"></ha-demo-more-info>
+  <ha-demo-more-info entity="light.kitchen_ceiling"></ha-demo-more-info>
+</Demo>
+
+When a light supports effects, an **Effect** menu sits below the controls. Lights that support color or color temperature can also show a row of favorite colors under the buttons, one tap away. Those come from the entity settings, and are not part of these demos.
+
+## Design notes
+
+- The main control changes, but its place stays the same. The row of round buttons switches between brightness, color, and color temperature, and the selected one is highlighted.
+- The color and temperature buttons show a small color wheel and a warm to cool gradient instead of an icon. You recognize them before you read the label.
+- A separator in the button row splits the toggle from the mode buttons, and the mode buttons from **Set white**.
+- When the light is unavailable, the slider and every button are disabled, but they stay in place, so the layout doesn't jump.
+- In a light group, the member lights show up below the controls as tile cards. Their tile follows the main control: a brightness slider, a color temperature slider, or no control when the group is set to color.
+
+## In code
+
+The view is `more-info-light` in `src/dialogs/more-info/controls/more-info-light.ts`. The brightness slider is `ha-state-control-light-brightness` in `src/state-control/light/`. The color wheel and the color temperature slider are `light-color-rgb-picker` and `light-color-temp-picker`, and the favorite colors are `ha-more-info-light-favorite-colors`, all in `src/dialogs/more-info/components/lights/`. The color modes and features are in `src/data/light.ts`.
+
+Source: [`more-info-light.ts`](https://github.com/home-assistant/frontend/blob/dev/src/dialogs/more-info/controls/more-info-light.ts)

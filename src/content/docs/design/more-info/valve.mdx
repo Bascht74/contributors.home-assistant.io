@@ -1,0 +1,35 @@
+---
+title: Valve
+description: The more-info view of a water or gas valve, with an open and close switch, buttons, or a position slider.
+sidebarGroup: Openings and security
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+<Demo hass>
+  <ha-demo-more-info entity="valve.garden_irrigation"></ha-demo-more-info>
+</Demo>
+
+## What it shows
+
+A valve works a lot like a [cover](/design/more-info/cover/), and its view follows the same rules. The main control depends on what the valve supports:
+
+- **Open and close only**: a big vertical [control switch](/design/components/controls/), with the icon of an open and a closed valve. The garden irrigation above works like that.
+- **Stop**: a valve that can also stop halfway gets a column of [control buttons](/design/components/controls/) for **Open**, **Stop**, and **Close** instead.
+- **Position**: a valve that can be set to a position gets a tall vertical [control slider](/design/components/controls/).
+
+A valve that supports a position and buttons gets both, with two round buttons below the main control to switch between the position mode and the button mode.
+
+The state at the top combines the state and the position, like **Open · 40%**, and leaves the position out when there is nothing to add.
+
+## Design notes
+
+- The icons follow the device class of the valve, like water or gas.
+- A valve has no tilt, so there is no cross of buttons like covers have.
+- Valves that support a position can show favorite positions below the controls. Those come from the entity settings, and are not part of these demos.
+
+## In code
+
+The view is `more-info-valve` in `src/dialogs/more-info/controls/more-info-valve.ts`. The main controls are in `src/state-control/valve/`: `ha-state-control-valve-toggle`, `ha-state-control-valve-buttons`, and `ha-state-control-valve-position`. The favorite positions are in `src/dialogs/more-info/components/valves/`. The `ValveEntityFeature` enum is in `src/data/valve.ts`.
+
+Source: [`more-info-valve.ts`](https://github.com/home-assistant/frontend/blob/dev/src/dialogs/more-info/controls/more-info-valve.ts)

@@ -1,0 +1,41 @@
+---
+title: Vacuum
+description: The more-info view of a robot vacuum, with an animated status picture and a row of command buttons.
+sidebarGroup: Appliances
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+<Demo hass>
+  <ha-demo-more-info entity="vacuum.robot_vacuum"></ha-demo-more-info>
+</Demo>
+
+## What it shows
+
+A robot vacuum mostly runs on its own. You don't steer it, you send it commands. So the main part of this view is not a slider or a switch, but a picture of the robot that shows what it is doing, with a row of command buttons below it.
+
+The picture is a drawing of a robot vacuum, seen from above. It changes with the state: it moves and its brushes spin while cleaning, and it looks different when docked, returning, paused, or in error. It takes the color of the state. When someone has asked their system for reduced motion, the picture stays still.
+
+Below the picture, a group of [control buttons](/design/components/controls/) holds the commands. Each one only shows when the vacuum supports it:
+
+- **Start** or **Pause**, in one button that switches between the two.
+- **Stop**.
+- **Return home**.
+- **Locate**, to make the robot beep.
+- **Clean spot**.
+
+Below the buttons, a row holds the secondary settings: a **Fan speed** menu, and a **Cleaning: By area** button for vacuums that can clean specific areas. That button opens a view where you pick the areas to clean.
+
+The state at the top shows the status the vacuum reports, when it reports one. Next to the time, it shows the battery level, with an icon, when the device has a battery sensor. The vacuum above is docked and fully charged.
+
+## Design notes
+
+- Buttons that make no sense right now are disabled. The vacuum above is docked, so **Stop** is grayed out. A vacuum that is already on its way home can't be sent home again.
+- Older vacuums that don't report their state get a combined start and pause button, with a play and pause icon.
+- The battery comes from the battery sensor of the same device, not from the vacuum entity itself. When the device has a charging sensor, the icon shows that too.
+
+## In code
+
+The view is `more-info-vacuum` in `src/dialogs/more-info/controls/more-info-vacuum.ts`. The picture is `ha-state-control-vacuum-status` in `src/state-control/vacuum/`. The clean by area view is in `src/dialogs/more-info/components/vacuum/`. The `VacuumEntityFeature` enum and helpers like `canReturnHome` are in `src/data/vacuum.ts`.
+
+Source: [`more-info-vacuum.ts`](https://github.com/home-assistant/frontend/blob/dev/src/dialogs/more-info/controls/more-info-vacuum.ts)

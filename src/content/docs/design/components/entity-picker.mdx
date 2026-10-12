@@ -1,0 +1,266 @@
+---
+title: Entity picker
+description: The entity picker lets people choose one entity, with search, from all entities in their home.
+sidebarGroup: Pickers
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+import DoDont from "../../../../components/docs/DoDont.astro";
+
+<Demo hass layout="stack">
+  <ha-entity-picker label="Entity" value="light.living_room_lamp"></ha-entity-picker>
+  <ha-entity-picker label="Entity"></ha-entity-picker>
+</Demo>
+
+## Overview
+
+The entity picker is a field for choosing one [entity](/glossary/entity/): the light a card shows, the sensor a helper reads from, the entity an automation watches. Select the field to open a searchable list. Each row shows the entity name, with its device and area as context, so people can tell two lamps called **Ceiling** apart.
+
+The entity picker is the most used picker in the frontend, and in most places it arrives through the entity selector. Use the element directly when you build a custom editor outside of a form.
+
+## When to use
+
+Use the entity picker for:
+
+- Choosing exactly one entity
+- A custom editor outside of a form
+
+Don't use the entity picker for:
+
+- Picking several entities. Use the entity [selector](/design/components/selector/), which can allow more than one. It renders a picker per entity, and below them a picker for the next one, which turns into an **Add entity** button once the list has an entity.
+- Picking what an action works on, like the lights to turn on. Use the target selector: it accepts entities, devices, areas, floors, and labels in one field.
+- Picking a device instead of one of its entities. Use the [device picker](/design/components/device-picker/).
+- A field in a form. Don't place the picker yourself: use the entity selector in an [ha-form](/design/components/form/) schema, and the form renders the picker for you.
+
+## Anatomy
+
+1. **Label**: above the field
+2. **Field**: the button that shows the value and opens the list
+3. **Value or placeholder**: the state icon and name of the entity, with its device and area, or **Select an entity** when empty
+4. **Clear button**: removes the value, when the field is not required
+5. **Arrow**: shows that the field opens a list
+6. **Helper**: optional text below the field
+7. **List**: the popover with a search field and the entities. Each row has the state icon, the entity name, its device and area, and the integration name at the end.
+
+## Variants
+
+### Filtered
+
+Only show the entities that make sense for the field. You can filter on domain, device class, unit of measurement, and on a list of entity IDs to include or exclude.
+
+<Demo hass layout="stack" caption="Only lights and switches.">
+  <ha-entity-picker label="Entity" include-domains='["light", "switch"]'></ha-entity-picker>
+</Demo>
+
+<Demo hass layout="stack" caption="Only temperature and humidity sensors.">
+  <ha-entity-picker label="Sensor" include-domains='["sensor"]' include-device-classes='["temperature", "humidity"]'></ha-entity-picker>
+</Demo>
+
+### With a helper
+
+The label names what the entity is for: **Entity**, **Temperature sensor**, **Light to control**. Add a helper below the field when the choice needs explaining.
+
+<Demo hass layout="stack">
+  <ha-entity-picker label="Temperature sensor" include-domains='["sensor"]' include-device-classes='["temperature"]' helper="The card shows the temperature of this sensor."></ha-entity-picker>
+</Demo>
+
+### Showing entity IDs
+
+The list shows the integration of each entity at the end of the row. The picker can show the entity ID instead, below the name. People can also turn this on for every picker in their profile settings. Use it in places where people think in entity IDs, like advanced or YAML-oriented screens.
+
+<Demo hass layout="stack">
+  <ha-entity-picker label="Entity" show-entity-id></ha-entity-picker>
+</Demo>
+
+### Add button
+
+In a list of entities, the picker for the next entity can show as a button. It then always shows a button, and never a value. Selecting an entity reports it, so you can add it to your list. The button label defaults to **Add entity**, and can be changed.
+
+<Demo hass layout="stack">
+  <ha-entity-picker add-button></ha-entity-picker>
+</Demo>
+
+### Custom entity IDs
+
+By default, people can only choose entities from the list. The picker can also accept a typed entity ID that does not exist yet. The typed value must still look like an entity ID, like `light.attic`.
+
+## Behavior
+
+- **Enabled**: selecting the field opens the list, and moves focus to its search field.
+- **Hover and pressed**: the field shows a ripple.
+- **Focus**: the line at the bottom of the field turns 2px thick, in the primary color.
+- **Search**: typing filters the list as you type. When nothing matches, the list says **No entities found for** your search term.
+- **Unknown**: when the value is an entity that does not exist, like one that was removed, the field turns to the quiet warning color and shows **Unknown entity selected**. People can then pick another entity, or clear the field.
+- **Disabled**: the field is dimmed to 50% opacity and can't be opened.
+- **Narrow screens**: when the window is at most 870px wide or 500px high, the list opens as a bottom sheet instead of a popover.
+
+Picking an entity closes the list. The new value is reported once the list has closed.
+
+<Demo hass layout="stack">
+  <ha-entity-picker label="Entity" value="light.attic"></ha-entity-picker>
+  <ha-entity-picker label="Entity" value="climate.thermostat" disabled></ha-entity-picker>
+</Demo>
+
+## Specs
+
+The entity picker uses the shared picker field and list of the frontend, `ha-picker-field` and `ha-generic-picker`.
+
+### Field
+
+| Property | Value | Token |
+| --- | --- | --- |
+| Space between label and field | 8px | None |
+| Minimum height | 56px | None |
+| Padding start | 16px | `--ha-space-4` |
+| Padding end | 8px | `--ha-space-2` |
+| Gap between parts | 8px | `--ha-space-2` |
+| Corner radius | 4px at the top, square at the bottom | `--ha-border-radius-sm` |
+| Background | Form background | `--ha-color-form-background` |
+| Bottom line | 1px | `--ha-color-border-neutral-loud` |
+| Bottom line, focused | 2px | `--mdc-theme-primary` |
+| Bottom line, invalid | 2px | `--error-color` |
+| Placeholder text | Secondary text color | `--secondary-text-color` |
+| Clear button | 32px | `--ha-icon-button-size` |
+| Arrow icon | 20px, in a 32px wide area | `--mdc-icon-size` |
+| Unknown background | Quiet warning fill | `--ha-color-fill-warning-quiet-resting` |
+| Unknown text | Warning text | `--ha-color-on-warning-normal` |
+| Disabled | 50% opacity on the disabled form background | `--ha-color-form-background-disabled` |
+| Space above the helper | 8px | `--ha-space-2` |
+
+### List
+
+| Property | Value | Token |
+| --- | --- | --- |
+| Width | The width of the field, at least 250px | `--ha-generic-picker-width` |
+| Maximum width | The width, unless set | `--ha-generic-picker-max-width` |
+| Maximum height | The smaller of 70% of the window height and 500px. When the window is at most 1000px high, the smaller of 70% and 400px | None |
+| Corner radius | 8px | `--ha-border-radius-md` |
+| Shadow | Medium shadow | `--ha-box-shadow-m` |
+| Row divider | 1px between rows | `--divider-color` |
+| Bottom sheet corner radius | 20px | `--ha-border-radius-2xl` |
+| Bottom sheet maximum width | 600px | None |
+
+## Guidelines
+
+- Only show the entities that make sense for the field. A card that controls lights should only offer lights.
+- Avoid filters that are so strict that people end up with an empty list and no idea why.
+- Show entity IDs only where people think in entity IDs.
+
+<DoDont hass doText="Filter the list to what the field needs, and name what the entity is for." dontText="Offer every entity in the home for a field that only works with one kind.">
+  <ha-entity-picker slot="do" label="Light to control" include-domains='["light"]'></ha-entity-picker>
+  <ha-entity-picker slot="dont" label="Entity"></ha-entity-picker>
+</DoDont>
+
+## Accessibility
+
+### Keyboard
+
+| Key | Action |
+| --- | --- |
+| <kbd>Tab</kbd> | Moves focus to the field, and to the clear button when there is one. A disabled field is skipped. |
+| <kbd>Enter</kbd> or <kbd>Space</kbd> | Opens the list, when the field has focus. |
+| Typing | Searches the list. Focus is in the search field when the list opens. |
+| <kbd>Arrow down</kbd> and <kbd>Arrow up</kbd> | Moves through the entities. |
+| <kbd>Home</kbd> and <kbd>End</kbd> | Jumps to the first or last entity. |
+| <kbd>Page up</kbd> and <kbd>Page down</kbd> | Moves a page through the list. |
+| <kbd>Enter</kbd> | Picks the highlighted entity. While searching, the top match is highlighted. With only one option in the list, <kbd>Enter</kbd> picks it. |
+| <kbd>Escape</kbd> | Closes the list. |
+
+### Focus
+
+Focus on the field shows as a thicker bottom line, not as a focus ring. While the list is open as a popover, focus stays inside it. In the list, focus stays in the search field while the arrow keys move the highlight.
+
+### Target size
+
+The field is at least 56px high and fills the width it gets. The clear button is 32px by 32px.
+
+### Screen readers
+
+- The field is announced as a button, named by its label and the entity in it.
+- The list is announced as a dialog with a list of options, and the picked entity as selected.
+- The clear button is announced as "Clear", in the language of the user.
+
+### In the code
+
+- Focus is delegated to a native `<button>` in the field. The popover traps focus. The highlighted row in the list is marked with an `active` attribute. The list does not set `aria-activedescendant`.
+- The label above the field is a `<label>` element that is not linked to the field. The field is a native `<button>` that gets the label as part of its accessible name through `aria-labelledby`, together with the text in the field.
+- The list opens in an element with the role `dialog` and `aria-modal="true"`, named after the label.
+- The list has the role `listbox`, and each entity the role `option`, with `aria-selected` for the picked entity.
+- The clear button has the accessible name "Clear", translated into the language of the user.
+
+## Related
+
+- [Device picker](/design/components/device-picker/): pick one device
+- [Area picker](/design/components/area-picker/): pick one area
+- [Selector](/design/components/selector/): the entity selector, for one or several entities
+- [Form](/design/components/form/): renders the picker from a schema
+- [State icon](/design/components/state-icon/): the icon in each row
+
+## In code
+
+The element is `<ha-entity-picker>`. It reads the states, the registries, and the translations from the context the app provides, so you don't pass `hass` to it.
+
+```ts
+html`
+  <ha-entity-picker
+    .label=${"Light"}
+    .value=${this._entityId}
+    .includeDomains=${["light"]}
+    @value-changed=${this._entityChanged}
+  ></ha-entity-picker>
+`;
+```
+
+In HTML, the list attributes take JSON:
+
+```html
+<ha-entity-picker label="Light" include-domains='["light"]'></ha-entity-picker>
+```
+
+### Attributes
+
+- `label`: the label above the field.
+- `value`: the entity ID of the selected entity.
+- `helper`: help text below the field.
+- `placeholder`: the text in the empty field. Defaults to **Select an entity**.
+- `search-label`: the placeholder of the search field in the list.
+- `include-domains`: only show entities of these domains.
+- `exclude-domains`: hide entities of these domains.
+- `include-device-classes`: only show entities with these device classes.
+- `include-unit-of-measurement`: only show entities with these units.
+- `include-entities`: only show these entities.
+- `exclude-entities`: hide these entities.
+- `show-entity-id`: show the entity ID of each entity in the list.
+- `allow-custom-entity`: accept a typed entity ID that is not in the list.
+- `add-button`: show a button instead of the field.
+- `add-button-label`: the label of that button. Defaults to **Add entity**.
+- `hide-clear-icon`: hide the button that clears the value.
+- `required`: marks the field as required.
+- `disabled`: disables the picker.
+- `autofocus`: focuses the picker when it renders.
+
+### Properties
+
+These can only be set from code:
+
+- `entityFilter`: a function that gets the state object of each entity, and returns `true` to show it. Use it for filters the attributes can't express, like on supported features.
+- `extraOptions`: extra rows above the entities. Each has an `id` (the value when picked, it does not need to be an entity ID), a `primary` text, and optionally a `secondary` text, an `icon`, an `icon_path`, or an `entity_id` to show the icon of. Set `hide_clear` to hide the clear button while that option is selected.
+- `createDomains`: helper domains people can create a new entity for, straight from the list. Picking one opens the dialog to create that helper, and selects the new entity when it is created. Creating helpers does not work in the demos on this page.
+
+### Methods
+
+- `open()`: opens the list.
+
+### Events
+
+- `value-changed`: fires when people pick or clear an entity. The new entity ID is in `event.detail.value`, or `undefined` when cleared.
+- `change`: fires after `value-changed`.
+
+### Styling
+
+- `--ha-generic-picker-width`: the width of the list. Defaults to the width of the field, and at least `250px`.
+- `--ha-generic-picker-max-width`: the maximum width of the list.
+
+On a narrow screen, the list opens as a bottom sheet instead of below the field.
+
+Source: [`src/components/entity/ha-entity-picker.ts`](https://github.com/home-assistant/frontend/blob/dev/src/components/entity/ha-entity-picker.ts)

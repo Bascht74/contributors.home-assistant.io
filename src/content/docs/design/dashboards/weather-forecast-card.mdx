@@ -1,0 +1,80 @@
+---
+title: Weather forecast card
+description: The weather forecast card shows the current weather and the forecast for the coming days or hours, from a weather entity.
+sidebarGroup: Information
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+
+<Demo hass>
+  <hui-card style="width: 400px" data-props='{"config": {"type": "weather-forecast", "entity": "weather.home", "forecast_type": "daily"}}'></hui-card>
+</Demo>
+
+## Usage
+
+The weather forecast card shows a weather entity. The top part has the current condition, with an icon, the temperature, and one more value, like the highest and lowest temperature of today. The bottom part has the forecast: one column per day or per hour, with an icon and the temperature.
+
+Use it once on a dashboard, where people look for the weather. For the outdoor temperature alone, a [tile card](/design/dashboards/tile-card/) of the weather entity or of a temperature sensor takes less room. For the temperature over the last day, use the [history graph card](/design/dashboards/history-graph-card/).
+
+### Daily or hourly
+
+`forecast_type` sets which forecast the card shows: `daily`, `hourly`, or `twice_daily` (day and night). Which ones are available depends on the weather service. The card editor only offers the types the entity supports.
+
+<Demo hass>
+  <hui-card style="width: 400px" data-props='{"config": {"type": "weather-forecast", "entity": "weather.home", "forecast_type": "hourly"}}'></hui-card>
+</Demo>
+
+`forecast_slots` sets how many days or hours the card shows, 5 by default.
+
+### Current weather or forecast only
+
+`show_current: false` leaves out the current weather, and `show_forecast: false` leaves out the forecast. A card with one of the two is shorter. Use the forecast only version next to a card that already shows the current temperature.
+
+<Demo hass>
+  <hui-card style="width: 400px" data-props='{"config": {"type": "weather-forecast", "entity": "weather.home", "forecast_type": "daily", "show_current": false}}'></hui-card>
+  <hui-card style="width: 400px" data-props='{"config": {"type": "weather-forecast", "entity": "weather.home", "show_forecast": false}}'></hui-card>
+</Demo>
+
+### Narrow cards
+
+The card adapts to its width. As it gets narrower, the current weather gets a smaller icon and smaller type, and at the narrowest sizes the name and the extra value disappear. When the card is short, the forecast becomes compact too. So the card works in half a section, but shows more at full width.
+
+<Demo hass>
+  <hui-card style="width: 260px" data-props='{"config": {"type": "weather-forecast", "entity": "weather.home", "forecast_type": "daily", "forecast_slots": 3}}'></hui-card>
+</Demo>
+
+### Content
+
+- The name defaults to the name of the weather entity, which is often the name of the home. Change it only when you show more than one location.
+- `secondary_info_attribute` sets the value under the temperature, like `humidity` or `wind_speed`. By default, it's the highest and lowest temperature of the day, or the precipitation, or the humidity, whichever the entity has first.
+- `round_temperature: true` drops the decimals. Most forecasts aren't precise enough for them anyway.
+
+## Configuration
+
+- `entity` (string, required): the weather entity to show.
+- `name` (string): the name to show. Defaults to the name of the entity.
+- `forecast_type` (string): `daily`, `hourly`, or `twice_daily`.
+- `show_current` (boolean): shows the current weather. Defaults to `true`.
+- `show_forecast` (boolean): shows the forecast. Defaults to `true`.
+- `forecast_slots` (number): how many days or hours the forecast shows. Defaults to `5`.
+- `secondary_info_attribute` (string): the attribute to show under the temperature.
+- `round_temperature` (boolean): rounds temperatures to whole numbers. Defaults to `false`.
+- `theme` (string): a theme for this card only.
+- `tap_action`, `hold_action`, `double_tap_action` (action): what happens when you select, hold, or double tap the card. Selecting it opens the more-info dialog by default.
+
+```yaml
+type: weather-forecast
+entity: weather.home
+forecast_type: hourly
+show_current: false
+```
+
+## In code
+
+The card lives in `src/panels/lovelace/cards/hui-weather-forecast-card.ts`, and the element is `<hui-weather-forecast-card>`. It subscribes to the forecast with the `weather/subscribe_forecast` WebSocket command, so the forecast updates on its own. The helpers for weather, like the icons and the formatting of attributes, live in `src/data/weather.ts`.
+
+A `ResizeController` measures the card, and adds classes like `narrow`, `very-narrow`, and `short`. The styles use those classes, not media queries, because the width of a card has nothing to do with the width of the screen.
+
+In the sections view, the card takes the full width of a section. Its height depends on what it shows: one row, plus one for the current weather, plus one for the forecast, plus one more for a daily forecast.
+
+[Source](https://github.com/home-assistant/frontend/blob/dev/src/panels/lovelace/cards/hui-weather-forecast-card.ts)

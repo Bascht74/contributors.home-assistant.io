@@ -1,0 +1,9 @@
+# Home Assistant Contributors
+#
+# For language models and agents: an index of this site, with a Markdown
+# version of every page, is at https://contributors.home-assistant.io/llms.txt
+
+User-agent: *
+Allow: /
+
+Sitemap: https://contributors.home-assistant.io/sitemap-index.xml

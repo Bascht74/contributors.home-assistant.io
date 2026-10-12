@@ -1,0 +1,7 @@
+// The full text of every docs page, for language models and agents. See
+// src/lib/llms.ts.
+import { llmsFull } from "../lib/llms";
+
+export async function GET() {
+  return new Response(await llmsFull(), { headers: { "Content-Type": "text/plain; charset=utf-8" } });
+}

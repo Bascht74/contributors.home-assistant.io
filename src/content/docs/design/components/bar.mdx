@@ -1,0 +1,116 @@
+---
+title: Bar
+description: A bar shows how much of something is used, as a filled share of a horizontal track.
+sidebarGroup: Showing values
+---
+
+import Demo from "../../../../components/docs/Demo.astro";
+import DoDont from "../../../../components/docs/DoDont.astro";
+
+<Demo layout="stack">
+  <ha-bar value="42"></ha-bar>
+</Demo>
+
+## Overview
+
+A bar shows a level against a known maximum, as a filled share of a horizontal track. It reads well in settings rows and lists, next to the number it represents.
+
+## When to use
+
+Use a bar for:
+
+- A level against a known maximum, like CPU or memory usage of an app
+- How full something is, like a disk
+
+Don't use a bar for:
+
+- Showing that something is loading, without a known percentage. Use a [spinner](/design/components/spinner/).
+- A sensor value on a dashboard. Use a [gauge](/design/components/gauge/).
+
+## Anatomy
+
+1. **Track**: the full width background, which stands for the whole range
+2. **Fill**: the part of the track that stands for the value, starting at the start of the track
+
+## Variants
+
+The bar has no variants of its own. To show warning and critical levels, change the color of the fill when the value crosses a threshold, so problems stand out. The frontend switches the fill to the warning color past a first threshold, and to the error color past a second one. Pick thresholds that fit the data: system metrics switch at 50 and 85 percent, disk usage at 85 and 95 percent. Below the first threshold, both use the success color.
+
+<Demo layout="stack">
+  <ha-bar value="35"></ha-bar>
+  <ha-bar value="70" style="--ha-bar-primary-color: var(--warning-color)"></ha-bar>
+  <ha-bar value="92" style="--ha-bar-primary-color: var(--error-color)"></ha-bar>
+</Demo>
+
+## Behavior
+
+- The bar is not interactive. It has no hover, focus, pressed, or disabled state.
+- The fill is the value as a share of the range from the minimum to the maximum, rounded to one decimal. Values outside the range are clamped, so the fill never goes past the ends of the track.
+- The bar takes the full width of its container.
+
+## Specs
+
+| Property | Value | Token |
+| --- | --- | --- |
+| Height | 12px | None |
+| Width | 100% of the container | None |
+| Corner radius | 4px | `--ha-border-radius-sm`, through `--ha-bar-border-radius` |
+| Track color | `#e5e5e5` in the light theme, `#282828` in the dark theme | `--secondary-background-color`, through `--ha-bar-background-color` |
+| Fill color | The primary color | `--primary-color`, through `--ha-bar-primary-color` |
+
+## Guidelines
+
+A bar on its own is imprecise. Always put the value next to it, like **42 %**, or a sentence like **12 GB used of 64 GB**.
+
+<DoDont doText="Show the number next to the bar." dontText="Show the bar without its value.">
+  <Fragment slot="do">
+    <span>42 %</span>
+    <ha-bar value="42" style="display: block; width: 100%"></ha-bar>
+  </Fragment>
+  <ha-bar slot="dont" value="42" style="display: block; width: 100%"></ha-bar>
+</DoDont>
+
+## Accessibility
+
+### Keyboard
+
+The bar does not take focus, and has no keyboard interaction.
+
+### Screen readers
+
+Screen readers get nothing from the bar, so the value next to it is the only way for them to know the level. Color alone does not tell anyone that a value is in the warning or critical range either. The number next to the bar does.
+
+### In the code
+
+The bar is an SVG without a role, a label, or a value for assistive technology.
+
+## Related
+
+- [Gauge](/design/components/gauge/): a value on a dashboard
+- [Spinner](/design/components/spinner/): something is loading
+- [Color](/design/foundations/color/): the warning and error colors
+
+## In code
+
+The element is `<ha-bar>`. It takes the full width of its container.
+
+```html
+<ha-bar value="42"></ha-bar>
+<ha-bar min="-10" max="40" value="21"></ha-bar>
+```
+
+### Attributes
+
+- `value`: the current value. Values outside the range are clamped.
+- `min`: the start of the range. Defaults to `0`.
+- `max`: the end of the range. Defaults to `100`.
+
+### Styling
+
+- `--ha-bar-primary-color`: the filled part. Defaults to `var(--primary-color)`.
+- `--ha-bar-background-color`: the track. Defaults to `var(--secondary-background-color)`.
+- `--ha-bar-border-radius`: the corner radius. Defaults to `var(--ha-border-radius-sm)`.
+
+The height is fixed at 12 pixels.
+
+Source: [`src/components/ha-bar.ts`](https://github.com/home-assistant/frontend/blob/dev/src/components/ha-bar.ts)
