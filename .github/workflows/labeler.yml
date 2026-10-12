@@ -12,6 +12,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
+# Nothing by default. The job asks for what it needs.
+permissions: {}
+
 jobs:
   label:
     if: ${{ github.repository_owner == 'home-assistant' }}

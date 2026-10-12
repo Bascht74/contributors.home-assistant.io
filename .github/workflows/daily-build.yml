@@ -26,7 +26,7 @@ jobs:
     steps:
       - name: Call the build hook
         env:
-          NETLIFY_BUILD_HOOK: ${{ secrets.NETLIFY_BUILD_HOOK }}
+          NETLIFY_BUILD_HOOK: ${{ secrets.NETLIFY_BUILD_HOOK }} # zizmor: ignore[secrets-outside-env] The hook only starts a build, an environment adds nothing.
         run: |
           if [ -z "$NETLIFY_BUILD_HOOK" ]; then
             echo "::warning::The NETLIFY_BUILD_HOOK secret is not set, so no build was started. See \"Repository setup\" in README.md."

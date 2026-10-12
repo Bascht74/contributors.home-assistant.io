@@ -154,7 +154,7 @@ jobs:
             echo
             echo "A pull request opened by a workflow does not start the CI workflow. To run it, close and reopen this pull request."
             echo
-            echo "Created by the [Update code symbols workflow](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})."
+            echo "Created by the [Update code symbols workflow](https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)."
             echo
             # The report one heading level down, under the text above.
             sed -e 's/^#/##/' -e 's/^## Code symbols$/## Report/' "$RUNNER_TEMP/symbols.md"

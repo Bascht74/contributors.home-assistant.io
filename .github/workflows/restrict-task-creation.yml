@@ -9,6 +9,9 @@ on:
     types:
       - opened
 
+# Nothing by default. The job asks for what it needs.
+permissions: {}
+
 jobs:
   check-authorization:
     # Only for issues opened with the Task form, which sets the issue type.
