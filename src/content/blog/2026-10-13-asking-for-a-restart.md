@@ -1,7 +1,7 @@
 ---
 title: "Asking for a restart, without a repair issue"
 description: As of Home Assistant Core 2026.11, integrations have one way to say "Home Assistant needs a restart to apply this".
-date: 2026-10-02
+date: 2026-10-13
 authors:
   - Franck Nijhof
 areas:
