@@ -68,7 +68,7 @@ The ViewModel owns the outputs and wires the blocks together:
 
 ```kotlin
 val viewState: StateFlow<UiState> // what to render
-val events: SharedFlow<UiEvent>   // one-shot effects
+val events: Flow<UiEvent>         // one-shot effects, from a Channel
 val actions: Flow<UiAction>       // only if the view owns a handle
 ```
 
@@ -118,7 +118,7 @@ sealed interface UiEvent {
 }
 ```
 
-Emit them on a `Flow` and consume each one once, usually in the navigation layer. Never replay an event: replaying "navigate back" after a recomposition navigates twice. If the UI must show something again after rotation, it is state, not an event.
+Send them through a `Channel`, exposed as a `Flow` with `receiveAsFlow()`, and consume each one once, usually in the navigation layer. The `Channel` keeps an event until the view collects it, so an event sent before the collector starts is not lost. See [picking a flow type](/companion/android/architecture/#picking-a-flow-type). Never replay an event: replaying "navigate back" after a recomposition navigates twice. If the UI must show something again after rotation, it is state, not an event.
 
 ### Actions
 
