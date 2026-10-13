@@ -4,6 +4,7 @@ description: ha-md-list and ha-md-list-item were removed.
 date: 2026-10-28
 authors:
   - Wendelin Peleska
+  - Bram Kragten
 areas:
   - frontend
 ---
