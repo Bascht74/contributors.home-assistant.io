@@ -27,6 +27,20 @@ On every pull request, the instrumentation tests of `:app` run on [Emulator.wtf]
 
 The tests of `:wear`, `:automotive`, `:common`, and `:microwakeword` run on the regular Android emulator on GitHub Actions, because Emulator.wtf doesn't offer those targets. That is slower, so they cover fewer API levels.
 
+## Emulators with an outdated WebView
+
+The app shows the Home Assistant frontend in a WebView. An emulator system image ships with the WebView that was current when the image was published, and an emulator never gets WebView updates from the Play Store the way a real device does. The older the API level, the older that WebView.
+
+When the WebView is too old for the frontend you run, the frontend doesn't render, or the WebView crashes. You are most likely to run into this on the oldest API levels the app supports.
+
+To fix it, install a newer WebView APK on the emulator, as explained in [this Stack Overflow answer](https://stackoverflow.com/a/79514205/3289338).
+
+If you run your own [frontend development server](/frontend/development/run/), you can also start it with `ES5=1`. It then also builds the legacy version of the frontend, which older WebViews can run:
+
+```shell
+ES5=1 pnpm dev
+```
+
 ## Flaky emulators
 
 Android emulators sometimes fail for no reason at all. The fix is to run the job again. Only maintainers can re-run a job, so ask in the pull request if you think it was a fluke.
