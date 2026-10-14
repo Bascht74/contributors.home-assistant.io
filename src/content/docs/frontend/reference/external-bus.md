@@ -166,7 +166,7 @@ Payload:
 | `device_name` | The name of the device in Home Assistant, to suggest to the other platform. |
 | `remaining_seconds` | Seconds until the window closes, when the Matter server reported its timeout. Always at least 1: when the window has run out, the frontend does not send the message, and asks the user to start over. |
 
-Answer: an empty object once the other platform has the device. When it did not work, answer with an error result:
+Answer: an empty object once the flow of the platform has completed. When it did not work, answer with an error result:
 
 - `canceled`: the user closed the sheet of the platform. The frontend takes that as a choice, not an error.
 - Any other code, like `failed`: the frontend shows that sharing failed, with its own text. It does not show your `message`.
