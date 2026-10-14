@@ -118,7 +118,7 @@ sealed interface UiEvent {
 }
 ```
 
-Send them through a `Channel`, exposed as a `Flow` with `receiveAsFlow()`, and consume each one once, usually in the navigation layer. The `Channel` keeps an event until the view collects it, so an event sent before the collector starts is not lost. See [picking a flow type](/companion/android/architecture/#picking-a-flow-type). Never replay an event: replaying "navigate back" after a recomposition navigates twice. If the UI must show something again after rotation, it is state, not an event.
+Send them through a `Channel`, exposed as a `Flow` with `receiveAsFlow()`, and consume each one once, usually in the navigation layer. The buffered `Channel` holds events for its single consumer, so an event sent before the collector starts still arrives, where a `SharedFlow` without replay drops it. See [picking a flow type](/companion/android/architecture/#picking-a-flow-type). Never replay an event: replaying "navigate back" after a recomposition navigates twice. If the UI must show something again after rotation, it is state, not an event.
 
 ### Actions
 
@@ -141,7 +141,7 @@ LaunchedEffect(webView) {
 }
 ```
 
-The flow is a buffered `SharedFlow`, consumed once, so commands are not lost while the view is briefly gone. An action that needs a result can carry a `CompletableDeferred`.
+The flow is a `SharedFlow` with a small extra buffer, consumed once. It doesn't replay: an action sent while the view is gone is dropped, which suits commands that only mean something for the object the view holds right now. When an action must not be dropped, wait for a collector first, like `FrontendViewModel` does with `subscriptionCount` before it emits. An action that needs a result can carry a `CompletableDeferred`.
 
 Only use actions for objects that must live in the view. A media player, for example, can live in a manager and be exposed as state.
 
