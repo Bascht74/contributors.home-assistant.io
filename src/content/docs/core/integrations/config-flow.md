@@ -195,6 +195,16 @@ If your integration is discoverable and needs no authentication, you might not n
 
 The generated `config_flow.py` has no flow class. It calls `config_entry_flow.register_discovery_flow()` with your domain, a title, and a function that returns whether any device can be found. Home Assistant only calls that function when a user adds the integration by hand and no discovered device is waiting to be set up.
 
+#### Scanning in the flow and in setup
+
+Many discovery protocols wait for a timeout to collect every device that answers. Your function only has to know whether there is at least one, and then `async_setup_entry` has to find all of them. That looks like scanning twice. The integrations in core that use this helper accept that, and keep the cost low:
+
+- Nothing the function finds reaches setup. The helper creates the entry with empty `data`, and skips the function when the flow started from discovery. Setup also runs on every start of Home Assistant. So setup always does its own discovery, and only the first setup by hand scans twice.
+- Return as soon as one device answers, instead of waiting for the full timeout. Govee lights local polls until the first device shows up, within a timeout. Deako asks for a single address. Fjäråskupan does not scan at all: it checks the Bluetooth devices Home Assistant has already seen.
+- In setup, keep discovering, and add entities for devices that show up later. Gree, Refoss, and Zerproc scan again on an interval with `async_track_time_interval()`. Govee lights local and Escea keep a listener running. A device that answers late still gets added.
+
+Escea is the one exception that shares work between the two. Its function starts a discovery service and stores it in `hass.data`, and `async_setup_entry` picks up the running service instead of starting a second one. When the function finds nothing, it stops the service again. This only makes sense when your library has a discovery service that runs for as long as the entry is loaded.
+
 ## The flow title
 
 The title of a flow in the UI, like the name of a discovered device, is chosen in this order:
