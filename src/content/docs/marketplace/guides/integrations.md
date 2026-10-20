@@ -36,6 +36,18 @@ A custom integration needs two keys that integrations in core leave out:
 
 Only list `requirements` that are not already requirements of Home Assistant itself.
 
+## Categories
+
+Add `categories` to your manifest: one to three [integration categories](/glossary/integration-category/) that say what your integration is for. A custom integration doesn't need them, but the catalog includes them in the data it publishes for the Marketplace.
+
+```json title="manifest.json"
+{
+  "categories": ["energy.ev_charging"]
+}
+```
+
+Pick them the same way as an integration in core does. [Integration categories](/core/integrations/categories/) has every category, and how to choose. The HACS action checks them: a missing key is a warning, an unknown category fails the check.
+
 ## Pick a domain that is yours
 
 The `domain` is the folder name, and what Home Assistant knows your integration by. Pick one that no integration in core uses.
