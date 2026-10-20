@@ -57,9 +57,3 @@ Three new theme variables control it. They take any CSS `background` value, so g
 - `--ha-panel-background`: the background behind all panels. Defaults to `--primary-background-color`. Dashboards use it when the theme does not set `--lovelace-background`.
 - `--ha-panel-toolbar-background`: the toolbars and sticky search bars, like the ones above data tables. Defaults to `--primary-background-color`.
 - `--ha-data-table-background`: data tables. Defaults to `--data-table-background-color`.
-
-```yaml title="themes.yaml"
-my-theme:
-  ha-panel-background: "fixed linear-gradient(135deg, #0d47a1, #6a1b9a)"
-  ha-panel-toolbar-background: "rgba(0, 0, 0, 0.35)"
-```
