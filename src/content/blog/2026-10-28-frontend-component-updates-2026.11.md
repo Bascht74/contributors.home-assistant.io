@@ -1,6 +1,6 @@
 ---
 title: "Frontend component updates in 2026.11"
-description: ha-md-list and ha-md-list-item were removed.
+description: ha-md-list and ha-md-list-item were removed, and themes can now set the background of every panel.
 date: 2026-10-28
 authors:
   - Wendelin Peleska
@@ -47,3 +47,19 @@ The label is now a real `<label>` around the input, so clicking it toggles the c
 ### Removed --mdc-typography-* properties
 
 The frontend stopped reading the `--mdc-typography-*` CSS properties. Setting them in a theme or on a component no longer has any effect; use the `--ha-font-*` theme variables, such as `--ha-font-size-m` and `--ha-font-family-body`, instead.
+
+## Theme backgrounds for every panel
+
+Themes can now set the background of every panel, not only of dashboards. The frontend paints the background once, behind all panels, so panels and layouts like `hass-subpage` and `hass-tabs-subpage` no longer paint their own. If your custom panel sets `background-color: var(--primary-background-color)` on its host, remove it, or it covers the theme background.
+
+Three new theme variables control it. They take any CSS `background` value, so gradients and images work too:
+
+- `--ha-panel-background`: the background behind all panels. Defaults to `--primary-background-color`. Dashboards use it when the theme does not set `--lovelace-background`.
+- `--ha-panel-toolbar-background`: the toolbars and sticky search bars, like the ones above data tables. Defaults to `--primary-background-color`.
+- `--ha-data-table-background`: data tables. Defaults to `--data-table-background-color`.
+
+```yaml title="themes.yaml"
+my-theme:
+  ha-panel-background: "fixed linear-gradient(135deg, #0d47a1, #6a1b9a)"
+  ha-panel-toolbar-background: "rgba(0, 0, 0, 0.35)"
+```
