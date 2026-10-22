@@ -28,7 +28,7 @@ ir.async_create_issue(
 )
 ```
 
-Set `config_entry_id` on issues that are about a single config entry. If your integration has code that deletes those issues when the entry is removed, you can drop it.
+Set `config_entry_id` on issues that are about a single config entry. If your integration has code that deletes those issues when the entry is removed, you can drop it once the issues are created with `config_entry_id`. An issue created before that belongs to no entry until it is created again. Most issues are created again on the next start, but a [persistent](/core/integrations/repairs/#persistence) issue that is never created again may still need to be deleted in `async_remove_entry` for a while.
 
 A few things to keep in mind:
 
@@ -60,7 +60,10 @@ with ir.async_begin_issues_refresh(
                 DOMAIN,
                 f"firmware_too_old_{device.id}",
                 config_entry_id=entry.entry_id,
-                ...
+                is_fixable=False,
+                severity=ir.IssueSeverity.WARNING,
+                translation_key="firmware_too_old",
+                translation_placeholders={"version": device.firmware_version},
             )
 ```
 

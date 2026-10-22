@@ -222,7 +222,10 @@ for device in coordinator.data.devices.values():
             DOMAIN,
             f"firmware_too_old_{device.id}",
             config_entry_id=entry.entry_id,
-            ...
+            is_fixable=False,
+            severity=ir.IssueSeverity.WARNING,
+            translation_key="firmware_too_old",
+            translation_placeholders={"version": device.firmware_version},
         )
 ```
 
@@ -242,7 +245,10 @@ with ir.async_begin_issues_refresh(
                 DOMAIN,
                 f"firmware_too_old_{device.id}",
                 config_entry_id=entry.entry_id,
-                ...
+                is_fixable=False,
+                severity=ir.IssueSeverity.WARNING,
+                translation_key="firmware_too_old",
+                translation_placeholders={"version": device.firmware_version},
             )
 ```
 
@@ -266,7 +272,7 @@ The pattern is matched like `re.match`: it must match at the start of the issue 
 | `(firmware_too_old\|battery_low)_` | `firmware_too_old_abc123`, `battery_low_abc123` | `battery_lowest_abc123` |
 | `firmware_too_old_[0-9a-f]+$` | `firmware_too_old_abc123` | `firmware_too_old_abc123_warning` |
 
-End the literal part of a pattern with a separator, like `firmware_too_old_`, so it does not also match an issue like `firmware_too_old_warning`. To match several kinds of issues, put the alternatives in a group, like `(firmware_too_old|battery_low)_`, so the separator applies to each of them.
+End the literal part of a pattern with a separator, like the `_` in `battery_low_`, so it does not also match an issue like `battery_lowest_abc123`. To match several kinds of issues, put the alternatives in a group, like `(firmware_too_old|battery_low)_`, so the separator applies to each of them.
 
 Characters like `.`, `+`, `(` and `|` have a special meaning in a regular expression. When you build the literal part of a pattern from values at runtime, like a list of issue types or a device ID, escape them with `re.escape`. Pass a compiled pattern when you use it more than once:
 
@@ -296,7 +302,10 @@ You do not create issues through the refresh. Any call to `ir.async_create_issue
 
 ```python
 with ir.async_begin_issues_refresh(
-    hass, DOMAIN, issue_id_pattern="invalid_config_"
+    hass,
+    DOMAIN,
+    issue_id_pattern="invalid_config_",
+    config_entry_id=entry.entry_id,
 ):
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 ```
@@ -309,7 +318,10 @@ Sometimes you cannot tell whether an issue is still valid. The device did not an
 
 ```python
 with ir.async_begin_issues_refresh(
-    hass, DOMAIN, issue_id_pattern="firmware_too_old_"
+    hass,
+    DOMAIN,
+    issue_id_pattern="firmware_too_old_",
+    config_entry_id=entry.entry_id,
 ) as refresh:
     for device in devices:
         issue_id = f"firmware_too_old_{device.id}"
@@ -319,7 +331,16 @@ with ir.async_begin_issues_refresh(
             refresh.async_keep([issue_id])
             continue
         if version < MINIMUM_FIRMWARE:
-            ir.async_create_issue(hass, DOMAIN, issue_id, ...)
+            ir.async_create_issue(
+                hass,
+                DOMAIN,
+                issue_id,
+                config_entry_id=entry.entry_id,
+                is_fixable=False,
+                severity=ir.IssueSeverity.WARNING,
+                translation_key="firmware_too_old",
+                translation_placeholders={"version": version},
+            )
 ```
 
 `async_keep` takes a list of issue IDs. It does not create or change the issues. Issues outside the set of the refresh are ignored.
@@ -343,7 +364,9 @@ def _async_check_stream_issue(
             DOMAIN,
             issue_id,
             config_entry_id=entry.entry_id,
-            ...
+            is_fixable=False,
+            severity=ir.IssueSeverity.WARNING,
+            translation_key="rtsp_disabled",
         )
 ```
 
@@ -443,7 +466,9 @@ def update_issues(hass: HomeAssistant) -> None:
                     hass,
                     DOMAIN,
                     issue_id,
-                    ...
+                    is_fixable=False,
+                    severity=ir.IssueSeverity.WARNING,
+                    translation_key="units_changed",
                     translation_placeholders=placeholders,
                 )
 
