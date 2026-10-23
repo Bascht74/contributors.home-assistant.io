@@ -118,7 +118,6 @@ A few things to keep in mind:
 - Creating an issue that already exists replaces its `config_entry_id`, also when you leave `config_entry_id` out. Pass it every time you create the issue.
 - Issues that belong to a config entry that no longer exists are deleted when Home Assistant starts.
 - While the entry is disabled, the issue is hidden from **Repairs** and from the `issues()` template function, but not deleted. When the user enables the entry again, the issue is back, ignored or not.
-- For an issue about an entity, use the config entry that owns the entity, `entity_entry.config_entry_id`. That entry can belong to another integration than the one creating the issue, which is fine.
 - Do not set `config_entry_id` on an issue about a config entry that is about to remove itself, like the entry of an integration that is migrated to another one. The notice about the migration would be deleted together with the entry.
 - An issue created before your integration set `config_entry_id` belongs to no entry until it is created again. Most issues are created again on the next start. A [persistent](#persistence) issue that is never created again may still need to be deleted in `async_remove_entry` for a while.
 
@@ -205,7 +204,7 @@ Often, your integration checks a whole set of issues at once: one per device, pe
 
 It's tempting to delete all the issues first, and then create the ones that are still valid. Don't: every problem that is still there gets a brand new issue. Users see issues disappear and come back, and every issue they ignored shows up again. Keeping track of which issues you created yourself takes a lot of code, and it still misses the issues from before a restart.
 
-A refresh does it for you. You begin a refresh for a set of issues, create the issues that are still valid, and finish the refresh. Finishing deletes the issues of the set that were not created again. The ones that were created again were never deleted, so they stay ignored, and users see no change.
+An issue refresh does it for you. You begin a refresh for a set of issues, create the issues that are still valid, and finish the refresh. Finishing deletes the issues of the set that were not created again. The ones that were created again were never deleted, so they stay ignored, and users see no change.
 
 Before:
 
@@ -254,7 +253,7 @@ with ir.async_begin_issues_refresh(
 
 ### Choose the issues to refresh
 
-`async_begin_issues_refresh` takes the domain of the issues, and narrows down the set with these arguments:
+`ir.async_begin_issues_refresh` returns an `IssuesRefresh`. It takes the domain of the issues, and narrows down the set with these arguments:
 
 | Argument | What it selects |
 | --- | --- |
@@ -264,17 +263,7 @@ with ir.async_begin_issues_refresh(
 
 Pass `issue_id_pattern` or `issue_ids`, not both: that raises `ValueError`. Pass neither to refresh every issue of the domain.
 
-The pattern is matched like `re.match`: it must match at the start of the issue ID, and the rest of the ID can be anything. A plain prefix like `firmware_too_old_` is therefore a valid pattern, and matches every issue ID that starts with it. A pattern does not match in the middle of an ID unless it starts with `.*`, and it only has to match the whole ID if it ends with `$`.
-
-| Pattern | Matches | Does not match |
-| --- | --- | --- |
-| `firmware_too_old_` | `firmware_too_old_abc123` | `firmware_too_old`, `device_firmware_too_old_abc123` |
-| `(firmware_too_old\|battery_low)_` | `firmware_too_old_abc123`, `battery_low_abc123` | `battery_lowest_abc123` |
-| `firmware_too_old_[0-9a-f]+$` | `firmware_too_old_abc123` | `firmware_too_old_abc123_warning` |
-
-End the literal part of a pattern with a separator, like the `_` in `battery_low_`, so it does not also match an issue like `battery_lowest_abc123`. To match several kinds of issues, put the alternatives in a group, like `(firmware_too_old|battery_low)_`, so the separator applies to each of them.
-
-Characters like `.`, `+`, `(` and `|` have a special meaning in a regular expression. When you build the literal part of a pattern from values at runtime, like a list of issue types or a device ID, escape them with `re.escape`. Pass a compiled pattern when you use it more than once:
+The pattern is matched with `re.match`, from the start of the issue ID. A plain prefix like `firmware_too_old_` is therefore a valid pattern. End it with a separator, like the `_` in `battery_low_`, so it does not also match `battery_lowest_abc123`. Pass a compiled pattern when you use it more than once:
 
 ```python
 import re
@@ -298,23 +287,34 @@ The set is decided when the refresh begins. It includes issues from before a res
 
 ### Create the issues anywhere
 
-You do not create issues through the refresh. Any call to `ir.async_create_issue` for an issue of the set keeps it. That means the issues do not have to be created in the `with` block itself: your platforms, entities, or callbacks can create them, as long as that happens before the refresh finishes. The `with` block can await, so it can wrap something like setting up your platforms:
+You do not create issues through the refresh. Any call to `ir.async_create_issue` for an issue of the set keeps it. That means the issues do not have to be created in the `with` block itself: helpers and callbacks that check the issues can create them, as long as that happens before the refresh finishes. The `with` block can await, too.
+
+Put the refresh around the code that checks the issues, and nothing more. When a platform checks issues while it creates its entities, begin the refresh in the `async_setup_entry` of that platform:
 
 ```python
-with ir.async_begin_issues_refresh(
-    hass,
-    DOMAIN,
-    issue_id_pattern="invalid_config_",
-    config_entry_id=entry.entry_id,
-):
-    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+async def async_setup_entry(
+    hass: HomeAssistant,
+    entry: ExampleConfigEntry,
+    async_add_entities: AddConfigEntryEntitiesCallback,
+) -> None:
+    """Set up the cameras."""
+    with ir.async_begin_issues_refresh(
+        hass,
+        DOMAIN,
+        issue_id_pattern="rtsp_disabled_",
+        config_entry_id=entry.entry_id,
+    ):
+        entities = _async_camera_entities(hass, entry)
+    async_add_entities(entities)
 ```
+
+Do not wrap `async_forward_entry_setups` in a refresh. When a platform fails to set up, or raises `PlatformNotReady` and is retried later, `async_forward_entry_setups` does not raise. The refresh then finishes before the platform checked its issues, and deletes them, also the ones users ignored.
 
 This only works when your issue IDs are stable: the same problem must get the same ID after a reload or a restart. Build them from things that do not change, like the ID of a device. Do not use a counter, or Python's `hash()`, which gives a different result every time Home Assistant starts.
 
 ### Keep issues you could not check
 
-Sometimes you cannot tell whether an issue is still valid. The device did not answer, or the data you need is not there yet. Deleting the issue would be wrong, and so would creating it again with stale information. Call `async_keep` to leave those issues as they are:
+Sometimes you cannot tell whether an issue is still valid. The device did not answer, or the data you need is not there yet. Deleting the issue would be wrong, and so would creating it again with stale information. Call `IssuesRefresh.async_keep` to leave those issues as they are:
 
 ```python
 with ir.async_begin_issues_refresh(
@@ -378,8 +378,8 @@ It also helps when the issue is checked too late for the refresh. Say an entity 
 
 A refresh ends in one of two ways:
 
-- `async_finish()` deletes the issues of the set that were not created or kept since the refresh began.
-- `async_cancel()` deletes only the issues whose delete was [deferred to the refresh](#delete-an-issue-during-a-refresh). Other issues are left as they are, until the next refresh that finishes. Use it when the check did not complete, so you cannot tell which issues are stale.
+- `IssuesRefresh.async_finish()` deletes the issues of the set that were not created or kept since the refresh began.
+- `IssuesRefresh.async_cancel()` deletes only the issues whose delete was [deferred to the refresh](#delete-an-issue-during-a-refresh). Other issues are left as they are, until the next refresh that finishes. Use it when the check did not complete, so you cannot tell which issues are stale.
 
 Once a refresh has ended, calling `async_finish()` or `async_cancel()` again does nothing.
 
@@ -440,7 +440,7 @@ Two refreshes can include the same issue, for example when a reload starts while
 - An older refresh does not delete an issue while a newer one includes it, and does not delete an issue that a newer one kept.
 - When the newer refresh ends without deleting the issue, for example because it is cancelled, the older one decides again. It deletes the issue only if the issue was not created or kept since the older refresh began.
 - A deferred delete that arrives after the newer refresh has ended waits for the older one.
-- `async_keep` on a refresh keeps the issue for that refresh and older ones, not for a newer one. `ir.async_keep_issue` keeps it in all of them.
+- `IssuesRefresh.async_keep` keeps the issue for that refresh and older ones, not for a newer one. `ir.async_keep_issue` keeps it in all of them.
 
 ### Refresh from another thread
 
