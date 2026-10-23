@@ -25,7 +25,7 @@ Cover entities have these properties on top of the [generic entity properties](/
 | `device_class` | `CoverDeviceClass \| None` | `None` | What kind of cover it is. See [Device classes](#device-classes). |
 | `supported_speeds` | `list[str] \| None` | `None` | The speeds the cover can move at when it opens, closes, or moves to a position. `None` or an empty list means no speed selection. |
 
-When you set `supported_speeds` to a list, Home Assistant adds it as the `supported_speeds` attribute, and checks the `speed` in an action against it before it calls you. A speed that is not in the list raises a validation error. Without speeds, a `speed` in an action is dropped.
+When you set `supported_speeds` to a list, Home Assistant adds it as the `supported_speeds` attribute, and checks the `speed` in an action against it before it calls you. A speed that is not in the list is dropped, and the cover moves at its default speed. Without speeds, a `speed` in an action is dropped.
 
 ## Device classes
 
