@@ -5,7 +5,7 @@ sidebarLabel: Continuous integration
 sidebarGroup: Ship
 order: 2
 source: https://github.com/home-assistant/android/tree/main/.github/workflows
-lastVerified: 2026-10-14
+lastVerified: 2026-10-27
 ---
 
 The Android app uses GitHub Actions for everything: checking pull requests, building releases, and shipping them to the stores with [Fastlane](https://fastlane.tools/). Shared steps live as local actions in `.github/actions`.
@@ -18,6 +18,7 @@ The app uses [calendar versioning](https://calver.org/), like Home Assistant Cor
 | --- | --- | --- |
 | `pr.yml` | On every pull request | Lint, build, test, and attach APKs |
 | `pr-emulator-wtf.yml` | After `pr.yml` finishes | Run the `:app` instrumentation tests on Emulator.wtf |
+| `zizmor.yml` | On every pull request, and Mondays at 05:30 UTC | Scan the workflows and local actions themselves with [zizmor](https://docs.zizmor.sh/) and upload the findings to Code Scanning |
 | `onPush.yml` | On every push to `main` | Build release versions and publish them to the internal track of the Play Store |
 | `weekly.yml` | Sundays at 04:00 UTC | Tag a new version and run `onPush.yml` with the `beta` flag, which creates a GitHub pre-release and promotes the build to the beta track |
 | `e2e.yml` | Daily at 05:00 UTC | Run the [end-to-end test](/companion/android/e2e-testing/) against a real Home Assistant. When it fails, it starts `e2e-triage`, an agentic workflow that looks into the failure and reports it in an issue |
@@ -37,6 +38,7 @@ The app uses [calendar versioning](https://calver.org/), like Home Assistant Cor
 - That every app builds, in debug and release.
 - That no existing database schema in `common/schemas` was changed, and that the build doesn't produce schema changes you forgot to commit. To change the database, increase its version instead.
 - If your pull request changes the Lokalise setup in `.github/actions/download-translations`, that the translations still download.
+- `zizmor.yml` scans every workflow and local action with [zizmor](https://docs.zizmor.sh/) in pedantic mode, whether or not your pull request touches them. The generated `e2e-triage.lock.yml` is skipped, since it can't be edited by hand. Any finding fails the check, and the findings also appear as Code Scanning annotations on your pull request. See [changing a workflow](#changing-a-workflow).
 - It uploads the APKs as an artifact, so anyone can [test your change](/companion/android/get-started/#test-a-pull-request-build).
 
 Debug builds on CI use the mock Firebase file in `.github/mock-google-services.json`.
@@ -68,6 +70,9 @@ So every merged pull request reaches internal testers. See [releases](/companion
 - Put steps that more than one workflow needs in a local action in `.github/actions`, instead of copying them.
 - Choose triggers carefully. Every run costs resources, so a workflow should only run when its result matters.
 - Never put secrets in a workflow file. Pass them in from the repository secrets at run time, like the existing workflows do.
+- Keep [zizmor](https://docs.zizmor.sh/) happy: name every job, give it only the permissions it needs with a comment saying why, set a `concurrency` group, and pin actions to a commit SHA.
+- Suppress a false positive on the flagged line with `# zizmor: ignore[rule-name]` and a reason, like `pr-emulator-wtf.yml` does. Don't ignore whole files.
+- The Monday run also checks for new advisories and stale pins, and opens or comments on a `zizmor-failure` issue when it fails.
 
 ## F-Droid
 
